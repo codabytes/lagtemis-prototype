@@ -1,0 +1,232 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: institutions
+    // Fields: name (string), type (string: Public|Private), address (string), website (string)
+    //
+    // Collection: faculties
+    // Fields: name (string), institutionId (string), type (string: faculty|directorate)
+    //
+    // Collection: departments
+    // Fields: name (string), facultyId (string), isSTEM (bool), type (string: department|unit)
+    //
+    // Collection: students
+    // Fields: lasrraId (string), firstName (string), otherName (string), lastName (string), dob (string), sex (string), matricNumber (string), institutionId (string), facultyId (string), departmentId (string), admissionYear (string), graduationYear (string), enrollmentStatus (string), certificateVerified (bool)
+    //
+    // Collection: staff
+    // Fields: lasrraId (string), staffId (string), title (string), surname (string), firstName (string), otherName (string), gender (string), dob (string), institutionId (string), facultyId (string), departmentId (string), designation (string), gradeLevel (string), dateOfFirstAppointment (string), dateOfConfirmation (string), dateOfLastPromotion (string), highestQualification (string), specialization (string), employmentStatus (string)
+    //
+    // Collection: publications
+    // Fields: staffId (string), outputId (string), title (string), type (string), year (int), abstract (string), fundingSource (string)
+    //
+    // Collection: facilities
+    // Fields: assetId (string), name (string), type (string), institutionId (string), campus (string), location (string), custodianId (string), capacity (int), dateCompleted (string), fundingSource (string)
+    //
+    // Collection: trainings
+    // Fields: trainingId (string), staffId (string), title (string), type (string), date (string), duration (string), location (string), isInternational (bool), provider (string), fundingSource (string)
+    //
+    // Collection: users
+    // Fields: email (string), role (string), institutionId (string)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isDefaultAdmin() {
+      return isAuthenticated() && 
+             request.auth.token.email == "olurantidiyan@gmail.com" && 
+             request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isDefaultAdmin() || 
+        (isAuthenticated() && 
+         exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'SuperUser');
+    }
+
+    function isMinistryUser() {
+      return isAuthenticated() && 
+        (isAdmin() || 
+         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'MinistryUser'));
+    }
+
+    function isTechnicalUser() {
+      return isAuthenticated() && 
+        (isAdmin() || 
+         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'TechnicalUser'));
+    }
+
+    function isInstitutionalAdmin(instId) {
+      return isAuthenticated() && 
+        (isAdmin() || 
+         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'InstitutionalAdmin' && 
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.institutionId == instId));
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidString(field, min, max) {
+      return request.resource.data[field] is string && 
+             request.resource.data[field].size() >= min && 
+             request.resource.data[field].size() <= max;
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidInstitution() {
+      return hasRequiredFields(['name', 'type']) &&
+             isValidString('name', 2, 100) &&
+             request.resource.data.type in ['Public', 'Private'];
+    }
+
+    function isValidFaculty() {
+      return hasRequiredFields(['name', 'institutionId', 'type']) &&
+             isValidString('name', 2, 100) &&
+             request.resource.data.type in ['faculty', 'directorate'];
+    }
+
+    function isValidDepartment() {
+      return hasRequiredFields(['name', 'facultyId', 'isSTEM', 'type']) &&
+             isValidString('name', 2, 100) &&
+             request.resource.data.isSTEM is bool &&
+             request.resource.data.type in ['department', 'unit'];
+    }
+
+    function isValidStudent() {
+      return hasRequiredFields(['lasrraId', 'firstName', 'lastName', 'matricNumber', 'institutionId', 'facultyId', 'departmentId', 'admissionYear', 'enrollmentStatus']) &&
+             isValidString('lasrraId', 1, 50) &&
+             isValidString('firstName', 1, 50) &&
+             isValidString('lastName', 1, 50) &&
+             isValidString('matricNumber', 1, 50) &&
+             request.resource.data.admissionYear is string &&
+             request.resource.data.enrollmentStatus in ['Enrolled', 'Graduated', 'Withdrawn', 'Suspended', 'Rusticated', 'Archived'];
+    }
+
+    function isValidStaff() {
+      return hasRequiredFields(['lasrraId', 'staffId', 'title', 'surname', 'firstName', 'gender', 'dob', 'institutionId', 'departmentId', 'designation', 'gradeLevel', 'dateOfFirstAppointment', 'dateOfConfirmation', 'dateOfLastPromotion', 'highestQualification', 'employmentStatus', 'staffType']) &&
+             request.resource.data.gender in ['Male', 'Female'] &&
+             request.resource.data.staffType in ['Academic', 'Non-Academic'] &&
+             request.resource.data.employmentStatus in ['Active', 'On Study Leave', 'On Sabbatical', 'On Leave of Absence', 'On Suspension', 'Appointment Terminated', 'Dismissed', 'Retired'];
+    }
+
+    function isValidPublication() {
+      return hasRequiredFields(['staffId', 'outputId', 'title', 'type', 'year', 'fundingSource']) &&
+             request.resource.data.year is int;
+    }
+
+    function isValidTraining() {
+      return hasRequiredFields(['trainingId', 'staffId', 'title', 'type', 'date', 'duration', 'location', 'isInternational', 'provider', 'fundingSource']) &&
+             request.resource.data.isInternational is bool;
+    }
+
+    function isValidFacility() {
+      return hasRequiredFields(['assetId', 'name', 'type', 'institutionId', 'campus', 'location', 'custodianId', 'capacity', 'dateCompleted', 'fundingSource']) &&
+             request.resource.data.capacity is int;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isDefaultAdmin());
+      allow create: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow update: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+    }
+
+    match /logs/{id} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if false;
+    }
+
+    match /institutions/{id} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /faculties/{id} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin() && isValidFaculty();
+      allow update: if isAdmin() && isValidFaculty();
+      allow delete: if isAdmin();
+    }
+
+    match /departments/{id} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin() && isValidDepartment();
+      allow update: if isAdmin() && isValidDepartment();
+      allow delete: if isAdmin();
+    }
+
+    match /students/{id} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin() && isValidStudent();
+      allow update: if isAdmin() && isValidStudent();
+      allow delete: if isAdmin();
+    }
+
+    match /staff/{id} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin() && isValidStaff();
+      allow update: if isAdmin() && isValidStaff();
+      allow delete: if isAdmin();
+    }
+
+    match /publications/{id} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidPublication();
+      allow update: if isAdmin() && isValidPublication();
+      allow delete: if isAdmin();
+    }
+
+    match /facilities/{id} {
+      allow read: if isAuthenticated();
+      allow create: if (isTechnicalUser() || isInstitutionalAdmin(request.resource.data.institutionId)) && isValidFacility();
+      allow update: if (isTechnicalUser() || isInstitutionalAdmin(resource.data.institutionId)) && isValidFacility();
+      allow delete: if isAdmin();
+    }
+
+    match /maintenance_logs/{id} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin();
+    }
+
+    match /trainings/{id} {
+      allow read: if isAuthenticated();
+      allow create: if (isTechnicalUser() || isAdmin()) && isValidTraining();
+      allow update: if isAdmin() && isValidTraining();
+      allow delete: if isAdmin();
+    }
+
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}

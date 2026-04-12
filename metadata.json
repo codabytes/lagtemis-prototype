@@ -1,0 +1,5 @@
+{
+  "name": "TEMIS - Tertiary Education Management Information System",
+  "description": "TEMIS is a secure management system for Lagos State Tertiary Education. It features role-based access control for managing institutional hierarchies, student verifications, academic/non-academic staff, facility maintenance, research outputs, and professional training, providing a centralized databank for evidence-based policy oversight.",
+  "requestFramePermissions": []
+}

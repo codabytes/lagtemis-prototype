@@ -1,0 +1,196 @@
+{
+  "entities": {
+    "Institution": {
+      "title": "Institution",
+      "description": "A tertiary institution in Lagos State.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Name of the institution." },
+        "type": { "type": "string", "enum": ["Public", "Private"], "description": "Type of institution." },
+        "address": { "type": "string" },
+        "website": { "type": "string" }
+      },
+      "required": ["name", "type"]
+    },
+    "Faculty": {
+      "title": "Faculty",
+      "description": "A faculty or directorate within an institution.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "institutionId": { "type": "string", "description": "ID of the parent institution." },
+        "type": { "type": "string", "enum": ["faculty", "directorate"] }
+      },
+      "required": ["name", "institutionId", "type"]
+    },
+    "Department": {
+      "title": "Department",
+      "description": "A department or unit within a faculty/directorate.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "facultyId": { "type": "string" },
+        "isSTEM": { "type": "boolean", "description": "Whether the department is STEM-focused." },
+        "type": { "type": "string", "enum": ["department", "unit"] }
+      },
+      "required": ["name", "facultyId", "type"]
+    },
+    "Student": {
+      "title": "Student",
+      "description": "A student record.",
+      "type": "object",
+      "properties": {
+        "lasrraId": { "type": "string" },
+        "firstName": { "type": "string" },
+        "otherName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "dob": { "type": "string", "format": "date" },
+        "sex": { "type": "string", "enum": ["Male", "Female"] },
+        "matricNumber": { "type": "string" },
+        "institutionId": { "type": "string" },
+        "facultyId": { "type": "string" },
+        "departmentId": { "type": "string" },
+        "admissionYear": { "type": "string", "format": "date" },
+        "graduationYear": { "type": "string", "format": "date" },
+        "enrollmentStatus": { "type": "string", "enum": ["Enrolled", "Graduated", "Withdrawn", "Suspended", "Rusticated", "Archived"] },
+        "certificateVerified": { "type": "boolean" },
+        "picture": { "type": "string", "description": "Base64 encoded passport photograph." }
+      },
+      "required": ["lasrraId", "firstName", "lastName", "matricNumber", "institutionId", "facultyId", "departmentId", "admissionYear", "status"]
+    },
+    "Staff": {
+      "title": "Staff",
+      "description": "A staff member record.",
+      "type": "object",
+      "properties": {
+        "lasrraId": { "type": "string" },
+        "staffId": { "type": "string" },
+        "title": { "type": "string" },
+        "surname": { "type": "string" },
+        "firstName": { "type": "string" },
+        "otherName": { "type": "string" },
+        "gender": { "type": "string", "enum": ["Male", "Female"] },
+        "dob": { "type": "string", "format": "date" },
+        "institutionId": { "type": "string" },
+        "facultyId": { "type": "string" },
+        "departmentId": { "type": "string" },
+        "designation": { "type": "string" },
+        "gradeLevel": { "type": "string" },
+        "dateOfFirstAppointment": { "type": "string", "format": "date" },
+        "dateOfConfirmation": { "type": "string", "format": "date" },
+        "dateOfLastPromotion": { "type": "string", "format": "date" },
+        "highestQualification": { "type": "string" },
+        "specialization": { "type": "string" },
+        "employmentStatus": { "type": "string", "enum": ["Active", "On Study Leave", "On Sabbatical", "On Leave of Absence", "On Suspension", "Appointment Terminated", "Dismissed", "Retired"] },
+        "staffType": { "type": "string", "enum": ["Academic", "Non-Academic"] },
+        "picture": { "type": "string" }
+      },
+      "required": ["lasrraId", "staffId", "title", "surname", "firstName", "gender", "dob", "institutionId", "departmentId", "designation", "gradeLevel", "dateOfFirstAppointment", "dateOfConfirmation", "dateOfLastPromotion", "highestQualification", "employmentStatus", "staffType"]
+    },
+    "Publication": {
+      "title": "Publication",
+      "description": "A research publication or output.",
+      "type": "object",
+      "properties": {
+        "staffId": { "type": "string" },
+        "outputId": { "type": "string" },
+        "title": { "type": "string" },
+        "type": { "type": "string" },
+        "year": { "type": "integer" },
+        "abstract": { "type": "string" },
+        "fundingSource": { "type": "string" }
+      },
+      "required": ["staffId", "outputId", "title", "type", "year", "fundingSource"]
+    },
+    "Facility": {
+      "title": "Facility",
+      "description": "A building or facility.",
+      "type": "object",
+      "properties": {
+        "assetId": { "type": "string" },
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "description": { "type": "string" },
+        "institutionId": { "type": "string" },
+        "campus": { "type": "string" },
+        "location": { "type": "string" },
+        "custodianId": { "type": "string" },
+        "capacity": { "type": "integer" },
+        "dateCompleted": { "type": "string", "format": "date" },
+        "fundingSource": { "type": "string" },
+        "lastMaintenanceDate": { "type": "string", "format": "date" }
+      },
+      "required": ["assetId", "name", "type", "institutionId", "campus", "location", "custodianId", "capacity", "dateCompleted", "fundingSource"]
+    },
+    "Training": {
+      "title": "Training",
+      "description": "A professional development training record.",
+      "type": "object",
+      "properties": {
+        "trainingId": { "type": "string" },
+        "staffId": { "type": "string" },
+        "title": { "type": "string" },
+        "type": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "duration": { "type": "string" },
+        "location": { "type": "string" },
+        "isInternational": { "type": "boolean" },
+        "provider": { "type": "string" },
+        "fundingSource": { "type": "string" }
+      },
+      "required": ["trainingId", "staffId", "title", "type", "date", "duration", "location", "isInternational", "provider", "fundingSource"]
+    },
+    "MaintenanceLog": {
+      "title": "MaintenanceLog",
+      "description": "A record of maintenance performed on a facility.",
+      "type": "object",
+      "properties": {
+        "facilityId": { "type": "string" },
+        "facilityName": { "type": "string" },
+        "maintenanceType": { "type": "string", "enum": ["Preventive", "Corrective", "Predictive"] },
+        "workPerformed": { "type": "string" },
+        "completedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["facilityId", "facilityName", "maintenanceType", "workPerformed", "completedAt"]
+    },
+    "User": {
+      "title": "User",
+      "description": "A system user.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["SuperUser", "MinistryUser", "TechnicalUser", "InstitutionalAdmin"] },
+        "institutionId": { "type": "string", "description": "Only for InstitutionalAdmin" }
+      },
+      "required": ["email", "role"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "A log of data entry and edits.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "action": { "type": "string", "enum": ["CREATE", "UPDATE", "DELETE", "PURGE"] },
+        "collection": { "type": "string" },
+        "docId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "details": { "type": "string" }
+      },
+      "required": ["userId", "userEmail", "action", "collection", "docId", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/institutions/{id}": { "schema": "Institution", "description": "Tertiary institutions." },
+    "/faculties/{id}": { "schema": "Faculty", "description": "Faculties within institutions." },
+    "/departments/{id}": { "schema": "Department", "description": "Departments within faculties." },
+    "/students/{id}": { "schema": "Student", "description": "Student records." },
+    "/staff/{id}": { "schema": "Staff", "description": "Staff records." },
+    "/publications/{id}": { "schema": "Publication", "description": "Research publications." },
+    "/facilities/{id}": { "schema": "Facility", "description": "Institutional facilities." },
+    "/maintenance_logs/{id}": { "schema": "MaintenanceLog", "description": "Facility maintenance records." },
+    "/trainings/{id}": { "schema": "Training", "description": "Professional training records." },
+    "/users/{id}": { "schema": "User", "description": "System users and roles." },
+    "/logs/{id}": { "schema": "AuditLog", "description": "System audit logs." }
+  }
+}
