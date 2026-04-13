@@ -83,7 +83,7 @@ export const Dashboard: React.FC = () => {
       if (hasPurged) return;
 
       console.log('Starting global purge of non-institutional tables...');
-      const collectionsToPurge = ['students', 'staff', 'facilities', 'publications', 'training_records', 'logs', 'maintenance_logs'];
+      const collectionsToPurge = ['students', 'staff', 'facilities', 'publications', 'trainings', 'logs', 'maintenance_logs'];
       
       try {
         for (const coll of collectionsToPurge) {
