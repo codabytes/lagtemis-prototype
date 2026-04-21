@@ -52,6 +52,8 @@
         "departmentId": { "type": "string" },
         "admissionYear": { "type": "string", "format": "date" },
         "graduationYear": { "type": "string", "format": "date" },
+        "qualificationType": { "type": "string", "description": "e.g., B.Sc, HND, OND, NCE." },
+        "qualificationClass": { "type": "string", "description": "e.g., First Class, Distinction." },
         "enrollmentStatus": { "type": "string", "enum": ["Enrolled", "Graduated", "Withdrawn", "Suspended", "Rusticated", "Archived"] },
         "certificateVerified": { "type": "boolean" },
         "picture": { "type": "string", "description": "Base64 encoded passport photograph." }
@@ -155,12 +157,13 @@
     },
     "User": {
       "title": "User",
-      "description": "A system user.",
+      "description": "A system user account.",
       "type": "object",
       "properties": {
         "email": { "type": "string" },
-        "role": { "type": "string", "enum": ["SuperUser", "MinistryUser", "TechnicalUser", "InstitutionalAdmin"] },
-        "institutionId": { "type": "string", "description": "Only for InstitutionalAdmin" }
+        "role": { "type": "string", "enum": ["SuperUser", "DirectorAdminHR", "DirectorStandards", "DirectorInspection", "DirectorInfrastructure", "DirectorResearch", "Deactivated"] },
+        "institutionId": { "type": "string" },
+        "requiresPasswordChange": { "type": "boolean" }
       },
       "required": ["email", "role"]
     },

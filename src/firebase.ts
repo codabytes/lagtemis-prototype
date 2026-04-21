@@ -1,5 +1,13 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { 
+  getAuth, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  signOut,
+  signInWithEmailAndPassword,
+  updatePassword,
+  sendPasswordResetEmail
+} from 'firebase/auth';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
 
@@ -76,5 +84,12 @@ export async function logAudit(action: 'CREATE' | 'UPDATE' | 'DELETE' | 'PURGE',
   }
 }
 
+export const loginWithEmail = (email: string, pass: string) => signInWithEmailAndPassword(auth, email, pass);
 export const loginWithGoogle = () => signInWithPopup(auth, googleProvider);
 export const logout = () => signOut(auth);
+export const changeUserPassword = (newPass: string) => {
+  const user = auth.currentUser;
+  if (!user) throw new Error('No user logged in');
+  return updatePassword(user, newPass);
+};
+export const resetPassword = (email: string) => sendPasswordResetEmail(auth, email);

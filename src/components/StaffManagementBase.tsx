@@ -30,6 +30,8 @@ const INITIAL_STAFF_STATE: Partial<Staff> = {
   otherName: '',
   gender: 'Male',
   dob: '',
+  mobilePhone: '',
+  email: '',
   institutionId: '',
   departmentId: '',
   facultyId: '',
@@ -462,23 +464,50 @@ export const StaffManagementBase: React.FC<StaffManagementBaseProps> = ({ staffT
                   <input required type="date" value={newStaff.dob} onChange={(e) => setNewStaff({ ...newStaff, dob: e.target.value })} className="w-full px-4 py-2 bg-slate-50 rounded-xl outline-none transition-all" />
                 </div>
                 <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Mobile Phone</label>
+                  <input type="tel" value={newStaff.mobilePhone} onChange={(e) => setNewStaff({ ...newStaff, mobilePhone: e.target.value })} className="w-full px-4 py-2 bg-slate-50 rounded-xl outline-none transition-all" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Email Address</label>
+                  <input type="email" value={newStaff.email} onChange={(e) => setNewStaff({ ...newStaff, email: e.target.value })} className="w-full px-4 py-2 bg-slate-50 rounded-xl outline-none transition-all" />
+                </div>
+                <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Institution</label>
-                  <select required value={newStaff.institutionId} onChange={(e) => setNewStaff({ ...newStaff, institutionId: e.target.value, departmentId: '', facultyId: '' })} className="w-full px-4 py-2 bg-slate-50 rounded-xl outline-none transition-all">
+                  <select required value={newStaff.institutionId} onChange={(e) => setNewStaff({ ...newStaff, institutionId: e.target.value, facultyId: '', departmentId: '' })} className="w-full px-4 py-2 bg-slate-50 rounded-xl outline-none transition-all">
                     <option value="">Select</option>
                     {institutions.map(inst => <option key={inst.id} value={inst.id}>{inst.name}</option>)}
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Department/Unit</label>
-                  <select required value={newStaff.departmentId} onChange={(e) => {
-                    const dept = departments.find(d => d.id === e.target.value);
-                    setNewStaff({ ...newStaff, departmentId: e.target.value, facultyId: dept?.facultyId || '' });
-                  }} className="w-full px-4 py-2 bg-slate-50 rounded-xl outline-none transition-all">
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Faculty/Directorate</label>
+                  <select 
+                    required 
+                    disabled={!newStaff.institutionId}
+                    value={newStaff.facultyId} 
+                    onChange={(e) => setNewStaff({ ...newStaff, facultyId: e.target.value, departmentId: '' })} 
+                    className="w-full px-4 py-2 bg-slate-50 rounded-xl outline-none transition-all disabled:opacity-50"
+                  >
                     <option value="">Select</option>
-                    {departments.filter(d => {
-                      const faculty = faculties.find(f => f.id === d.facultyId);
-                      return faculty && faculty.institutionId === newStaff.institutionId;
-                    }).map(dept => <option key={dept.id} value={dept.id}>{dept.name}</option>)}
+                    {faculties
+                      .filter(f => f.institutionId === newStaff.institutionId)
+                      .map(f => <option key={f.id} value={f.id}>{f.name}</option>)
+                    }
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Department/Unit</label>
+                  <select 
+                    required 
+                    disabled={!newStaff.facultyId}
+                    value={newStaff.departmentId} 
+                    onChange={(e) => setNewStaff({ ...newStaff, departmentId: e.target.value })} 
+                    className="w-full px-4 py-2 bg-slate-50 rounded-xl outline-none transition-all disabled:opacity-50"
+                  >
+                    <option value="">Select</option>
+                    {departments
+                      .filter(d => d.facultyId === newStaff.facultyId)
+                      .map(dept => <option key={dept.id} value={dept.id}>{dept.name}</option>)
+                    }
                   </select>
                 </div>
                 <div className="space-y-2">

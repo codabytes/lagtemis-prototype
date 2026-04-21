@@ -41,7 +41,12 @@ export const FacultyItem: React.FC<FacultyItemProps> = ({
           ) : (
             <Building size={18} className="text-slate-400" />
           )}
-          <span className="text-sm font-bold text-slate-700">{faculty.name}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-bold text-slate-700">{faculty.name}</span>
+            <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 text-[8px] font-bold rounded uppercase tracking-wider">
+              {facultyDepts.length} Departments
+            </span>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           {canDelete('faculties') && (

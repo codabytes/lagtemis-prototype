@@ -16,7 +16,7 @@ service cloud.firestore {
     // Fields: name (string), facultyId (string), isSTEM (bool), type (string: department|unit)
     //
     // Collection: students
-    // Fields: lasrraId (string), firstName (string), otherName (string), lastName (string), dob (string), sex (string), matricNumber (string), institutionId (string), facultyId (string), departmentId (string), admissionYear (string), graduationYear (string), enrollmentStatus (string), certificateVerified (bool)
+    // Fields: lasrraId (string), firstName (string), otherName (string), lastName (string), dob (string), sex (string), matricNumber (string), institutionId (string), facultyId (string), departmentId (string), admissionYear (string), graduationYear (string), qualificationType (string), qualificationClass (string), enrollmentStatus (string), certificateVerified (bool)
     //
     // Collection: staff
     // Fields: lasrraId (string), staffId (string), title (string), surname (string), firstName (string), otherName (string), gender (string), dob (string), institutionId (string), facultyId (string), departmentId (string), designation (string), gradeLevel (string), dateOfFirstAppointment (string), dateOfConfirmation (string), dateOfLastPromotion (string), highestQualification (string), specialization (string), employmentStatus (string)
@@ -50,32 +50,16 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isDefaultAdmin() || 
-        (isAuthenticated() && 
-         exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'SuperUser');
+      return isAuthenticated() && 
+        (request.auth.token.email == "olurantidiyan@gmail.com" || 
+         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'SuperUser'));
     }
 
-    function isMinistryUser() {
+    function hasRole(role) {
       return isAuthenticated() && 
-        (isAdmin() || 
-         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'MinistryUser'));
-    }
-
-    function isTechnicalUser() {
-      return isAuthenticated() && 
-        (isAdmin() || 
-         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'TechnicalUser'));
-    }
-
-    function isInstitutionalAdmin(instId) {
-      return isAuthenticated() && 
-        (isAdmin() || 
-         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'InstitutionalAdmin' && 
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.institutionId == instId));
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
     }
 
     function hasRequiredFields(fields) {
@@ -122,7 +106,9 @@ service cloud.firestore {
              isValidString('lastName', 1, 50) &&
              isValidString('matricNumber', 1, 50) &&
              request.resource.data.admissionYear is string &&
-             request.resource.data.enrollmentStatus in ['Enrolled', 'Graduated', 'Withdrawn', 'Suspended', 'Rusticated', 'Archived'];
+             request.resource.data.enrollmentStatus in ['Enrolled', 'Graduated', 'Withdrawn', 'Suspended', 'Rusticated', 'Archived'] &&
+             (!('qualificationType' in request.resource.data) || request.resource.data.qualificationType is string) &&
+             (!('qualificationClass' in request.resource.data) || request.resource.data.qualificationClass is string);
     }
 
     function isValidStaff() {
@@ -152,9 +138,10 @@ service cloud.firestore {
     // ===============================================================
 
     match /users/{userId} {
-      allow read: if isAuthenticated() && (request.auth.uid == userId || isDefaultAdmin());
-      allow create: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow create: if isAdmin();
       allow update: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow delete: if isAdmin();
     }
 
     match /logs/{id} {
@@ -166,63 +153,63 @@ service cloud.firestore {
 
     match /institutions/{id} {
       allow read: if isAuthenticated();
-      allow create: if isAdmin();
-      allow update: if isAdmin();
+      allow create: if isAdmin() || hasRole('DirectorInspection');
+      allow update: if isAdmin() || hasRole('DirectorInspection');
       allow delete: if isAdmin();
     }
 
     match /faculties/{id} {
       allow read: if isAuthenticated();
-      allow create: if isAdmin() && isValidFaculty();
-      allow update: if isAdmin() && isValidFaculty();
+      allow create: if (isAdmin() || hasRole('DirectorInspection')) && isValidFaculty();
+      allow update: if (isAdmin() || hasRole('DirectorInspection')) && isValidFaculty();
       allow delete: if isAdmin();
     }
 
     match /departments/{id} {
       allow read: if isAuthenticated();
-      allow create: if isAdmin() && isValidDepartment();
-      allow update: if isAdmin() && isValidDepartment();
+      allow create: if (isAdmin() || hasRole('DirectorInspection')) && isValidDepartment();
+      allow update: if (isAdmin() || hasRole('DirectorInspection')) && isValidDepartment();
       allow delete: if isAdmin();
     }
 
     match /students/{id} {
       allow read: if isAuthenticated();
-      allow create: if isAdmin() && isValidStudent();
-      allow update: if isAdmin() && isValidStudent();
+      allow create: if (isAdmin() || hasRole('DirectorStandards')) && isValidStudent();
+      allow update: if (isAdmin() || hasRole('DirectorStandards')) && isValidStudent();
       allow delete: if isAdmin();
     }
 
     match /staff/{id} {
       allow read: if isAuthenticated();
-      allow create: if isAdmin() && isValidStaff();
-      allow update: if isAdmin() && isValidStaff();
+      allow create: if (isAdmin() || hasRole('DirectorAdminHR') || hasRole('DirectorStandards')) && isValidStaff();
+      allow update: if (isAdmin() || hasRole('DirectorAdminHR') || hasRole('DirectorStandards')) && isValidStaff();
       allow delete: if isAdmin();
     }
 
     match /publications/{id} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && isValidPublication();
-      allow update: if isAdmin() && isValidPublication();
+      allow create: if (isAuthenticated() && (isAdmin() || hasRole('DirectorAdminHR'))) && isValidPublication();
+      allow update: if (isAdmin() || hasRole('DirectorAdminHR')) && isValidPublication();
       allow delete: if isAdmin();
     }
 
     match /facilities/{id} {
       allow read: if isAuthenticated();
-      allow create: if (isTechnicalUser() || isInstitutionalAdmin(request.resource.data.institutionId)) && isValidFacility();
-      allow update: if (isTechnicalUser() || isInstitutionalAdmin(resource.data.institutionId)) && isValidFacility();
+      allow create: if (isAdmin() || hasRole('DirectorInfrastructure')) && isValidFacility();
+      allow update: if (isAdmin() || hasRole('DirectorInfrastructure')) && isValidFacility();
       allow delete: if isAdmin();
     }
 
     match /maintenance_logs/{id} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
+      allow create: if isAuthenticated() && (isAdmin() || hasRole('DirectorInfrastructure'));
       allow update, delete: if isAdmin();
     }
 
     match /trainings/{id} {
       allow read: if isAuthenticated();
-      allow create: if (isTechnicalUser() || isAdmin()) && isValidTraining();
-      allow update: if isAdmin() && isValidTraining();
+      allow create: if (isAdmin() || hasRole('DirectorAdminHR')) && isValidTraining();
+      allow update: if (isAdmin() || hasRole('DirectorAdminHR')) && isValidTraining();
       allow delete: if isAdmin();
     }
 

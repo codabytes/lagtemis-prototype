@@ -4,13 +4,15 @@ export type UserRole =
   | 'DirectorStandards' 
   | 'DirectorInspection' 
   | 'DirectorInfrastructure' 
-  | 'DirectorResearch';
+  | 'DirectorResearch'
+  | 'Deactivated';
 
 export interface User {
   id: string;
   email: string;
   role: UserRole;
   institutionId?: string;
+  requiresPasswordChange?: boolean;
 }
 
 export interface Institution {
@@ -53,6 +55,8 @@ export interface Student {
   departmentId: string;
   admissionYear: string;
   graduationYear?: string | null;
+  qualificationType?: string; // e.g., B.Sc, HND, OND, NCE, PhD
+  qualificationClass?: string; // e.g., First Class, Distinction, Upper Credit
   enrollmentStatus: 'Enrolled' | 'Graduated' | 'Withdrawn' | 'Suspended' | 'Rusticated' | 'Archived';
   certificateVerified: boolean;
   picture?: string;
@@ -68,6 +72,8 @@ export interface Staff {
   otherName?: string;
   gender: 'Male' | 'Female';
   dob: string;
+  mobilePhone?: string;
+  email?: string;
   institutionId: string;
   facultyId?: string;
   departmentId: string;

@@ -47,7 +47,7 @@ const INITIAL_STAFF_STATE: Partial<Staff> = {
 
 export const AcademicStaff: React.FC = () => {
   const { user, canManage, canDelete } = useAuth();
-  const [staff, setStaff] = useState<Staff[]>([]);
+  const [staff, setStaff] = useState<(Staff & { pubCount: number; trainCount: number })[]>([]);
   const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [faculties, setFaculties] = useState<Faculty[]>([]);
@@ -89,14 +89,22 @@ export const AcademicStaff: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const [staffData, instData, deptData, facultyData] = await Promise.all([
+      const [staffData, instData, deptData, facultyData, pubData, trainData] = await Promise.all([
         dbService.list<Staff>('staff', [where('staffType', '==', 'Academic'), orderBy('surname')]),
         dbService.list<Institution>('institutions'),
         dbService.list<Department>('departments'),
-        dbService.list<Faculty>('faculties')
+        dbService.list<Faculty>('faculties'),
+        dbService.list<any>('publications'),
+        dbService.list<any>('trainings')
       ]);
 
-      setStaff(staffData);
+      const staffWithCounts = staffData.map(s => ({
+        ...s,
+        pubCount: pubData.filter(p => p.staffId === s.id).length,
+        trainCount: trainData.filter(t => t.staffId === s.id).length
+      }));
+
+      setStaff(staffWithCounts);
       setInstitutions(instData);
       setDepartments(deptData);
       setFaculties(facultyData);
@@ -151,13 +159,13 @@ export const AcademicStaff: React.FC = () => {
     e.preventDefault();
     if (!canManage('staff')) return;
     try {
-      const staffData = { ...newStaff, staffType: 'Academic' };
+      const staffData = { ...newStaff, staffType: 'Academic' as const };
       if (editingStaff) {
         await dbService.update('staff', editingStaff.id, staffData, `Updated academic staff: ${newStaff.firstName} ${newStaff.surname}`);
-        setStaff(staff.map(s => s.id === editingStaff.id ? { ...editingStaff, ...staffData } as Staff : s));
+        setStaff(staff.map(s => s.id === editingStaff.id ? { ...s, ...staffData } as any : s));
       } else {
         const id = await dbService.create('staff', staffData as any, `Added academic staff: ${newStaff.firstName} ${newStaff.surname}`);
-        setStaff([...staff, { id, ...staffData } as Staff]);
+        setStaff([...staff, { id, ...staffData, pubCount: 0, trainCount: 0 } as any]);
       }
       setIsModalOpen(false);
       setEditingStaff(null);
@@ -302,9 +310,10 @@ export const AcademicStaff: React.FC = () => {
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Staff Name</th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rank</th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Institution</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Contact Information</th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Department</th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Qualification</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Specialization</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Research</th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Employment Status</th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Actions</th>
               </tr>
@@ -358,6 +367,12 @@ export const AcademicStaff: React.FC = () => {
                       {institutions.find(i => i.id === member.institutionId)?.name || 'Unknown'}
                     </span>
                   </td>
+                  <td className="px-6 py-4 text-xs font-medium text-slate-500">
+                    <div className="flex flex-col">
+                      <span>{member.email}</span>
+                      <span className="text-slate-400">{member.mobilePhone}</span>
+                    </div>
+                  </td>
                   <td className="px-6 py-4">
                     <span className="text-sm text-slate-600">
                       {departments.find(d => d.id === member.departmentId)?.name || 'Unknown'}
@@ -367,7 +382,14 @@ export const AcademicStaff: React.FC = () => {
                     <span className="text-xs font-bold text-slate-600">{member.highestQualification}</span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="text-xs text-slate-500 italic">{member.specialization}</span>
+                    <div className="flex items-center gap-2">
+                       <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-600 text-[10px] font-bold uppercase" title="Publications">
+                         {member.pubCount || 0} Pubs
+                       </span>
+                       <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-600 text-[10px] font-bold uppercase" title="Trainings">
+                         {member.trainCount || 0} Trn
+                       </span>
+                    </div>
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${

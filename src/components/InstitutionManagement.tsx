@@ -1,19 +1,23 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Search, Database } from 'lucide-react';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, writeBatch } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType, logAudit } from '../firebase';
-import { Institution, Faculty, Department } from '../types';
+import { Institution, Faculty, Department, Student } from '../types';
 import { useAuth } from './AuthGuard';
+import { calculateStemRatio } from '../lib/academicUtils';
 import { ConfirmDialog } from './ConfirmDialog';
 import { InstitutionCard } from './institution/InstitutionCard';
 import { InstitutionInsights } from './institution/InstitutionInsights';
 import { InstitutionModals } from './institution/InstitutionModals';
+
+import { ACADEMIC_DATA } from '../constants/academicData';
 
 export const InstitutionManagement: React.FC = () => {
   const { user, canManage, canDelete } = useAuth();
   const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [faculties, setFaculties] = useState<Faculty[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedInst, setExpandedInst] = useState<string | null>(null);
   const [expandedFaculty, setExpandedFaculty] = useState<string | null>(null);
@@ -159,10 +163,11 @@ export const InstitutionManagement: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [instSnap, facultySnap, deptSnap] = await Promise.all([
+        const [instSnap, facultySnap, deptSnap, studentsSnap] = await Promise.all([
           getDocs(collection(db, 'institutions')),
           getDocs(collection(db, 'faculties')),
-          getDocs(collection(db, 'departments'))
+          getDocs(collection(db, 'departments')),
+          getDocs(collection(db, 'students'))
         ]);
 
         const sortedInsts = instSnap.docs
@@ -172,6 +177,7 @@ export const InstitutionManagement: React.FC = () => {
         setInstitutions(sortedInsts);
         setFaculties(facultySnap.docs.map(d => ({ id: d.id, ...d.data() } as Faculty)));
         setDepartments(deptSnap.docs.map(d => ({ id: d.id, ...d.data() } as Department)));
+        setStudents(studentsSnap.docs.map(d => ({ id: d.id, ...d.data() } as Student)));
         setLoading(false);
       } catch (error) {
         handleFirestoreError(error, OperationType.LIST, 'institutions');
@@ -203,6 +209,7 @@ export const InstitutionManagement: React.FC = () => {
         const docRef = await addDoc(collection(db, 'institutions'), newInst);
         await logAudit('CREATE', 'institutions', docRef.id, `Added institution: ${newInst.name}`);
         setInstitutions([...institutions, { id: docRef.id, ...newInst } as Institution]);
+        setExpandedInst(docRef.id);
       }
       setIsModalOpen(false);
       setEditingInst(null);
@@ -227,6 +234,7 @@ export const InstitutionManagement: React.FC = () => {
       const docRef = await addDoc(collection(db, 'faculties'), facultyData);
       await logAudit('CREATE', 'faculties', docRef.id, `Added ${newFaculty.type}: ${newFaculty.name} to institution ${selectedInstId}`);
       setFaculties([...faculties, { id: docRef.id, ...facultyData } as Faculty]);
+      setExpandedFaculty(docRef.id);
       setIsFacultyModalOpen(false);
       setNewFaculty(initialFacultyState);
     } catch (error) {
@@ -439,11 +447,78 @@ export const InstitutionManagement: React.FC = () => {
     });
   };
 
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredInstitutions = useMemo(() => {
+    return institutions.filter(inst => 
+      inst.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      inst.type.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [institutions, searchTerm]);
+
+  const [isSeeding, setIsSeeding] = useState(false);
+
+  const handleSeed = async () => {
+    if (user?.role !== 'SuperUser') return;
+    setIsSeeding(true);
+    setLoading(true);
+    try {
+      const instCollection = collection(db, 'institutions');
+      const facultyCollection = collection(db, 'faculties');
+      const deptCollection = collection(db, 'departments');
+
+      for (const instData of ACADEMIC_DATA) {
+        const instDoc = await addDoc(instCollection, {
+          name: instData.name,
+          type: 'Public',
+          website: '',
+          address: ''
+        });
+        const instId = instDoc.id;
+
+        for (const facData of instData.faculties) {
+          const facDoc = await addDoc(facultyCollection, {
+            name: facData.name,
+            institutionId: instId,
+            type: facData.type || 'faculty'
+          });
+          const facId = facDoc.id;
+
+          for (const dept of facData.departments) {
+            const deptName = typeof dept === 'string' ? dept : dept.name;
+            const isSTEM = typeof dept === 'string' ? (facData.allSTEM ?? true) : dept.isSTEM;
+
+            await addDoc(deptCollection, {
+              name: deptName,
+              facultyId: facId,
+              isSTEM: isSTEM,
+              type: 'department'
+            });
+          }
+        }
+      }
+      await logAudit('CREATE', 'system', 'seeding', 'Initial academic data seed completed');
+      
+      // Refresh data
+      const [instSnap, facultySnap, deptSnap] = await Promise.all([
+        getDocs(collection(db, 'institutions')),
+        getDocs(collection(db, 'faculties')),
+        getDocs(collection(db, 'departments'))
+      ]);
+      setInstitutions(instSnap.docs.map(d => ({ id: d.id, ...d.data() } as Institution)).sort((a, b) => a.name.localeCompare(b.name)));
+      setFaculties(facultySnap.docs.map(d => ({ id: d.id, ...d.data() } as Faculty)));
+      setDepartments(deptSnap.docs.map(d => ({ id: d.id, ...d.data() } as Department)));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.CREATE, 'system/seeding');
+    } finally {
+      setIsSeeding(false);
+      setLoading(false);
+    }
+  };
+
   const stemRatio = useMemo(() => {
-    if (departments.length === 0) return 0;
-    const stemCount = departments.filter(d => d.isSTEM).length;
-    return Math.round((stemCount / departments.length) * 100);
-  }, [departments]);
+    return calculateStemRatio(students, departments);
+  }, [students, departments]);
 
   return (
     <div className="space-y-6">
@@ -452,16 +527,28 @@ export const InstitutionManagement: React.FC = () => {
           <h1 className="text-2xl font-bold text-slate-900">Institutional Hierarchy</h1>
           <p className="text-slate-500 italic serif text-sm">Mapping Faculties/Directorates and Departments/Units</p>
         </div>
-        <div className="flex items-center gap-3">
-          {canManage('institutions') && (
-            <button 
-              onClick={() => setIsModalOpen(true)}
-              className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-lg shadow-blue-100"
-            >
-              <Plus size={20} />
-              Add Institution
-            </button>
-          )}
+        <div className="flex flex-col md:flex-row items-center gap-4">
+          <div className="relative w-full md:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <input
+              type="text"
+              placeholder="Filter institutions..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all text-sm"
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            {canManage('institutions') && (
+              <button 
+                onClick={() => setIsModalOpen(true)}
+                className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-lg shadow-blue-100"
+              >
+                <Plus size={20} />
+                Add Institution
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -471,11 +558,21 @@ export const InstitutionManagement: React.FC = () => {
             [1, 2, 3].map(i => (
               <div key={i} className="h-20 bg-white rounded-2xl border border-slate-100 animate-pulse"></div>
             ))
-          ) : institutions.length === 0 ? (
-            <div className="py-12 text-center text-slate-400 italic bg-white rounded-2xl border border-slate-100">
-              No institutions registered
+          ) : filteredInstitutions.length === 0 ? (
+            <div className="py-12 text-center bg-white rounded-3xl border border-slate-100 flex flex-col items-center gap-4">
+              <p className="text-slate-400 italic">No institutions found matching your search</p>
+              {institutions.length === 0 && user?.role === 'SuperUser' && (
+                <button
+                  onClick={handleSeed}
+                  disabled={isSeeding}
+                  className="px-6 py-3 bg-emerald-600 text-white font-bold rounded-2xl hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-100 flex items-center gap-2"
+                >
+                  <Database size={20} />
+                  {isSeeding ? 'Seeding Data...' : 'Populate Initial Academic Data'}
+                </button>
+              )}
             </div>
-          ) : institutions.map((inst) => (
+          ) : filteredInstitutions.map((inst) => (
             <InstitutionCard
               key={inst.id}
               inst={inst}
@@ -501,7 +598,9 @@ export const InstitutionManagement: React.FC = () => {
 
         <InstitutionInsights 
           institutions={institutions}
+          faculties={faculties}
           departments={departments}
+          students={students}
           stemRatio={stemRatio}
         />
       </div>

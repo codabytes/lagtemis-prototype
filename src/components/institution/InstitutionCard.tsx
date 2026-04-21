@@ -33,6 +33,8 @@ export const InstitutionCard: React.FC<InstitutionCardProps> = ({
 }) => {
   const { canManage, canDelete } = useAuth();
   const instFaculties = faculties.filter(f => f.institutionId === inst.id);
+  const facultyIds = instFaculties.map(f => f.id);
+  const instDepts = departments.filter(d => facultyIds.includes(d.facultyId));
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
@@ -50,11 +52,17 @@ export const InstitutionCard: React.FC<InstitutionCardProps> = ({
           </div>
           <div>
             <h3 className="text-lg font-bold text-slate-900">{inst.name}</h3>
-            <div className="flex items-center gap-2">
-              <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold rounded uppercase tracking-wider">
-                {inst.type}
-              </span>
-              <p className="text-xs text-slate-400">{inst.website || 'No website'}</p>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold rounded uppercase tracking-wider">
+                  {inst.type}
+                </span>
+                <p className="text-xs text-slate-400">{inst.website || 'No website'}</p>
+              </div>
+              <div className="flex items-center gap-2 h-4 border-l border-slate-200 pl-3">
+                <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">{instFaculties.length} Faculties</span>
+                <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">{instDepts.length} Departments</span>
+              </div>
             </div>
           </div>
         </div>

@@ -34,12 +34,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ type }) => {
   const navigate = useNavigate();
   const [data, setData] = useState<Staff | Student | null>(null);
   const [institution, setInstitution] = useState<Institution | null>(null);
+  const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [department, setDepartment] = useState<Department | null>(null);
   const [faculty, setFaculty] = useState<Faculty | null>(null);
   const [trainings, setTrainings] = useState<Training[]>([]);
   const [publications, setPublications] = useState<Publication[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'trainings' | 'publications'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'trainings' | 'publications' | 'journey'>('overview');
+  const [journey, setJourney] = useState<Student[]>([]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -58,6 +60,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ type }) => {
           if (profileData.institutionId) {
             promises.push(dbService.get<Institution>('institutions', profileData.institutionId).then(s => s && setInstitution(s)));
           }
+          
+          promises.push(dbService.list<Institution>('institutions').then(setInstitutions));
+          
           if (profileData.departmentId) {
             promises.push(dbService.get<Department>('departments', profileData.departmentId).then(s => s && setDepartment(s)));
           }
@@ -68,6 +73,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ type }) => {
           if (type === 'staff') {
             promises.push(dbService.list<Training>('trainings', [where('staffId', '==', id), orderBy('date', 'desc')]).then(setTrainings));
             promises.push(dbService.list<Publication>('publications', [where('staffId', '==', id), orderBy('year', 'desc')]).then(setPublications));
+          } else if (type === 'student' && profileData.lasrraId) {
+            promises.push(dbService.list<Student>('students', [where('lasrraId', '==', profileData.lasrraId)]).then(setJourney));
           }
 
           await Promise.all(promises);
@@ -175,7 +182,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ type }) => {
           </div>
 
           {/* Tabs */}
-          {isStaff && (
+          {(isStaff || (!isStaff && journey.length > 1)) && (
             <div className="flex items-center gap-8 border-b border-slate-100 mb-8">
               <button 
                 onClick={() => setActiveTab('overview')}
@@ -186,24 +193,41 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ type }) => {
                 Overview
                 {activeTab === 'overview' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>}
               </button>
-              <button 
-                onClick={() => setActiveTab('trainings')}
-                className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative ${
-                  activeTab === 'trainings' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'
-                }`}
-              >
-                Trainings ({trainings.length})
-                {activeTab === 'trainings' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>}
-              </button>
-              <button 
-                onClick={() => setActiveTab('publications')}
-                className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative ${
-                  activeTab === 'publications' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'
-                }`}
-              >
-                Publications ({publications.length})
-                {activeTab === 'publications' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>}
-              </button>
+              
+              {isStaff && (
+                <>
+                  <button 
+                    onClick={() => setActiveTab('trainings')}
+                    className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative ${
+                      activeTab === 'trainings' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'
+                    }`}
+                  >
+                    Trainings ({trainings.length})
+                    {activeTab === 'trainings' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>}
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('publications')}
+                    className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative ${
+                      activeTab === 'publications' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'
+                    }`}
+                  >
+                    Publications ({publications.length})
+                    {activeTab === 'publications' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>}
+                  </button>
+                </>
+              )}
+
+              {!isStaff && journey.length > 1 && (
+                <button 
+                  onClick={() => setActiveTab('journey')}
+                  className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative ${
+                    activeTab === 'journey' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'
+                  }`}
+                >
+                  Academic Timeline ({journey.length})
+                  {activeTab === 'journey' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>}
+                </button>
+              )}
             </div>
           )}
 
@@ -347,7 +371,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ type }) => {
                       </div>
                       <div>
                         <p className="text-[10px] font-bold text-slate-400 uppercase">Date of Birth</p>
-                        <p className="text-sm font-semibold text-slate-700">{isStaff ? staff.dob : 'N/A'}</p>
+                        <p className="text-sm font-semibold text-slate-700">{isStaff ? staff.dob : student.dob || 'N/A'}</p>
                       </div>
                     </div>
                   </div>
@@ -358,14 +382,85 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ type }) => {
                   <div className="space-y-3">
                     <button className="w-full flex items-center gap-3 p-3 bg-slate-50 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all group">
                       <Mail size={18} className="text-slate-400 group-hover:text-blue-500" />
-                      <span className="text-sm font-medium">Send Email</span>
+                      <span className="text-sm font-medium truncate">{isStaff ? staff.email : student.email}</span>
                     </button>
                     <button className="w-full flex items-center gap-3 p-3 bg-slate-50 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all group">
                       <Phone size={18} className="text-slate-400 group-hover:text-blue-500" />
-                      <span className="text-sm font-medium">Call Mobile</span>
+                      <span className="text-sm font-medium truncate">{isStaff ? staff.mobilePhone : student.mobilePhone}</span>
                     </button>
                   </div>
                 </section>
+              </div>
+            </div>
+          ) : activeTab === 'journey' ? (
+            <div className="space-y-6">
+              <div className="bg-blue-600 p-6 rounded-3xl text-white shadow-xl shadow-blue-200">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-md">
+                    <History size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold">Academic Portfolio</h3>
+                    <p className="text-blue-100 text-sm">Chronological record of multiple enrollments for this LASRRA Identity</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative pl-8 space-y-8 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
+                {journey
+                  .sort((a, b) => new Date(b.admissionYear).getTime() - new Date(a.admissionYear).getTime())
+                  .map((record) => (
+                    <div key={record.id} className="relative">
+                      <div className={`absolute -left-[27px] top-1.5 w-4 h-4 rounded-full border-4 border-white shadow-sm ${
+                        record.id === id ? 'bg-blue-600 ring-4 ring-blue-50' : 'bg-slate-300'
+                      }`}></div>
+                      
+                      <div className={`p-6 bg-white border rounded-3xl transition-all ${
+                        record.id === id ? 'border-blue-200 shadow-lg shadow-blue-50' : 'border-slate-100 hover:border-slate-200'
+                      }`}>
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                                record.enrollmentStatus === 'Graduated' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
+                              }`}>
+                                {record.enrollmentStatus}
+                              </span>
+                              {record.id === id && (
+                                <span className="px-2 py-0.5 rounded-full bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest">Currently Viewing</span>
+                              )}
+                            </div>
+                            <h4 className="text-lg font-bold text-slate-900">
+                              {institutions.find(inst => inst.id === record.institutionId)?.name || 'Unknown Institution'}
+                            </h4>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-mono font-bold text-slate-400 italic"> admission: {record.admissionYear}</p>
+                            {record.graduationYear && (
+                              <p className="text-sm font-mono font-bold text-emerald-600 italic"> graduation: {record.graduationYear}</p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-50">
+                          <div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Qualification Path</p>
+                            <p className="text-sm font-bold text-slate-700">{record.qualificationType || 'N/A'} - {record.qualificationClass || 'N/A'}</p>
+                          </div>
+                          <div className="flex justify-end items-end">
+                            {record.id !== id && (
+                              <button 
+                                onClick={() => navigate(`/students/${record.id}`)}
+                                className="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-bold rounded-xl transition-all flex items-center gap-2"
+                              >
+                                View Detailed Portfolio
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
               </div>
             </div>
           ) : activeTab === 'trainings' ? (

@@ -26,10 +26,12 @@ import {
   AreaChart,
   Area
 } from 'recharts';
-import { collection, getDocs, addDoc, query, where, writeBatch, doc } from 'firebase/firestore';
+import { collection, getDocs, query, where, writeBatch, doc } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Student, Staff, Institution, Facility, Faculty, Department } from '../types';
+import { Student, Staff, Institution, Facility, Faculty, Department, Publication, Training } from '../types';
 import { useAuth } from './AuthGuard';
+import { ComplianceCard } from './institution/InstitutionInsights';
+import { calculateStemRatio } from '../lib/academicUtils';
 
 const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
@@ -64,14 +66,20 @@ export const Dashboard: React.FC = () => {
   const [rawData, setRawData] = useState<{
     students: Student[];
     staff: Staff[];
+    publications: Publication[];
+    trainings: Training[];
     institutions: Institution[];
+    faculties: Faculty[];
     facilities: Facility[];
     departments: Department[];
     loading: boolean;
   }>({
     students: [],
     staff: [],
+    publications: [],
+    trainings: [],
     institutions: [],
+    faculties: [],
     facilities: [],
     departments: [],
     loading: true
@@ -116,20 +124,26 @@ export const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [studentsSnap, staffSnap, instSnap, facilitiesSnap, deptSnap] = await Promise.all([
+        const [studentsSnap, staffSnap, instSnap, facultiesSnap, facilitiesSnap, deptSnap, pubSnap, trainSnap] = await Promise.all([
           getDocs(collection(db, 'students')),
           getDocs(collection(db, 'staff')),
           getDocs(collection(db, 'institutions')),
+          getDocs(collection(db, 'faculties')),
           getDocs(collection(db, 'facilities')),
-          getDocs(collection(db, 'departments'))
+          getDocs(collection(db, 'departments')),
+          getDocs(collection(db, 'publications')),
+          getDocs(collection(db, 'trainings'))
         ]);
 
         setRawData({
-          students: studentsSnap.docs.map(d => d.data() as Student),
-          staff: staffSnap.docs.map(d => d.data() as Staff),
-          institutions: instSnap.docs.map(d => d.data() as Institution),
+          students: studentsSnap.docs.map(d => ({ id: d.id, ...d.data() } as Student)),
+          staff: staffSnap.docs.map(d => ({ id: d.id, ...d.data() } as Staff)),
+          publications: pubSnap.docs.map(d => ({ id: d.id, ...d.data() } as Publication)),
+          trainings: trainSnap.docs.map(d => ({ id: d.id, ...d.data() } as Training)),
+          institutions: instSnap.docs.map(d => ({ id: d.id, ...d.data() } as Institution)),
+          faculties: facultiesSnap.docs.map(d => ({ id: d.id, ...d.data() } as Faculty)),
           facilities: facilitiesSnap.docs.map(d => ({ id: d.id, ...d.data() } as Facility)),
-          departments: deptSnap.docs.map(d => d.data() as Department),
+          departments: deptSnap.docs.map(d => ({ id: d.id, ...d.data() } as Department)),
           loading: false
         });
       } catch (error) {
@@ -141,22 +155,18 @@ export const Dashboard: React.FC = () => {
   }, []);
 
   const processedData = useMemo(() => {
-    const { students, staff, institutions, facilities, departments } = rawData;
+    const { students, staff, institutions, faculties, facilities, departments, publications, trainings } = rawData;
 
-    const realStudents = students.filter(s => !(s as any).isSeed);
-    const realStaff = staff.filter(s => !(s as any).isSeed);
-    const realInstitutions = institutions.filter(i => !(i as any).isSeed);
-    const realFacilities = facilities.filter(i => !i.isSeed);
-    const realDepts = departments.filter(d => !(d as any).isSeed);
+    const realStudents = students.filter(s => s.lasrraId); // Better check than isSeed
+    const realStaff = staff.filter(s => s.lasrraId);
+    const realPublications = publications;
+    const realTrainings = trainings;
+    const realInstitutions = institutions;
+    const realFaculties = faculties;
+    const realFacilities = facilities;
+    const realDepts = departments;
 
-    const stemStudentsCount = realStudents.filter(s => {
-      const dept = departments.find(d => d.id === s.departmentId);
-      return dept?.isSTEM;
-    }).length;
-    
-    const stemRatio = realStudents.length > 0 
-      ? Math.round((stemStudentsCount / realStudents.length) * 100) 
-      : 0;
+    const stemRatio = calculateStemRatio(realStudents, departments);
 
     // Enrollment trends
     const years = Array.from(new Set(realStudents.map(s => s.admissionYear?.split('-')[0]))).sort();
@@ -179,12 +189,18 @@ export const Dashboard: React.FC = () => {
         staff: realStaff.length,
         institutions: realInstitutions.length,
         facilities: realFacilities.length,
+        publications: realPublications.length,
+        trainings: realTrainings.length,
         stemRatio
       },
       enrollmentData: enrollmentData.length > 0 ? enrollmentData : [{ year: '2024', students: 0, graduates: 0 }],
       institutionDistribution,
       recentFacilities: realFacilities.slice(0, 5),
-      realInstitutions
+      recentPublications: realPublications.slice(0, 5),
+      realInstitutions,
+      realFaculties,
+      realDepts,
+      realStudents
     };
   }, [rawData]);
 
@@ -209,7 +225,7 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <StatCard 
           title="Total Students" 
           value={processedData.stats.students.toLocaleString()} 
@@ -236,6 +252,18 @@ export const Dashboard: React.FC = () => {
           icon={<TrendingUp size={24} />} 
           trend={{ value: 'Target: 60%', positive: true }}
           color="bg-purple-500"
+        />
+        <StatCard 
+          title="Research Outputs" 
+          value={processedData.stats.publications.toLocaleString()} 
+          icon={<BookOpen size={24} />} 
+          color="bg-indigo-500"
+        />
+        <StatCard 
+          title="Staff Trainings" 
+          value={processedData.stats.trainings.toLocaleString()} 
+          icon={<Activity size={24} />} 
+          color="bg-pink-500"
         />
       </div>
 
@@ -336,6 +364,15 @@ export const Dashboard: React.FC = () => {
             ))}
           </div>
         </div>
+
+        {/* Policy Compliance Card */}
+        <ComplianceCard 
+          institutions={processedData.realInstitutions}
+          faculties={processedData.realFaculties}
+          departments={processedData.realDepts}
+          students={processedData.realStudents}
+          globalStemRatio={processedData.stats.stemRatio}
+        />
       </div>
 
       {/* Recent Facilities */}
