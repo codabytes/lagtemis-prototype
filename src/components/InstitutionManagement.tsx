@@ -43,6 +43,7 @@ export const InstitutionManagement: React.FC = () => {
   
   const initialInstState: Partial<Institution> = {
     name: '',
+    shortName: '',
     type: 'Public',
     address: '',
     website: '',
@@ -470,6 +471,7 @@ export const InstitutionManagement: React.FC = () => {
       for (const instData of ACADEMIC_DATA) {
         const instDoc = await addDoc(instCollection, {
           name: instData.name,
+          shortName: instData.shortName,
           type: 'Public',
           website: '',
           address: ''

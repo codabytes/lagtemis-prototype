@@ -15,6 +15,7 @@ import { InstitutionManagement } from './components/InstitutionManagement';
 import { ResearchPublications } from './components/ResearchPublications';
 import { TrainingManagement } from './components/TrainingManagement';
 import { UserManagement } from './components/UserManagement';
+import { AnalyticsBI } from './components/AnalyticsBI';
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error: any }> {
@@ -90,6 +91,7 @@ export default function App() {
                 <Route path="/facilities/profile/:id" element={<FacilityProfile />} />
                 <Route path="/publications" element={<ResearchPublications />} />
                 <Route path="/trainings" element={<TrainingManagement />} />
+                <Route path="/analytics" element={<AnalyticsBI />} />
                 <Route path="/users" element={<UserManagement />} />
                 <Route path="/settings" element={<MigrationUtility />} />
               </Routes>

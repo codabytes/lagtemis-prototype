@@ -18,6 +18,7 @@ export interface User {
 export interface Institution {
   id: string;
   name: string;
+  shortName: string; // e.g., LASU, LASPOTECH
   type: 'Public' | 'Private';
   address?: string;
   website?: string;
@@ -121,7 +122,7 @@ export interface MaintenanceLog {
   id: string;
   facilityId: string;
   facilityName: string;
-  maintenanceType: 'Preventive' | 'Corrective' | 'Predictive';
+  maintenanceType: 'Preventive' | 'Corrective' | 'Predictive' | 'Routine' | 'Repair' | 'Inspection' | 'Emergency';
   workPerformed: string;
   completedAt: string;
 }

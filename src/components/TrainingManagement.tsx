@@ -203,77 +203,102 @@ export const TrainingManagement: React.FC = () => {
         </div>
       </div>
 
-      {/* Training List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {loading ? (
-          [1, 2, 3].map(i => (
-            <div key={i} className="h-64 bg-white rounded-2xl border border-slate-100 animate-pulse"></div>
-          ))
-        ) : filteredTrainings.length === 0 ? (
-          <div className="col-span-full py-12 text-center text-slate-400 italic bg-white rounded-2xl border border-slate-100">
-            No training records found
-          </div>
-        ) : filteredTrainings.map((training) => {
-          const staffMember = staff.find(s => s.id === training.staffId);
-          return (
-            <div key={training.id} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:border-blue-200 transition-all group">
-              <div className="flex items-start justify-between mb-4">
-                <div className="p-3 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                  <FileText size={24} />
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{training.trainingId}</span>
-                  {canDelete('trainings') && (
-                    <button
-                      type="button"
-                      onClick={(e) => handleDeleteTraining(e, training)}
-                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  )}
-                </div>
-              </div>
-              
-              <h3 className="text-lg font-bold text-slate-900 mb-2 leading-tight">{training.title}</h3>
-              <p className="text-xs font-bold text-blue-600 mb-2 uppercase tracking-wider">{training.type}</p>
-              
-              {training.description && (
-                <p className="text-xs text-slate-500 mb-4 line-clamp-2 italic">{training.description}</p>
-              )}
-              
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-slate-600">
-                  <User size={14} className="text-slate-400" />
-                  <span className="text-sm font-semibold">{staffMember ? `${staffMember.firstName} ${staffMember.surname}` : 'Unknown Staff'}</span>
-                </div>
-                <div className="flex items-center gap-2 text-slate-600">
-                  <Calendar size={14} className="text-slate-400" />
-                  <span className="text-sm font-semibold">{training.date}</span>
-                </div>
-                <div className="flex items-center gap-2 text-slate-600">
-                  <Clock size={14} className="text-slate-400" />
-                  <span className="text-sm font-semibold">{training.duration}</span>
-                </div>
-                <div className="flex items-center gap-2 text-slate-600">
-                  <MapPin size={14} className="text-slate-400" />
-                  <span className="text-sm font-semibold">{training.location} {training.isInternational && <span className="ml-1 px-1.5 py-0.5 bg-purple-50 text-purple-600 text-[10px] rounded font-bold uppercase tracking-widest">International</span>}</span>
-                </div>
-                <div className="flex items-center gap-2 text-slate-600">
-                  <Building size={14} className="text-slate-400" />
-                  <span className="text-sm font-semibold">{training.provider}</span>
-                </div>
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-slate-50">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Funding</span>
-                  <span className="text-xs font-bold text-slate-700">{training.fundingSource}</span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+      {/* Training List Table */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50/50 border-b border-slate-100">
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Training ID</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Title</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Type</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Staff Member</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Duration</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Location</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Provider</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Funding</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {loading ? (
+                [1, 2, 3, 4, 5].map(i => (
+                  <tr key={i} className="animate-pulse">
+                    <td colSpan={10} className="px-6 py-4"><div className="h-4 bg-slate-100 rounded w-full"></div></td>
+                  </tr>
+                ))
+              ) : filteredTrainings.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="px-6 py-12 text-center text-slate-400 italic">No training records found</td>
+                </tr>
+              ) : filteredTrainings.map((training) => {
+                const staffMember = staff.find(s => s.id === training.staffId);
+                return (
+                  <tr key={training.id} className="hover:bg-slate-50 transition-colors group">
+                    <td className="px-6 py-4">
+                      <span className="text-xs font-mono font-bold text-slate-500">{training.trainingId}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-slate-900 leading-snug">{training.title}</span>
+                        {training.description && (
+                          <span className="text-[10px] text-slate-400 italic line-clamp-1 mt-0.5">{training.description}</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-xs font-semibold px-2 py-1 bg-blue-50 text-blue-600 rounded-lg whitespace-nowrap">{training.type}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500">
+                          {staffMember?.firstName[0]}{staffMember?.surname[0]}
+                        </div>
+                        <span className="text-sm font-semibold text-slate-700 whitespace-nowrap">
+                          {staffMember ? `${staffMember.firstName} ${staffMember.surname}` : 'Unknown'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm text-slate-600 whitespace-nowrap">{training.date}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm text-slate-600 whitespace-nowrap">{training.duration}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm text-slate-600">{training.location}</span>
+                        {training.isInternational && (
+                          <span className="px-1.5 py-0.5 bg-purple-50 text-purple-600 text-[8px] font-bold uppercase rounded border border-purple-100">Intl</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm text-slate-600">{training.provider}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-xs font-medium text-slate-500 whitespace-nowrap">{training.fundingSource}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        {canDelete('trainings') && (
+                          <button
+                            onClick={(e) => handleDeleteTraining(e, training)}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                            title="Delete Record"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Add Training Modal */}

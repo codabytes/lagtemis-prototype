@@ -164,10 +164,20 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ type }) => {
                   </h1>
                   <p className="text-slate-500 flex items-center gap-2 mt-1">
                     {isStaff ? <Briefcase size={16} /> : <GraduationCap size={16} />}
-                    <span className="font-medium">
+                    <span className="font-medium text-sm">
                       {isStaff ? staff.designation : `Student - ${student.matricNumber}`}
                     </span>
                   </p>
+                  <div className="flex flex-wrap items-center gap-4 mt-3">
+                    <div className="flex items-center gap-2 text-slate-500">
+                      <Mail size={14} className="text-blue-500" />
+                      <span className="text-xs font-semibold">{data.email}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-500">
+                      <Phone size={14} className="text-emerald-500" />
+                      <span className="text-xs font-semibold">{data.mobilePhone}</span>
+                    </div>
+                  </div>
                 </div>
                 <div className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-2 ${
                   (isStaff ? staff.employmentStatus : student.enrollmentStatus) === 'Active' || (isStaff ? staff.employmentStatus : student.enrollmentStatus) === 'Enrolled'
@@ -406,139 +416,147 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ type }) => {
                 </div>
               </div>
 
-              <div className="relative pl-8 space-y-8 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
-                {journey
-                  .sort((a, b) => new Date(b.admissionYear).getTime() - new Date(a.admissionYear).getTime())
-                  .map((record) => (
-                    <div key={record.id} className="relative">
-                      <div className={`absolute -left-[27px] top-1.5 w-4 h-4 rounded-full border-4 border-white shadow-sm ${
-                        record.id === id ? 'bg-blue-600 ring-4 ring-blue-50' : 'bg-slate-300'
-                      }`}></div>
-                      
-                      <div className={`p-6 bg-white border rounded-3xl transition-all ${
-                        record.id === id ? 'border-blue-200 shadow-lg shadow-blue-50' : 'border-slate-100 hover:border-slate-200'
-                      }`}>
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
+              <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50">
+                      <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Institution</th>
+                      <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Period</th>
+                      <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Qualification Path</th>
+                      <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</th>
+                      <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {journey
+                      .sort((a, b) => new Date(b.admissionYear).getTime() - new Date(a.admissionYear).getTime())
+                      .map((record) => (
+                        <tr key={record.id} className={`${record.id === id ? 'bg-blue-50/50' : 'hover:bg-slate-50'} transition-colors group`}>
+                          <td className="px-6 py-4">
+                            <span className="text-sm font-bold text-slate-900 block">
+                              {institutions.find(inst => inst.id === record.institutionId)?.name || 'Unknown Institution'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex flex-col">
+                              <span className="text-xs font-mono text-slate-500">adm: {record.admissionYear}</span>
+                              {record.graduationYear && (
+                                <span className="text-xs font-mono text-emerald-600 font-bold">grad: {record.graduationYear}</span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <p className="text-sm text-slate-700 font-medium">
+                              {record.qualificationType || 'N/A'}
+                            </p>
+                            <p className="text-[10px] text-slate-400 uppercase font-black tracking-tighter">
+                              {record.qualificationClass || 'N/A'}
+                            </p>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex flex-col gap-1">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest w-fit ${
                                 record.enrollmentStatus === 'Graduated' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
                               }`}>
                                 {record.enrollmentStatus}
                               </span>
                               {record.id === id && (
-                                <span className="px-2 py-0.5 rounded-full bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest">Currently Viewing</span>
+                                <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Current View</span>
                               )}
                             </div>
-                            <h4 className="text-lg font-bold text-slate-900">
-                              {institutions.find(inst => inst.id === record.institutionId)?.name || 'Unknown Institution'}
-                            </h4>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm font-mono font-bold text-slate-400 italic"> admission: {record.admissionYear}</p>
-                            {record.graduationYear && (
-                              <p className="text-sm font-mono font-bold text-emerald-600 italic"> graduation: {record.graduationYear}</p>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-50">
-                          <div>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Qualification Path</p>
-                            <p className="text-sm font-bold text-slate-700">{record.qualificationType || 'N/A'} - {record.qualificationClass || 'N/A'}</p>
-                          </div>
-                          <div className="flex justify-end items-end">
+                          </td>
+                          <td className="px-6 py-4 text-right">
                             {record.id !== id && (
                               <button 
                                 onClick={() => navigate(`/students/${record.id}`)}
-                                className="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-bold rounded-xl transition-all flex items-center gap-2"
+                                className="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all shadow-sm"
                               >
-                                View Detailed Portfolio
+                                View Record
                               </button>
                             )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           ) : activeTab === 'trainings' ? (
-            <div className="space-y-4">
-              {trainings.length === 0 ? (
-                <div className="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                  <History size={48} className="mx-auto text-slate-300 mb-4" />
-                  <p className="text-slate-500 italic">No training records found for this staff member.</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {trainings.map(t => (
-                    <div key={t.id} className="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-blue-200 transition-all">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
-                          <FileText size={20} />
-                        </div>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t.trainingId}</span>
-                      </div>
-                      <h4 className="font-bold text-slate-900 mb-1">{t.title}</h4>
-                      <p className="text-xs font-bold text-blue-600 mb-3 uppercase tracking-wider">{t.type}</p>
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-slate-500 text-xs">
-                          <Calendar size={12} />
-                          <span>{t.date}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-slate-500 text-xs">
-                          <Clock size={12} />
-                          <span>{t.duration}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-slate-500 text-xs">
-                          <MapPin size={12} />
-                          <span>{t.location} {t.isInternational && <span className="ml-1 text-[8px] bg-purple-50 text-purple-600 px-1 rounded uppercase font-bold">Intl</span>}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-slate-500 text-xs">
-                          <Building size={12} />
-                          <span>{t.provider}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+            <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50">
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">ID</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Title</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Type</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Period</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Provider</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {trainings.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-12 text-center text-slate-400 italic">No training records found</td>
+                    </tr>
+                  ) : (
+                    trainings.map(t => (
+                      <tr key={t.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-6 py-4 text-xs font-mono text-slate-500">{t.trainingId}</td>
+                        <td className="px-6 py-4">
+                          <p className="text-sm font-bold text-slate-900">{t.title}</p>
+                          <p className="text-[10px] text-slate-400 font-medium">@{t.location} {t.isInternational && '(International)'}</p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-[10px] font-black uppercase text-blue-600 tracking-tighter">{t.type}</span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col">
+                            <span className="text-xs text-slate-600 font-bold">{t.date}</span>
+                            <span className="text-[10px] text-slate-400">{t.duration}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-xs text-slate-600 font-medium">{t.provider}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           ) : (
-            <div className="space-y-4">
-              {publications.length === 0 ? (
-                <div className="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                  <BookOpen size={48} className="mx-auto text-slate-300 mb-4" />
-                  <p className="text-slate-500 italic">No research or publication records found for this staff member.</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {publications.map(p => (
-                    <div key={p.id} className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-blue-200 transition-all">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider">
-                          {p.type}
-                        </span>
-                        <span className="text-xs text-slate-400 font-mono font-bold">{p.outputId}</span>
-                        <span className="text-xs text-slate-400 font-mono">{p.year}</span>
-                      </div>
-                      <h4 className="font-bold text-slate-900 mb-2">{p.title}</h4>
-                      <div className="flex items-center gap-4 text-slate-500 text-xs mb-3">
-                        <div className="flex items-center gap-1">
-                          <DollarSign size={12} />
-                          <span>{p.fundingSource}</span>
-                        </div>
-                      </div>
-                      {p.abstract && (
-                        <p className="text-sm text-slate-500 italic line-clamp-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                          {p.abstract}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
+            <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50">
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Output ID</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Title & Abstract</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Type</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Year</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Funding Source</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {publications.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-12 text-center text-slate-400 italic">No publication records found</td>
+                    </tr>
+                  ) : (
+                    publications.map(p => (
+                      <tr key={p.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-6 py-4 text-xs font-mono text-slate-500">{p.outputId}</td>
+                        <td className="px-6 py-4">
+                          <p className="text-sm font-bold text-slate-900 mb-1">{p.title}</p>
+                          {p.abstract && <p className="text-[10px] text-slate-500 line-clamp-1 italic">{p.abstract}</p>}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-[10px] font-black uppercase text-blue-600 tracking-tighter">{p.type}</span>
+                        </td>
+                        <td className="px-6 py-4 text-sm font-mono text-slate-600">{p.year}</td>
+                        <td className="px-6 py-4 text-xs text-slate-600 font-medium">{p.fundingSource}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           )}
         </div>

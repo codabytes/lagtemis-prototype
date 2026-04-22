@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { 
   Users, 
   GraduationCap, 
@@ -8,7 +9,8 @@ import {
   TrendingDown, 
   Activity,
   ArrowRight,
-  School
+  School,
+  BarChart2
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -61,6 +63,13 @@ const StatCard: React.FC<{
   </div>
 );
 
+/**
+ * Executive Dashboard Component
+ * 
+ * The primary entry point for high-level oversight.
+ * Aggregates data from multiple Firestore collections to provide
+ * real-time statistics on students, staff, facilities, and academic impact.
+ */
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const [rawData, setRawData] = useState<{
@@ -169,8 +178,8 @@ export const Dashboard: React.FC = () => {
     const stemRatio = calculateStemRatio(realStudents, departments);
 
     // Enrollment trends
-    const years = Array.from(new Set(realStudents.map(s => s.admissionYear?.split('-')[0]))).sort();
-    const enrollmentData = years.map(year => ({
+    const enrollmentYears = Array.from(new Set(realStudents.map(s => s.admissionYear?.split('-')[0]).filter(Boolean) as string[])).sort();
+    const enrollmentData = enrollmentYears.map(year => ({
       year,
       students: realStudents.filter(s => s.admissionYear?.startsWith(year)).length,
       graduates: realStudents.filter(s => s.enrollmentStatus === 'Graduated' && s.graduationYear?.startsWith(year)).length
@@ -222,6 +231,14 @@ export const Dashboard: React.FC = () => {
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Executive Dashboard</h1>
           <p className="text-slate-500 italic serif">Real-time oversight of Lagos State Tertiary Education</p>
         </div>
+        <Link 
+          to="/analytics"
+          className="px-6 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all flex items-center gap-2 shadow-lg shadow-blue-100"
+        >
+          <BarChart2 size={18} />
+          Full Analytics View
+          <ArrowRight size={16} />
+        </Link>
       </div>
 
       {/* Stats Grid */}

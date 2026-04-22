@@ -20,6 +20,7 @@ import { dbService } from '../services/db';
 import { Staff, Institution, Department, Faculty } from '../types';
 import { useAuth } from './AuthGuard';
 import { ConfirmDialog } from './ConfirmDialog';
+import { exportData } from '../lib/exportUtils';
 
 const INITIAL_STAFF_STATE: Partial<Staff> = {
   lasrraId: '',
@@ -45,6 +46,13 @@ const INITIAL_STAFF_STATE: Partial<Staff> = {
   picture: ''
 };
 
+/**
+ * AcademicStaff Component
+ * 
+ * Manages academic staff records, including research publications, 
+ * professional trainings, and employment status.
+ * Optimized for list-based data density and administrative efficiency.
+ */
 export const AcademicStaff: React.FC = () => {
   const { user, canManage, canDelete } = useAuth();
   const [staff, setStaff] = useState<(Staff & { pubCount: number; trainCount: number })[]>([]);
@@ -234,7 +242,11 @@ export const AcademicStaff: React.FC = () => {
           <p className="text-slate-500 italic serif text-sm">Digital nominal roll and credentials tracking</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200">
+          <button 
+            onClick={() => exportData(filteredStaff, `TEMIS_Academic_Staff_${new Date().getFullYear()}`, 'csv')}
+            className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors"
+            title="Export Records"
+          >
             <Download size={20} />
           </button>
           {canManage('staff') && (
@@ -322,12 +334,12 @@ export const AcademicStaff: React.FC = () => {
               {loading ? (
                 [1, 2, 3, 4, 5].map(i => (
                   <tr key={i} className="animate-pulse">
-                    <td colSpan={6} className="px-6 py-4 h-16 bg-slate-50/50"></td>
+                    <td colSpan={11} className="px-6 py-4 h-16 bg-slate-50/50"></td>
                   </tr>
                 ))
               ) : filteredStaff.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-slate-400 italic">No staff records found</td>
+                  <td colSpan={11} className="px-6 py-12 text-center text-slate-400 italic">No staff records found</td>
                 </tr>
               ) : filteredStaff.map((member) => (
                 <tr key={member.id} className="hover:bg-slate-50 transition-colors group">

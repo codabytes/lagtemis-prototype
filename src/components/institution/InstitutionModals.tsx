@@ -62,15 +62,29 @@ export const InstitutionModals: React.FC<InstitutionModalsProps> = ({
                     </div>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Institution Name</label>
-                  <input
-                    required
-                    type="text"
-                    value={newInst.name}
-                    onChange={(e) => setNewInst({ ...newInst, name: e.target.value })}
-                    className="w-full px-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all"
-                  />
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="col-span-2 space-y-2">
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Institution Name</label>
+                    <input
+                      required
+                      type="text"
+                      placeholder="Full Institution Name"
+                      value={newInst.name}
+                      onChange={(e) => setNewInst({ ...newInst, name: e.target.value })}
+                      className="w-full px-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all text-sm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Short Name</label>
+                    <input
+                      required
+                      type="text"
+                      placeholder="e.g. LASU"
+                      value={newInst.shortName}
+                      onChange={(e) => setNewInst({ ...newInst, shortName: e.target.value })}
+                      className="w-full px-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all text-sm"
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Type</label>

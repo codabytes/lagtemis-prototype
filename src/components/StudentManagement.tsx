@@ -19,6 +19,7 @@ import { Student, Institution, Department, Faculty } from '../types';
 import { useAuth } from './AuthGuard';
 import { format } from 'date-fns';
 import { ConfirmDialog } from './ConfirmDialog';
+import { exportData } from '../lib/exportUtils';
 
 const INITIAL_STUDENT_STATE: Partial<Student> = {
   lasrraId: '',
@@ -40,11 +41,11 @@ const INITIAL_STUDENT_STATE: Partial<Student> = {
 };
 
 const UNIVERSITY_QUALS = [
-  'B.Sc', 'B.A', 'B.Ed', 'B.Tech', 'MBBS', 'LLB', 'M.Sc', 'PhD'
+  'Degree'
 ];
 
 const OTHER_QUALS = [
-  'OND', 'HND', 'NCE'
+  'OND', 'HND'
 ];
 
 const UNIVERSITY_CLASSES = [
@@ -62,6 +63,13 @@ const OTHER_INST_CLASSES = [
   'Pass'
 ];
 
+/**
+ * StudentManagement Component
+ * 
+ * Manages student records including enrollment, qualifications, and academic tracking.
+ * Adheres to Nigerian educational standards for Universities (Degrees) and
+ * other institutions (OND/HND).
+ */
 export const StudentManagement: React.FC = () => {
   const { user, canManage, canDelete } = useAuth();
   const [students, setStudents] = useState<Student[]>([]);
@@ -97,7 +105,11 @@ export const StudentManagement: React.FC = () => {
   const getMinGraduationDate = (admissionDate: string) => {
     if (!admissionDate) return '';
     const date = new Date(admissionDate);
-    date.setFullYear(date.getFullYear() + 2);
+    const inst = institutions.find(i => i.id === newStudent.institutionId);
+    
+    // Strict compliance: 4 years for OND+HND (non-university)
+    // 4 to 6 years for Universities (let's default to 4 for min)
+    date.setFullYear(date.getFullYear() + 4);
     return date.toISOString().split('T')[0];
   };
 
@@ -296,7 +308,11 @@ export const StudentManagement: React.FC = () => {
           <p className="text-slate-500 italic serif text-sm">Centralized database for student lifecycle tracking</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200">
+          <button 
+            onClick={() => exportData(filteredStudents, `TEMIS_Students_${new Date().getFullYear()}`, 'csv')}
+            className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors"
+            title="Export Current View"
+          >
             <Download size={20} />
           </button>
           {canManage('students') && (
@@ -417,12 +433,12 @@ export const StudentManagement: React.FC = () => {
               {loading ? (
                 [1, 2, 3, 4, 5].map(i => (
                   <tr key={i} className="animate-pulse">
-                    <td colSpan={6} className="px-6 py-4 h-16 bg-slate-50/50"></td>
+                    <td colSpan={12} className="px-6 py-4 h-16 bg-slate-50/50"></td>
                   </tr>
                 ))
               ) : filteredStudents.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-slate-400 italic">No student records found</td>
+                  <td colSpan={12} className="px-6 py-12 text-center text-slate-400 italic">No student records found</td>
                 </tr>
               ) : filteredStudents.map((student) => (
                 <tr key={student.id} className="hover:bg-slate-50 transition-colors group">

@@ -20,7 +20,14 @@ import { db, handleFirestoreError, OperationType, logAudit } from '../firebase';
 import { Facility, Institution, Faculty, Department } from '../types';
 import { useAuth } from './AuthGuard';
 import { ConfirmDialog } from './ConfirmDialog';
+import { exportData } from '../lib/exportUtils';
 
+/**
+ * FacilityManagement Component
+ * 
+ * Handles institutional infrastructure inventory, asset tracking, 
+ * and maintenance history management.
+ */
 export const FacilityManagement: React.FC = () => {
   const { user, canManage, canDelete } = useAuth();
   const [facilities, setFacilities] = useState<Facility[]>([]);
@@ -232,7 +239,11 @@ export const FacilityManagement: React.FC = () => {
           <p className="text-slate-500 italic serif text-sm">Inventory tracking and capacity mapping</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200">
+          <button 
+            onClick={() => exportData(filteredFacilities, `TEMIS_Facilities_${new Date().getFullYear()}`, 'csv')}
+            className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors"
+            title="Export Assets"
+          >
             <Download size={20} />
           </button>
           {canManage('facilities') && (
@@ -320,7 +331,7 @@ export const FacilityManagement: React.FC = () => {
                       to={`/facilities/profile/${facility.id}`}
                       className="text-sm font-bold text-slate-900 hover:text-blue-600 transition-colors flex items-center gap-2"
                     >
-                      {facility.name}
+                      {facility.name || 'Unnamed Facility'}
                       <ExternalLink size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                     </Link>
                   </td>

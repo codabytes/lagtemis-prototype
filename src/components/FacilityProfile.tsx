@@ -268,16 +268,16 @@ export const FacilityProfile: React.FC = () => {
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Maintenance Type</label>
-                <div className="grid grid-cols-3 gap-3">
-                  {['Preventive', 'Corrective', 'Predictive'].map((type) => (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  {['Preventive', 'Corrective', 'Predictive', 'Routine', 'Repair', 'Inspection', 'Emergency'].map((type) => (
                     <button
                       key={type}
                       type="button"
                       onClick={() => setNewLog({ ...newLog, maintenanceType: type as any })}
-                      className={`py-2 rounded-xl text-xs font-bold transition-all ${
+                      className={`py-2 rounded-xl text-[10px] font-bold transition-all border ${
                         newLog.maintenanceType === type 
-                          ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' 
-                          : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
+                          ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-100' 
+                          : 'bg-slate-50 text-slate-500 border-slate-100 hover:bg-slate-100'
                       }`}
                     >
                       {type}

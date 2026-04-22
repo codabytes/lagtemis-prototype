@@ -15,6 +15,7 @@ import { dbService } from '../services/db';
 import { Staff, Institution, Department, Faculty } from '../types';
 import { useAuth } from './AuthGuard';
 import { ConfirmDialog } from './ConfirmDialog';
+import { exportData } from '../lib/exportUtils';
 
 const INITIAL_STAFF_STATE: Partial<Staff> = {
   lasrraId: '',
@@ -189,7 +190,11 @@ export const NonAcademicStaff: React.FC = () => {
           <p className="text-slate-500 italic serif text-sm">Digital nominal roll and credentials tracking</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200">
+          <button 
+            onClick={() => exportData(filteredStaff, `TEMIS_NonAcademic_Staff_${new Date().getFullYear()}`, 'csv')}
+            className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors"
+            title="Export Records"
+          >
             <Download size={20} />
           </button>
           {canManage('staff') && (

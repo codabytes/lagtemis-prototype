@@ -51,7 +51,14 @@ export const InstitutionCard: React.FC<InstitutionCardProps> = ({
             )}
           </div>
           <div>
-            <h3 className="text-lg font-bold text-slate-900">{inst.name}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg font-bold text-slate-900">{inst.name}</h3>
+              {inst.shortName && (
+                <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-lg uppercase tracking-wider">
+                  {inst.shortName}
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
                 <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold rounded uppercase tracking-wider">

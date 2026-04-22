@@ -59,6 +59,15 @@ const NavGroup: React.FC<{ label: string; icon: React.ReactNode; children: React
   </div>
 );
 
+/**
+ * Main Layout Component
+ * 
+ * Provides the structural wrapper for the application, including the 
+ * responsive sidebar (collapsible/pinnable), top search header, 
+ * and standard navigation groupings.
+ * 
+ * @param children - The page content to render within the main area
+ */
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, signOut } = useAuth();
   const location = useLocation();
@@ -100,6 +109,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     { to: '/trainings', icon: <FileText size={20} />, label: 'Training Management' },
     ...(user?.role === 'SuperUser' ? [
       { to: '/users', icon: <Users size={20} />, label: 'User Management' },
+      { to: '/analytics', icon: <FileText size={20} />, label: 'Reporting & Analytics' },
       { to: '/settings', icon: <Settings size={20} />, label: 'System Settings' }
     ] : []),
   ];
