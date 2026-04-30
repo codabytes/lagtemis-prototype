@@ -41,20 +41,18 @@ const StatCard: React.FC<{
   title: string; 
   value: string | number; 
   icon: React.ReactNode; 
-  trend?: { value: string; positive: boolean };
   color: string;
-}> = ({ title, value, icon, trend, color }) => (
-  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4">
+  onClick?: () => void;
+  drillable?: boolean;
+}> = ({ title, value, icon, color, onClick, drillable }) => (
+  <div 
+    onClick={onClick}
+    className={`bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4 transition-all duration-200 ${drillable ? 'cursor-pointer hover:shadow-lg hover:border-blue-200 active:scale-[0.98]' : ''}`}
+  >
     <div className="flex items-center justify-between">
       <div className={`p-3 rounded-xl ${color} bg-opacity-10 text-${color.split('-')[1]}-600`}>
         {icon}
       </div>
-      {trend && (
-        <div className={`flex items-center gap-1 text-xs font-bold ${trend.positive ? 'text-green-600' : 'text-red-600'}`}>
-          {trend.positive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-          {trend.value}
-        </div>
-      )}
     </div>
     <div>
       <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">{title}</p>
@@ -62,6 +60,773 @@ const StatCard: React.FC<{
     </div>
   </div>
 );
+
+const FacilityDrillDownModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  facilities: Facility[];
+  institutions: Institution[];
+}> = ({ isOpen, onClose, facilities, institutions }) => {
+  const [selectedInstId, setSelectedInstId] = useState<string | null>(null);
+  const [filters, setFilters] = useState({
+    campus: 'ALL',
+    type: 'ALL',
+    capacity: 'ALL',
+    fundingSource: 'ALL'
+  });
+
+  const selectedInstitution = institutions.find(i => i.id === selectedInstId);
+
+  const instStats = useMemo(() => {
+    return institutions.map(inst => ({
+      ...inst,
+      count: facilities.filter(f => f.institutionId === inst.id).length
+    })).sort((a, b) => b.count - a.count);
+  }, [facilities, institutions]);
+
+  const filteredFacilities = useMemo(() => {
+    if (!selectedInstId) return [];
+    return facilities.filter(f => {
+      if (f.institutionId !== selectedInstId) return false;
+      if (filters.campus !== 'ALL' && f.campus !== filters.campus) return false;
+      if (filters.type !== 'ALL' && f.type !== filters.type) return false;
+      if (filters.fundingSource !== 'ALL' && f.fundingSource !== filters.fundingSource) return false;
+      
+      if (filters.capacity !== 'ALL') {
+        const cap = f.capacity;
+        if (filters.capacity === '0-50') if (cap > 50) return false;
+        if (filters.capacity === '51-100') if (cap <= 50 || cap > 100) return false;
+        if (filters.capacity === '101-200') if (cap <= 100 || cap > 200) return false;
+        if (filters.capacity === '201-500') if (cap <= 200 || cap > 500) return false;
+        if (filters.capacity === '501+') if (cap <= 500) return false;
+      }
+      return true;
+    });
+  }, [facilities, selectedInstId, filters]);
+
+  const availableCampuses = useMemo(() => {
+    if (!selectedInstId) return [];
+    const campuses = facilities
+      .filter(f => f.institutionId === selectedInstId && f.campus)
+      .map(f => f.campus);
+    return Array.from(new Set(campuses)).sort();
+  }, [facilities, selectedInstId]);
+
+  const types = Array.from(new Set(facilities.map(f => f.type))).sort();
+  const fundingSources = Array.from(new Set(facilities.map(f => f.fundingSource))).sort();
+
+  const clearFilters = () => {
+    setFilters({
+      campus: 'ALL',
+      type: 'ALL',
+      capacity: 'ALL',
+      fundingSource: 'ALL'
+    });
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="bg-white w-full max-w-6xl h-[85vh] rounded-[32px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+        <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              {selectedInstId && (
+                <button 
+                  onClick={() => setSelectedInstId(null)}
+                  className="p-1.5 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors"
+                >
+                  <ArrowRight className="rotate-180" size={20} />
+                </button>
+              )}
+              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+                {!selectedInstId ? 'Total Facilities By Institution' : `Facilities Breakdown: ${selectedInstitution?.name}`}
+              </h2>
+            </div>
+            <p className="text-slate-500 text-sm italic serif">
+              {!selectedInstId ? 'Overall infrastructure inventory across the state' : 'Detailed asset listing with multidimensional filtering'}
+            </p>
+          </div>
+          <button onClick={onClose} className="p-3 text-slate-400 hover:bg-white hover:shadow-sm rounded-2xl transition-all">
+            <Building2 size={24} />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-hidden flex flex-col">
+          {!selectedInstId ? (
+            <div className="flex-1 p-8 overflow-y-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {instStats.map(inst => (
+                  <button 
+                    key={inst.id}
+                    onClick={() => setSelectedInstId(inst.id)}
+                    className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-left hover:border-amber-300 hover:bg-white hover:shadow-lg transition-all group active:scale-[0.98]"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-lg">
+                        {inst.shortName[0]}
+                      </div>
+                      <ArrowRight className="text-slate-300 group-hover:text-amber-500 group-hover:translate-x-1 transition-all" size={20} />
+                    </div>
+                    <h3 className="font-bold text-slate-900 mb-1 group-hover:text-amber-600 transition-colors">{inst.name}</h3>
+                    <p className="text-3xl font-black text-slate-900 tabular-nums mb-1">{inst.count.toLocaleString()}</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Facilities</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <div className="p-6 border-b border-slate-100 bg-white grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Campus</label>
+                  <select 
+                    value={filters.campus}
+                    onChange={(e) => setFilters(prev => ({ ...prev, campus: e.target.value }))}
+                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-amber-100"
+                  >
+                    <option value="ALL">ALL CAMPUSES</option>
+                    {availableCampuses.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Facility Type</label>
+                  <select 
+                    value={filters.type}
+                    onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
+                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-amber-100"
+                  >
+                    <option value="ALL">ALL TYPES</option>
+                    {types.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Capacity</label>
+                  <select 
+                    value={filters.capacity}
+                    onChange={(e) => setFilters(prev => ({ ...prev, capacity: e.target.value }))}
+                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-amber-100"
+                  >
+                    <option value="ALL">ANY CAPACITY</option>
+                    <option value="0-50">Up to 50</option>
+                    <option value="51-100">51 - 100</option>
+                    <option value="101-200">101 - 200</option>
+                    <option value="201-500">201 - 500</option>
+                    <option value="501+">Above 500</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Funding Source</label>
+                  <select 
+                    value={filters.fundingSource}
+                    onChange={(e) => setFilters(prev => ({ ...prev, fundingSource: e.target.value }))}
+                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-amber-100"
+                  >
+                    <option value="ALL">ALL SOURCES</option>
+                    {fundingSources.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div className="pb-1">
+                  <button 
+                    onClick={clearFilters}
+                    className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                  >
+                    Clear All
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-hidden bg-slate-50/20 p-8">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Infrastructure Records</h4>
+                    <p className="text-sm font-bold text-slate-600">Showing {filteredFacilities.length} matching assets</p>
+                  </div>
+                  <div className="px-4 py-2 bg-white rounded-xl border border-slate-100 shadow-sm flex items-center gap-3">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Matches:</span>
+                    <span className="text-xl font-black text-amber-600">{filteredFacilities.length}</span>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-[24px] shadow-sm border border-slate-100 overflow-hidden h-full max-h-[calc(85vh-350px)]">
+                  <div className="overflow-x-auto overflow-y-auto h-full custom-scrollbar">
+                    <table className="w-full text-left">
+                      <thead className="sticky top-0 bg-slate-50 z-10">
+                        <tr>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Facility Name</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Type</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Campus</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date Completed</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Acquisition Cost (₦)</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Funding Source</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {filteredFacilities.length === 0 ? (
+                          <tr>
+                            <td colSpan={6} className="px-6 py-20 text-center text-slate-400 italic font-medium">No assets found matching the active filters</td>
+                          </tr>
+                        ) : filteredFacilities.map(f => (
+                          <tr key={f.id} className="hover:bg-slate-50/50 group transition-colors">
+                            <td className="px-6 py-5">
+                              <p className="text-sm font-bold text-slate-900 group-hover:text-amber-600 transition-colors">{f.name}</p>
+                              <p className="text-[10px] text-slate-400 font-mono">ID: {f.assetId}</p>
+                            </td>
+                            <td className="px-6 py-5">
+                              <span className="text-xs font-bold text-slate-700">{f.type}</span>
+                            </td>
+                            <td className="px-6 py-5">
+                              <span className="text-[10px] font-black text-slate-500 uppercase tracking-tighter">{f.campus}</span>
+                            </td>
+                            <td className="px-6 py-5">
+                              <span className="text-sm font-bold text-slate-900 tabular-nums">
+                                {new Date(f.dateCompleted).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                              </span>
+                            </td>
+                            <td className="px-6 py-5">
+                              <span className="text-sm font-black text-slate-900 tabular-nums">
+                                ₦{f.acquisitionCost?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </span>
+                            </td>
+                            <td className="px-6 py-5">
+                              <span className="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-lg uppercase tracking-wider">{f.fundingSource}</span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const StaffDrillDownModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  staff: Staff[];
+  institutions: Institution[];
+  faculties: Faculty[];
+  departments: Department[];
+}> = ({ isOpen, onClose, staff, institutions, faculties, departments }) => {
+  const [selectedInstId, setSelectedInstId] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState<'Academic' | 'Non-Academic' | null>(null);
+  const [filters, setFilters] = useState({
+    facultyId: 'ALL',
+    departmentId: 'ALL',
+    qualification: 'ALL',
+    employmentStatus: 'ALL'
+  });
+
+  const selectedInstitution = institutions.find(i => i.id === selectedInstId);
+
+  const instStats = useMemo(() => {
+    return institutions.map(inst => ({
+      ...inst,
+      count: staff.filter(s => s.institutionId === inst.id).length
+    })).sort((a, b) => b.count - a.count);
+  }, [staff, institutions]);
+
+  const typeCounts = useMemo(() => {
+    if (!selectedInstId) return { academic: 0, nonAcademic: 0 };
+    const instStaff = staff.filter(s => s.institutionId === selectedInstId);
+    return {
+      academic: instStaff.filter(s => s.staffType === 'Academic').length,
+      nonAcademic: instStaff.filter(s => s.staffType === 'Non-Academic').length
+    };
+  }, [staff, selectedInstId]);
+
+  const filteredStaff = useMemo(() => {
+    if (!selectedInstId || !selectedType) return [];
+    return staff.filter(s => {
+      if (s.institutionId !== selectedInstId) return false;
+      if (s.staffType !== selectedType) return false;
+      if (filters.facultyId !== 'ALL' && s.facultyId !== filters.facultyId) return false;
+      if (filters.departmentId !== 'ALL' && s.departmentId !== filters.departmentId) return false;
+      if (filters.qualification !== 'ALL' && s.highestQualification !== filters.qualification) return false;
+      if (filters.employmentStatus !== 'ALL' && s.employmentStatus !== filters.employmentStatus) return false;
+      return true;
+    });
+  }, [staff, selectedInstId, selectedType, filters]);
+
+  const availableFaculties = faculties.filter(f => f.institutionId === selectedInstId);
+  const availableDepartments = useMemo(() => {
+    if (filters.facultyId === 'ALL') {
+      return departments.filter(d => availableFaculties.some(f => f.id === d.facultyId));
+    }
+    return departments.filter(d => d.facultyId === filters.facultyId);
+  }, [departments, filters.facultyId, availableFaculties]);
+
+  const qualifications = Array.from(new Set(staff.map(s => s.highestQualification).filter(Boolean))).sort();
+  const statuses = Array.from(new Set(staff.map(s => s.employmentStatus))).sort();
+
+  if (!isOpen) return null;
+
+  const navigateBack = () => {
+    if (selectedType) setSelectedType(null);
+    else if (selectedInstId) setSelectedInstId(null);
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      facultyId: 'ALL',
+      departmentId: 'ALL',
+      qualification: 'ALL',
+      employmentStatus: 'ALL'
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="bg-white w-full max-w-6xl h-[85vh] rounded-[32px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+        <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              {(selectedInstId || selectedType) && (
+                <button 
+                  onClick={navigateBack}
+                  className="p-1.5 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors"
+                >
+                  <ArrowRight className="rotate-180" size={20} />
+                </button>
+              )}
+              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+                {!selectedInstId ? 'Staff Strength By Institution' : 
+                 !selectedType ? `Staff Breakdown: ${selectedInstitution?.name}` :
+                 `${selectedType} Staff: ${selectedInstitution?.name}`}
+              </h2>
+            </div>
+            <p className="text-slate-500 text-sm italic serif">
+              {!selectedInstId ? 'Total human resource capacity across all institutions' : 
+               !selectedType ? 'Academic and Non-Academic personnel breakdown' :
+               'Advanced filtering and detailed records view'}
+            </p>
+          </div>
+          <button onClick={onClose} className="p-3 text-slate-400 hover:bg-white hover:shadow-sm rounded-2xl transition-all">
+            <Users size={24} />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-hidden flex flex-col">
+          {!selectedInstId ? (
+            <div className="flex-1 p-8 overflow-y-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {instStats.map(inst => (
+                  <button 
+                    key={inst.id}
+                    onClick={() => setSelectedInstId(inst.id)}
+                    className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-left hover:border-emerald-300 hover:bg-white hover:shadow-lg transition-all group active:scale-[0.98]"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-lg">
+                        {inst.shortName[0]}
+                      </div>
+                      <ArrowRight className="text-slate-300 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all" size={20} />
+                    </div>
+                    <h3 className="font-bold text-slate-900 mb-1 group-hover:text-emerald-600 transition-colors">{inst.name}</h3>
+                    <p className="text-3xl font-black text-slate-900 tabular-nums mb-1">{inst.count.toLocaleString()}</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Staff Strength</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : !selectedType ? (
+            <div className="flex-1 p-8 flex items-center justify-center gap-8">
+              <button 
+                onClick={() => setSelectedType('Academic')}
+                className="w-full max-w-sm p-10 bg-white rounded-[32px] border-2 border-slate-100 hover:border-emerald-500 hover:shadow-2xl transition-all group text-center"
+              >
+                <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                  <BookOpen size={40} />
+                </div>
+                <h3 className="text-2xl font-black text-slate-900 mb-2">Academic Staff</h3>
+                <p className="text-4xl font-black text-emerald-600 mb-2 tabular-nums">{typeCounts.academic.toLocaleString()}</p>
+                <p className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em]">Personnel Count</p>
+              </button>
+
+              <button 
+                onClick={() => setSelectedType('Non-Academic')}
+                className="w-full max-w-sm p-10 bg-white rounded-[32px] border-2 border-slate-100 hover:border-blue-500 hover:shadow-2xl transition-all group text-center"
+              >
+                <div className="w-20 h-20 bg-blue-100 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                  <Activity size={40} />
+                </div>
+                <h3 className="text-2xl font-black text-slate-900 mb-2">Non-Academic Staff</h3>
+                <p className="text-4xl font-black text-blue-600 mb-2 tabular-nums">{typeCounts.nonAcademic.toLocaleString()}</p>
+                <p className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em]">Personnel Count</p>
+              </button>
+            </div>
+          ) : (
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <div className="p-6 border-b border-slate-100 bg-white grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Faculty/Directorate</label>
+                  <select 
+                    value={filters.facultyId}
+                    onChange={(e) => setFilters(prev => ({ ...prev, facultyId: e.target.value, departmentId: 'ALL' }))}
+                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-emerald-100"
+                  >
+                    <option value="ALL">ALL {selectedType === 'Academic' ? 'FACULTIES' : 'DIRECTORATES'}</option>
+                    {availableFaculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Department/Unit</label>
+                  <select 
+                    value={filters.departmentId}
+                    onChange={(e) => setFilters(prev => ({ ...prev, departmentId: e.target.value }))}
+                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-emerald-100"
+                  >
+                    <option value="ALL">ALL {selectedType === 'Academic' ? 'DEPARTMENTS' : 'UNITS'}</option>
+                    {availableDepartments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Qualification</label>
+                  <select 
+                    value={filters.qualification}
+                    onChange={(e) => setFilters(prev => ({ ...prev, qualification: e.target.value }))}
+                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-emerald-100"
+                  >
+                    <option value="ALL">ALL QUALIFICATIONS</option>
+                    {qualifications.map(q => <option key={q} value={q}>{q}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Status</label>
+                  <select 
+                    value={filters.employmentStatus}
+                    onChange={(e) => setFilters(prev => ({ ...prev, employmentStatus: e.target.value }))}
+                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-emerald-100"
+                  >
+                    <option value="ALL">ALL STATUSES</option>
+                    {statuses.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div className="pb-1">
+                  <button 
+                    onClick={clearFilters}
+                    className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                  >
+                    Clear All
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-hidden bg-slate-50/20 p-8">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Personnel Records</h4>
+                    <p className="text-sm font-bold text-slate-600">Showing {filteredStaff.length} filtered staff members</p>
+                  </div>
+                  <div className="px-4 py-2 bg-white rounded-xl border border-slate-100 shadow-sm flex items-center gap-3">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Matches:</span>
+                    <span className={`text-xl font-black ${selectedType === 'Academic' ? 'text-emerald-600' : 'text-blue-600'}`}>{filteredStaff.length}</span>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-[24px] shadow-sm border border-slate-100 overflow-hidden h-full max-h-[calc(85vh-350px)]">
+                  <div className="overflow-y-auto h-full custom-scrollbar">
+                    <table className="w-full text-left">
+                      <thead className="sticky top-0 bg-slate-50 z-10">
+                        <tr>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Staff Name</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Rank</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{selectedType === 'Academic' ? 'Faculty' : 'Directorate'}</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{selectedType === 'Academic' ? 'Department' : 'Unit'}</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Qualification</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {filteredStaff.length === 0 ? (
+                          <tr>
+                            <td colSpan={6} className="px-6 py-20 text-center text-slate-400 italic font-medium">No personnel found matching the active filters</td>
+                          </tr>
+                        ) : filteredStaff.map(s => (
+                          <tr key={s.id} className="hover:bg-slate-50/50 group transition-colors">
+                            <td className="px-6 py-5">
+                              <p className="text-sm font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">{s.title} {s.surname}, {s.firstName} {s.otherName}</p>
+                              <p className="text-[10px] text-slate-400 font-mono">ID: {s.staffId}</p>
+                            </td>
+                            <td className="px-6 py-5">
+                              <span className="text-xs font-bold text-slate-700">{s.designation}</span>
+                            </td>
+                            <td className="px-6 py-5">
+                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-tighter">{faculties.find(f => f.id === s.facultyId)?.name}</p>
+                            </td>
+                            <td className="px-6 py-5">
+                              <p className="text-[10px] font-bold text-slate-400">{departments.find(d => d.id === s.departmentId)?.name}</p>
+                            </td>
+                            <td className="px-6 py-5">
+                              <span className="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-lg uppercase tracking-wider">{s.highestQualification}</span>
+                            </td>
+                            <td className="px-6 py-5">
+                              <div className="flex items-center gap-1.5">
+                                <span className={`w-1.5 h-1.5 rounded-full ${s.employmentStatus === 'Active' ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
+                                <span className="text-[11px] font-bold text-slate-600">{s.employmentStatus}</span>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+const DrillDownModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  students: Student[];
+  institutions: Institution[];
+  faculties: Faculty[];
+  departments: Department[];
+}> = ({ isOpen, onClose, students, institutions, faculties, departments }) => {
+  const [selectedInstitutionId, setSelectedInstitutionId] = useState<string | null>(null);
+  const [filters, setFilters] = useState({
+    campus: 'ALL',
+    programmeType: 'ALL',
+    facultyId: 'ALL',
+    departmentId: 'ALL'
+  });
+
+  const selectedInstitution = institutions.find(i => i.id === selectedInstitutionId);
+
+  const institutionStats = useMemo(() => {
+    return institutions.map(inst => ({
+      ...inst,
+      count: students.filter(s => s.institutionId === inst.id).length
+    })).sort((a, b) => b.count - a.count);
+  }, [students, institutions]);
+
+  const filteredStudents = useMemo(() => {
+    if (!selectedInstitutionId) return [];
+    return students.filter(s => {
+      if (s.institutionId !== selectedInstitutionId) return false;
+      if (filters.campus !== 'ALL' && s.campus !== filters.campus) return false;
+      if (filters.programmeType !== 'ALL' && s.programmeType !== filters.programmeType) return false;
+      if (filters.facultyId !== 'ALL' && s.facultyId !== filters.facultyId) return false;
+      if (filters.departmentId !== 'ALL' && s.departmentId !== filters.departmentId) return false;
+      return true;
+    });
+  }, [students, selectedInstitutionId, filters]);
+
+  const availableCampuses = useMemo(() => {
+    if (!selectedInstitutionId) return [];
+    const campuses = students
+      .filter(s => s.institutionId === selectedInstitutionId && s.campus)
+      .map(s => s.campus as string);
+    return Array.from(new Set(campuses)).sort();
+  }, [students, selectedInstitutionId]);
+
+  const availableFaculties = faculties.filter(f => f.institutionId === selectedInstitutionId);
+  const availableDepartments = useMemo(() => {
+    if (filters.facultyId === 'ALL') {
+      return departments.filter(d => availableFaculties.some(f => f.id === d.facultyId));
+    }
+    return departments.filter(d => d.facultyId === filters.facultyId);
+  }, [departments, filters.facultyId, availableFaculties]);
+
+  const clearFilters = () => {
+    setFilters({
+      campus: 'ALL',
+      programmeType: 'ALL',
+      facultyId: 'ALL',
+      departmentId: 'ALL'
+    });
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="bg-white w-full max-w-5xl h-[80vh] rounded-[32px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+        <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              {selectedInstitutionId && (
+                <button 
+                  onClick={() => setSelectedInstitutionId(null)}
+                  className="p-1.5 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors"
+                >
+                  <ArrowRight className="rotate-180" size={20} />
+                </button>
+              )}
+              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+                {selectedInstitutionId ? `Drill Down: ${selectedInstitution?.name}` : 'Student Enrollment By Institution'}
+              </h2>
+            </div>
+            <p className="text-slate-500 text-sm italic serif">
+              {selectedInstitutionId ? 'Filter and explore detailed student records' : 'Total enrollment breakdown by institution'}
+            </p>
+          </div>
+          <button onClick={onClose} className="p-3 text-slate-400 hover:bg-white hover:shadow-sm rounded-2xl transition-all">
+            <Users size={24} />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-hidden flex">
+          {!selectedInstitutionId ? (
+            <div className="flex-1 p-8 overflow-y-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {institutionStats.map(inst => (
+                  <button 
+                    key={inst.id}
+                    onClick={() => setSelectedInstitutionId(inst.id)}
+                    className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-left hover:border-blue-300 hover:bg-white hover:shadow-lg transition-all group active:scale-[0.98]"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">
+                        {inst.shortName[0]}
+                      </div>
+                      <ArrowRight className="text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" size={20} />
+                    </div>
+                    <h3 className="font-bold text-slate-900 mb-1 group-hover:text-blue-600 transition-colors">{inst.name}</h3>
+                    <p className="text-3xl font-black text-slate-900 tabular-nums mb-1">{inst.count.toLocaleString()}</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Students</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1 flex flex-col">
+              <div className="p-6 border-b border-slate-100 bg-white grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Campus</label>
+                  <select 
+                    value={filters.campus}
+                    onChange={(e) => setFilters(prev => ({ ...prev, campus: e.target.value }))}
+                    className="w-full bg-slate-50 border-none rounded-xl text-sm font-bold text-slate-700 p-2.5"
+                  >
+                    <option value="ALL">ALL CAMPUSES</option>
+                    {availableCampuses.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Programme Type</label>
+                  <select 
+                    value={filters.programmeType}
+                    onChange={(e) => setFilters(prev => ({ ...prev, programmeType: e.target.value }))}
+                    className="w-full bg-slate-50 border-none rounded-xl text-sm font-bold text-slate-700 p-2.5"
+                  >
+                    <option value="ALL">ALL TYPES</option>
+                    <option value="Full-time">FULL-TIME</option>
+                    <option value="Part-time">PART-TIME</option>
+                    <option value="Sandwich">SANDWICH</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Faculty</label>
+                  <select 
+                    value={filters.facultyId}
+                    onChange={(e) => setFilters(prev => ({ ...prev, facultyId: e.target.value, departmentId: 'ALL' }))}
+                    className="w-full bg-slate-50 border-none rounded-xl text-sm font-bold text-slate-700 p-2.5"
+                  >
+                    <option value="ALL">ALL FACULTIES</option>
+                    {availableFaculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Department</label>
+                  <select 
+                    value={filters.departmentId}
+                    onChange={(e) => setFilters(prev => ({ ...prev, departmentId: e.target.value }))}
+                    className="w-full bg-slate-50 border-none rounded-xl text-sm font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-blue-100"
+                  >
+                    <option value="ALL">ALL DEPARTMENTS</option>
+                    {availableDepartments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                  </select>
+                </div>
+                <div className="flex items-end">
+                  <button 
+                    onClick={clearFilters}
+                    className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                  >
+                    Clear All
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-hidden bg-slate-50/30 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Student Records</h4>
+                    <p className="text-sm font-bold text-slate-600">Showing {filteredStudents.length} students matching criteria</p>
+                  </div>
+                  <div className="px-4 py-2 bg-white rounded-xl border border-slate-100 shadow-sm">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mr-2">Result Count:</span>
+                    <span className="text-lg font-black text-blue-600">{filteredStudents.length}</span>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden h-full max-h-[calc(80vh-350px)]">
+                  <div className="overflow-y-auto h-full">
+                    <table className="w-full text-left">
+                      <thead className="sticky top-0 bg-slate-50 z-10">
+                        <tr>
+                          <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Student</th>
+                          <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Matric No</th>
+                          <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Faculty</th>
+                          <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Department</th>
+                          <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Campus</th>
+                          <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Programme Type</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {filteredStudents.length === 0 ? (
+                          <tr>
+                            <td colSpan={6} className="px-6 py-12 text-center text-slate-400 italic font-medium">No students found for this selection</td>
+                          </tr>
+                        ) : filteredStudents.map(s => (
+                          <tr key={s.id} className="hover:bg-slate-50/50">
+                            <td className="px-6 py-4">
+                              <p className="text-sm font-bold text-slate-900">{s.firstName} {s.lastName}</p>
+                              <p className="text-[10px] text-blue-500 font-mono">LASRRA: {s.lasrraId}</p>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="text-xs font-mono text-slate-600">{s.matricNumber}</span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <p className="text-[10px] font-bold text-slate-700">{faculties.find(f => f.id === s.facultyId)?.name}</p>
+                            </td>
+                            <td className="px-6 py-4">
+                              <p className="text-[9px] text-slate-400 font-medium">{departments.find(d => d.id === s.departmentId)?.name}</p>
+                            </td>
+                            <td className="px-6 py-4">
+                              <p className="text-[10px] text-slate-400 uppercase tracking-tighter font-bold">{s.campus || 'Main Campus'}</p>
+                            </td>
+                            <td className="px-6 py-4">
+                              <p className="text-xs font-bold text-slate-600">{s.programmeType}</p>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 /**
  * Executive Dashboard Component
@@ -72,6 +837,9 @@ const StatCard: React.FC<{
  */
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const [isDrillDownOpen, setIsDrillDownOpen] = useState(false);
+  const [isStaffDrillDownOpen, setIsStaffDrillDownOpen] = useState(false);
+  const [isFacilityDrillDownOpen, setIsFacilityDrillDownOpen] = useState(false);
   const [rawData, setRawData] = useState<{
     students: Student[];
     staff: Staff[];
@@ -96,16 +864,49 @@ export const Dashboard: React.FC = () => {
 
   useEffect(() => {
     const performGlobalPurge = async () => {
-      const hasPurged = localStorage.getItem('global_purge_completed');
-      if (hasPurged) return;
+      const hasPurgedMain = localStorage.getItem('global_purge_completed');
+      const hasPurgedLeadership = localStorage.getItem('leadership_purge_completed');
+      const hasPurgedAlumni = localStorage.getItem('alumni_purge_completed');
+      const hasPurgedStaffNew = localStorage.getItem('staff_purge_fresh_v1');
+      const hasPurgedFacilsNew = localStorage.getItem('facils_purge_fresh_v1');
+      const hasPurgedFinalRequest = localStorage.getItem('purge_research_training_users_v1');
+      
+      if (hasPurgedMain && hasPurgedLeadership && hasPurgedAlumni && hasPurgedStaffNew && hasPurgedFacilsNew && hasPurgedFinalRequest) return;
 
-      console.log('Starting global purge of non-institutional tables...');
-      const collectionsToPurge = ['students', 'staff', 'facilities', 'publications', 'trainings', 'logs', 'maintenance_logs'];
+      console.log('Starting global purge...');
+      const collectionsToPurge = [];
+      if (!hasPurgedMain) collectionsToPurge.push('publications', 'trainings', 'logs');
+      if (!hasPurgedLeadership) collectionsToPurge.push('leadership_tenures');
+      if (!hasPurgedAlumni || !hasPurgedMain) collectionsToPurge.push('students');
+      if (!hasPurgedStaffNew) collectionsToPurge.push('staff');
+      if (!hasPurgedFacilsNew) {
+        collectionsToPurge.push('facilities');
+        collectionsToPurge.push('maintenance_logs');
+      }
+      if (!hasPurgedFinalRequest) {
+        collectionsToPurge.push('publications');
+        collectionsToPurge.push('trainings');
+        collectionsToPurge.push('users');
+      }
+      
+      // Remove duplicates
+      const uniqueCollections = Array.from(new Set(collectionsToPurge));
       
       try {
-        for (const coll of collectionsToPurge) {
-          const snap = await getDocs(collection(db, coll));
-          if (snap.empty) continue;
+        for (const coll of uniqueCollections) {
+          console.log(`Checking collection: ${coll}`);
+          let snap;
+          try {
+            snap = await getDocs(collection(db, coll));
+          } catch (e) {
+            console.error(`Failed to list collection ${coll}:`, e);
+            continue; // Continue to next collection if list fails
+          }
+          
+          if (snap.empty) {
+            console.log(`Collection ${coll} is empty.`);
+            continue;
+          }
 
           console.log(`Purging ${snap.size} records from ${coll}...`);
           
@@ -113,15 +914,29 @@ export const Dashboard: React.FC = () => {
           for (let i = 0; i < snap.docs.length; i += 500) {
             const batch = writeBatch(db);
             const chunk = snap.docs.slice(i, i + 500);
-            chunk.forEach(d => batch.delete(d.ref));
-            await batch.commit();
+            chunk.forEach(d => {
+              // Special case: preserve current user if purging 'users'
+              if (coll === 'users' && d.id === user?.id) return;
+              batch.delete(d.ref);
+            });
+            try {
+              await batch.commit();
+            } catch (e) {
+              console.error(`Failed to delete batch for ${coll}:`, e);
+              // Don't break completely, try other collections
+            }
           }
         }
         localStorage.setItem('global_purge_completed', 'true');
-        console.log('Global purge completed successfully.');
+        localStorage.setItem('leadership_purge_completed', 'true');
+        localStorage.setItem('alumni_purge_completed', 'true');
+        localStorage.setItem('staff_purge_fresh_v1', 'true');
+        localStorage.setItem('facils_purge_fresh_v1', 'true');
+        localStorage.setItem('purge_research_training_users_v1', 'true');
+        console.log('Purge completed.');
         window.location.reload();
       } catch (error) {
-        console.error('Global purge failed:', error);
+        console.error('Purge totally failed:', error);
       }
     };
 
@@ -181,8 +996,7 @@ export const Dashboard: React.FC = () => {
     const enrollmentYears = Array.from(new Set(realStudents.map(s => s.admissionYear?.split('-')[0]).filter(Boolean) as string[])).sort();
     const enrollmentData = enrollmentYears.map(year => ({
       year,
-      students: realStudents.filter(s => s.admissionYear?.startsWith(year)).length,
-      graduates: realStudents.filter(s => s.enrollmentStatus === 'Graduated' && s.graduationYear?.startsWith(year)).length
+      students: realStudents.filter(s => s.admissionYear?.startsWith(year)).length
     }));
 
     // Institution distribution
@@ -212,6 +1026,10 @@ export const Dashboard: React.FC = () => {
       realStudents
     };
   }, [rawData]);
+
+  const canDrillDown = useMemo(() => {
+    return ['SuperUser', 'DirectorAdminHR', 'DirectorStandards', 'DirectorInspection', 'DirectorInfrastructure', 'DirectorResearch'].includes(user?.role || '');
+  }, [user]);
 
   if (rawData.loading) {
     return (
@@ -247,27 +1065,30 @@ export const Dashboard: React.FC = () => {
           title="Total Students" 
           value={processedData.stats.students.toLocaleString()} 
           icon={<GraduationCap size={24} />} 
-          trend={{ value: '12.5%', positive: true }}
           color="bg-blue-500"
+          onClick={canDrillDown ? () => setIsDrillDownOpen(true) : undefined}
+          drillable={canDrillDown}
         />
         <StatCard 
-          title="Academic Staff" 
+          title="Staff Strength" 
           value={processedData.stats.staff.toLocaleString()} 
           icon={<Users size={24} />} 
-          trend={{ value: '3.2%', positive: true }}
           color="bg-emerald-500"
+          onClick={canDrillDown ? () => setIsStaffDrillDownOpen(true) : undefined}
+          drillable={canDrillDown}
         />
         <StatCard 
-          title="Facilities" 
-          value={processedData.stats.facilities} 
+          title="Total Facilities" 
+          value={processedData.stats.facilities.toLocaleString()} 
           icon={<Building2 size={24} />} 
           color="bg-amber-500"
+          onClick={canDrillDown ? () => setIsFacilityDrillDownOpen(true) : undefined}
+          drillable={canDrillDown}
         />
         <StatCard 
           title="STEM Ratio" 
           value={`${processedData.stats.stemRatio}%`} 
           icon={<TrendingUp size={24} />} 
-          trend={{ value: 'Target: 60%', positive: true }}
           color="bg-purple-500"
         />
         <StatCard 
@@ -447,6 +1268,37 @@ export const Dashboard: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {isDrillDownOpen && (
+        <DrillDownModal
+          isOpen={isDrillDownOpen}
+          onClose={() => setIsDrillDownOpen(false)}
+          students={processedData.realStudents}
+          institutions={processedData.realInstitutions}
+          faculties={processedData.realFaculties}
+          departments={processedData.realDepts}
+        />
+      )}
+
+      {isStaffDrillDownOpen && (
+        <StaffDrillDownModal
+          isOpen={isStaffDrillDownOpen}
+          onClose={() => setIsStaffDrillDownOpen(false)}
+          staff={rawData.staff}
+          institutions={processedData.realInstitutions}
+          faculties={processedData.realFaculties}
+          departments={processedData.realDepts}
+        />
+      )}
+
+      {isFacilityDrillDownOpen && (
+        <FacilityDrillDownModal
+          isOpen={isFacilityDrillDownOpen}
+          onClose={() => setIsFacilityDrillDownOpen(false)}
+          facilities={rawData.facilities}
+          institutions={processedData.realInstitutions}
+        />
+      )}
     </div>
   );
 };

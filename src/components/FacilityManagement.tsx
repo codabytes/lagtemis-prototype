@@ -17,10 +17,10 @@ import {
 } from 'lucide-react';
 import { collection, getDocs, addDoc, updateDoc, query, orderBy, deleteDoc, doc } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType, logAudit } from '../firebase';
-import { Facility, Institution, Faculty, Department } from '../types';
+import { Facility, Institution } from '../types';
 import { useAuth } from './AuthGuard';
 import { ConfirmDialog } from './ConfirmDialog';
-import { exportData } from '../lib/exportUtils';
+import { ExportButton } from './ExportButton';
 
 /**
  * FacilityManagement Component
@@ -32,10 +32,15 @@ export const FacilityManagement: React.FC = () => {
   const { user, canManage, canDelete } = useAuth();
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [institutions, setInstitutions] = useState<Institution[]>([]);
-  const [faculties, setFaculties] = useState<Faculty[]>([]);
-  const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState({
+    institutionId: 'all',
+    campus: 'all',
+    type: 'all',
+    capacity: 'all',
+    fundingSource: 'all'
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingFacility, setEditingFacility] = useState<Facility | null>(null);
 
@@ -47,9 +52,9 @@ export const FacilityManagement: React.FC = () => {
     institutionId: '',
     campus: '',
     location: '',
-    custodianId: '',
     capacity: 0,
     dateCompleted: new Date().toISOString().split('T')[0],
+    acquisitionCost: 0,
     fundingSource: 'Lagos State Government'
   };
 
@@ -113,24 +118,18 @@ export const FacilityManagement: React.FC = () => {
       setLoading(true);
       try {
         console.log('Fetching facility management data...');
-        const [infraSnap, instSnap, facSnap, deptSnap] = await Promise.all([
+        const [infraSnap, instSnap] = await Promise.all([
           getDocs(query(collection(db, 'facilities'), orderBy('name'))),
-          getDocs(query(collection(db, 'institutions'), orderBy('name'))),
-          getDocs(query(collection(db, 'faculties'), orderBy('name'))),
-          getDocs(query(collection(db, 'departments'), orderBy('name')))
+          getDocs(query(collection(db, 'institutions'), orderBy('name')))
         ]);
 
         const fetchedFacilities = infraSnap.docs.map(d => ({ id: d.id, ...d.data() } as Facility));
         const fetchedInstitutions = instSnap.docs.map(d => ({ id: d.id, ...d.data() } as Institution));
-        const fetchedFaculties = facSnap.docs.map(d => ({ id: d.id, ...d.data() } as Faculty));
-        const fetchedDepartments = deptSnap.docs.map(d => ({ id: d.id, ...d.data() } as Department));
 
-        console.log(`Loaded: ${fetchedFacilities.length} facilities, ${fetchedInstitutions.length} institutions, ${fetchedFaculties.length} faculties, ${fetchedDepartments.length} departments`);
+        console.log(`Loaded: ${fetchedFacilities.length} facilities, ${fetchedInstitutions.length} institutions`);
 
         setFacilities(fetchedFacilities);
         setInstitutions(fetchedInstitutions);
-        setFaculties(fetchedFaculties);
-        setDepartments(fetchedDepartments);
       } catch (error) {
         console.error('Error fetching facility management data:', error);
         handleFirestoreError(error, OperationType.LIST, 'facilities');
@@ -217,19 +216,36 @@ export const FacilityManagement: React.FC = () => {
     });
   };
 
-  const filteredFacilities = facilities.filter(f => 
-    f.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    f.assetId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    f.campus.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredFacilities = React.useMemo(() => {
+    return facilities.filter(f => {
+      const searchStr = `${f.assetId} ${f.name}`.toLowerCase();
+      const matchesSearch = searchStr.includes(searchTerm.toLowerCase());
+      
+      const matchesInst = filters.institutionId === 'all' || f.institutionId === filters.institutionId;
+      const matchesCampus = filters.campus === 'all' || f.campus === filters.campus;
+      const matchesType = filters.type === 'all' || f.type === filters.type;
+      const matchesSource = filters.fundingSource === 'all' || f.fundingSource === filters.fundingSource;
+      
+      let matchesCapacity = true;
+      if (filters.capacity !== 'all') {
+        const cap = f.capacity;
+        if (filters.capacity === '0-50') matchesCapacity = cap <= 50;
+        else if (filters.capacity === '51-100') matchesCapacity = cap > 50 && cap <= 100;
+        else if (filters.capacity === '101-200') matchesCapacity = cap > 100 && cap <= 200;
+        else if (filters.capacity === '201-500') matchesCapacity = cap > 200 && cap <= 500;
+        else if (filters.capacity === '501+') matchesCapacity = cap > 500;
+      }
 
-  const getCustodianName = (id: string) => {
-    const faculty = faculties.find(f => f.id === id);
-    if (faculty) return `${faculty.type === 'faculty' ? 'Faculty' : 'Directorate'}: ${faculty.name}`;
-    const dept = departments.find(d => d.id === id);
-    if (dept) return `${dept.type === 'department' ? 'Dept' : 'Unit'}: ${dept.name}`;
-    return 'Unknown';
-  };
+      return matchesSearch && matchesInst && matchesCampus && matchesType && matchesSource && matchesCapacity;
+    });
+  }, [facilities, searchTerm, filters]);
+
+  const availableCampuses = React.useMemo(() => {
+    const campuses = facilities
+      .filter(f => f.campus && (filters.institutionId === 'all' || f.institutionId === filters.institutionId))
+      .map(f => f.campus);
+    return Array.from(new Set(campuses)).sort();
+  }, [facilities, filters.institutionId]);
 
   return (
     <div className="space-y-6">
@@ -239,13 +255,7 @@ export const FacilityManagement: React.FC = () => {
           <p className="text-slate-500 italic serif text-sm">Inventory tracking and capacity mapping</p>
         </div>
         <div className="flex items-center gap-3">
-          <button 
-            onClick={() => exportData(filteredFacilities, `TEMIS_Facilities_${new Date().getFullYear()}`, 'csv')}
-            className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors"
-            title="Export Assets"
-          >
-            <Download size={20} />
-          </button>
+          <ExportButton data={filteredFacilities} fileName={`TEMIS_Facilities_${new Date().getFullYear()}`} />
           {canManage('facilities') && (
             <button 
               disabled={loading}
@@ -274,17 +284,117 @@ export const FacilityManagement: React.FC = () => {
       </div>
 
       {/* Filters & Search */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-6">
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
           <input
             type="text"
-            placeholder="Search by name, asset ID or campus..."
+            placeholder="Search by Asset ID, or Facility Name"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl transition-all duration-200 text-sm"
+            className="w-full pl-12 pr-4 py-3 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-2xl transition-all duration-200 text-base"
           />
         </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Institution</label>
+            <select 
+              value={filters.institutionId}
+              onChange={(e) => setFilters(prev => ({ ...prev, institutionId: e.target.value, campus: 'all' }))}
+              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100"
+            >
+              <option value="all">ALL INSTITUTIONS</option>
+              {institutions.map(inst => <option key={inst.id} value={inst.id}>{inst.name}</option>)}
+            </select>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Campus</label>
+            <select 
+              value={filters.campus}
+              onChange={(e) => setFilters(prev => ({ ...prev, campus: e.target.value }))}
+              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100"
+            >
+              <option value="all">ALL CAMPUSES</option>
+              {availableCampuses.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Facility Type</label>
+            <select 
+              value={filters.type}
+              onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
+              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100"
+            >
+              <option value="all">ALL TYPES</option>
+              {['Lecture Theater', 'Lecture Hall', 'Lecture Room', 'Library', 'Laboratory', 'Workshop', 'Studio'].map(t => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Capacity</label>
+            <select 
+              value={filters.capacity}
+              onChange={(e) => setFilters(prev => ({ ...prev, capacity: e.target.value }))}
+              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100"
+            >
+              <option value="all">ANY CAPACITY</option>
+              <option value="0-50">Up to 50</option>
+              <option value="51-100">51 - 100</option>
+              <option value="101-200">101 - 200</option>
+              <option value="201-500">201 - 500</option>
+              <option value="501+">Above 500</option>
+            </select>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Funding Source</label>
+            <select 
+              value={filters.fundingSource}
+              onChange={(e) => setFilters(prev => ({ ...prev, fundingSource: e.target.value }))}
+              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100"
+            >
+              <option value="all">ALL SOURCES</option>
+              {[
+                'Lagos State Government', 
+                'TETFund', 
+                'Special Intervention', 
+                'Corporate Social Responsibility', 
+                'Philanthropy', 
+                'Public-Private Partnership'
+              ].map(s => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {(searchTerm || filters.institutionId !== 'all' || filters.campus !== 'all' || filters.type !== 'all' || filters.capacity !== 'all' || filters.fundingSource !== 'all') && (
+          <div className="flex items-center justify-between pt-2 border-t border-slate-50">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+              Showing {filteredFacilities.length} matching facility result{filteredFacilities.length !== 1 ? 's' : ''}
+            </p>
+            <button 
+              onClick={() => {
+                setFilters({
+                  institutionId: 'all',
+                  campus: 'all',
+                  type: 'all',
+                  capacity: 'all',
+                  fundingSource: 'all'
+                });
+                setSearchTerm('');
+              }}
+              className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
+            >
+              Clear All Filters
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Facility List Table */}
@@ -299,24 +409,22 @@ export const FacilityManagement: React.FC = () => {
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Type</th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Campus</th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Location</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Custodian</th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Capacity</th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date Completed</th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Funding Source</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Maintenance History</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Actions</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
               {loading ? (
                 [1, 2, 3, 4, 5].map(i => (
                   <tr key={i} className="animate-pulse">
-                    <td colSpan={12} className="px-6 py-4"><div className="h-4 bg-slate-100 rounded w-full"></div></td>
+                    <td colSpan={10} className="px-6 py-4"><div className="h-4 bg-slate-100 rounded w-full"></div></td>
                   </tr>
                 ))
               ) : filteredFacilities.length === 0 ? (
                 <tr>
-                  <td colSpan={12} className="px-6 py-12 text-center text-slate-400 italic">No facility records found</td>
+                  <td colSpan={10} className="px-6 py-12 text-center text-slate-400 italic">No facility records found</td>
                 </tr>
               ) : filteredFacilities.map((facility) => (
                 <tr key={facility.id} className="hover:bg-slate-50/50 transition-colors group">
@@ -345,9 +453,6 @@ export const FacilityManagement: React.FC = () => {
                     <span className="text-sm text-slate-600">{facility.location}</span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="text-sm text-slate-600">{getCustodianName(facility.custodianId)}</span>
-                  </td>
-                  <td className="px-6 py-4">
                     <span className="text-sm font-bold text-slate-900">{facility.capacity}</span>
                   </td>
                   <td className="px-6 py-4">
@@ -356,17 +461,8 @@ export const FacilityManagement: React.FC = () => {
                   <td className="px-6 py-4">
                     <span className="text-xs font-medium text-slate-500">{facility.fundingSource}</span>
                   </td>
-                  <td className="px-6 py-4">
-                    <Link 
-                      to={`/facilities/profile/${facility.id}`}
-                      className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1"
-                    >
-                      <Wrench size={12} />
-                      View History
-                    </Link>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex items-center justify-end gap-2">
                       {canManage('facilities') && (
                         <button
                           onClick={() => handleEdit(facility)}
@@ -419,7 +515,7 @@ export const FacilityManagement: React.FC = () => {
                   <select
                     required
                     value={formData.institutionId}
-                    onChange={(e) => setFormData({ ...formData, institutionId: e.target.value, custodianId: '' })}
+                    onChange={(e) => setFormData({ ...formData, institutionId: e.target.value })}
                     className="w-full px-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all text-sm"
                   >
                     <option value="">Select Institution</option>
@@ -479,26 +575,6 @@ export const FacilityManagement: React.FC = () => {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Custodian</label>
-                  <select
-                    required
-                    value={formData.custodianId}
-                    onChange={(e) => setFormData({ ...formData, custodianId: e.target.value })}
-                    className="w-full px-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all text-sm"
-                  >
-                    <option value="">Select Custodian</option>
-                    {formData.institutionId && faculties.filter(f => f.institutionId === formData.institutionId).map(fac => (
-                      <option key={fac.id} value={fac.id}>{fac.type === 'faculty' ? 'Faculty' : 'Directorate'}: {fac.name}</option>
-                    ))}
-                    {formData.institutionId && departments.filter(d => {
-                      const faculty = faculties.find(f => f.id === d.facultyId);
-                      return faculty?.institutionId === formData.institutionId;
-                    }).map(dept => (
-                      <option key={dept.id} value={dept.id}>{dept.type === 'department' ? 'Dept' : 'Unit'}: {dept.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-1">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Capacity</label>
                   <input
                     required
@@ -517,6 +593,19 @@ export const FacilityManagement: React.FC = () => {
                     value={formData.dateCompleted}
                     onChange={(e) => setFormData({ ...formData, dateCompleted: e.target.value })}
                     className="w-full px-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Acquisition Cost (in Naira)</label>
+                  <input
+                    required
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    value={formData.acquisitionCost || ''}
+                    onChange={(e) => setFormData({ ...formData, acquisitionCost: parseFloat(e.target.value) })}
+                    className="w-full px-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all text-sm font-bold"
                   />
                 </div>
                 <div className="space-y-1">

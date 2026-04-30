@@ -52,13 +52,12 @@ export interface Student {
   sex: 'Male' | 'Female';
   matricNumber: string;
   institutionId: string;
+  campus?: string;
+  programmeType: 'Full-time' | 'Part-time' | 'Sandwich';
   facultyId: string;
   departmentId: string;
   admissionYear: string;
-  graduationYear?: string | null;
-  qualificationType?: string; // e.g., B.Sc, HND, OND, NCE, PhD
-  qualificationClass?: string; // e.g., First Class, Distinction, Upper Credit
-  enrollmentStatus: 'Enrolled' | 'Graduated' | 'Withdrawn' | 'Suspended' | 'Rusticated' | 'Archived';
+  enrollmentStatus: 'Enrolled' | 'Withdrawn' | 'Suspended' | 'Rusticated';
   certificateVerified: boolean;
   picture?: string;
 }
@@ -110,11 +109,12 @@ export interface Facility {
   institutionId: string;
   campus: string;
   location: string;
-  custodianId: string; // Faculty or Department ID
   capacity: number;
   dateCompleted: string;
+  acquisitionCost: number;
   fundingSource: 'Lagos State Government' | 'TETFund' | 'Special Intervention' | 'Corporate Social Responsibility' | 'Philanthropy' | 'Public-Private Partnership';
   lastMaintenanceDate?: string;
+  condition: 'Good' | 'Fair' | 'Poor' | 'Critical';
   isSeed?: boolean;
 }
 
@@ -122,7 +122,7 @@ export interface MaintenanceLog {
   id: string;
   facilityId: string;
   facilityName: string;
-  maintenanceType: 'Preventive' | 'Corrective' | 'Predictive' | 'Routine' | 'Repair' | 'Inspection' | 'Emergency';
+  maintenanceType: 'Inspection' | 'Routine' | 'Repair/Replacement';
   workPerformed: string;
   completedAt: string;
 }

@@ -34,9 +34,9 @@ async function seed() {
   const facultiesSnap = await getDocs(collection(db, 'faculties'));
   const departmentsSnap = await getDocs(collection(db, 'departments'));
 
-  const institutions = instSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-  const faculties = facultiesSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-  const departments = departmentsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const institutions = instSnap.docs.map(d => ({ id: d.id, ...d.data() } as any));
+  const faculties = facultiesSnap.docs.map(d => ({ id: d.id, ...d.data() } as any));
+  const departments = departmentsSnap.docs.map(d => ({ id: d.id, ...d.data() } as any));
 
   const currentYear = 2026;
 

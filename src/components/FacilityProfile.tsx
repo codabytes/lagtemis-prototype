@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { doc, getDoc, collection, addDoc, query, where, orderBy, getDocs } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType, logAudit } from '../firebase';
-import { Facility, Institution, Faculty, Department, MaintenanceLog } from '../types';
+import { Facility, Institution, MaintenanceLog } from '../types';
 
 import { useAuth } from './AuthGuard';
 
@@ -28,15 +28,14 @@ export const FacilityProfile: React.FC = () => {
   const navigate = useNavigate();
   const [facility, setFacility] = useState<Facility | null>(null);
   const [institution, setInstitution] = useState<Institution | null>(null);
-  const [custodian, setCustodian] = useState<Faculty | Department | null>(null);
   const [logs, setLogs] = useState<MaintenanceLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [newLog, setNewLog] = useState<Partial<MaintenanceLog>>({
-    maintenanceType: 'Preventive',
+    maintenanceType: 'Inspection',
     workPerformed: '',
-    completedAt: new Date().toISOString().slice(0, 16)
+    completedAt: new Date().toISOString().split('T')[0]
   });
 
   useEffect(() => {
@@ -48,17 +47,12 @@ export const FacilityProfile: React.FC = () => {
           const facilityData = { id: facilityDoc.id, ...facilityDoc.data() } as Facility;
           setFacility(facilityData);
 
-          const [instDoc, facDoc, deptDoc, logsSnap] = await Promise.all([
+          const [instDoc, logsSnap] = await Promise.all([
             getDoc(doc(db, 'institutions', facilityData.institutionId)),
-            getDoc(doc(db, 'faculties', facilityData.custodianId)),
-            getDoc(doc(db, 'departments', facilityData.custodianId)),
             getDocs(query(collection(db, 'maintenance_logs'), where('facilityId', '==', id), orderBy('completedAt', 'desc')))
           ]);
 
           if (instDoc.exists()) setInstitution({ id: instDoc.id, ...instDoc.data() } as Institution);
-          if (facDoc.exists()) setCustodian({ id: facDoc.id, ...facDoc.data() } as Faculty);
-          else if (deptDoc.exists()) setCustodian({ id: deptDoc.id, ...deptDoc.data() } as Department);
-
           setLogs(logsSnap.docs.map(d => ({ id: d.id, ...d.data() } as MaintenanceLog)));
         }
         setLoading(false);
@@ -86,9 +80,9 @@ export const FacilityProfile: React.FC = () => {
       setLogs([{ id: docRef.id, ...logData } as MaintenanceLog, ...logs]);
       setIsModalOpen(false);
       setNewLog({
-        maintenanceType: 'Preventive',
+        maintenanceType: 'Inspection',
         workPerformed: '',
-        completedAt: new Date().toISOString().slice(0, 16)
+        completedAt: new Date().toISOString().split('T')[0]
       });
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, 'maintenance_logs');
@@ -169,20 +163,6 @@ export const FacilityProfile: React.FC = () => {
                 <p className="text-sm font-bold text-slate-700">{facility.campus} - {facility.location}</p>
               </div>
 
-              <div className="p-4 bg-slate-50 rounded-2xl">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Custodian</p>
-                <p className="text-sm font-bold text-slate-700">
-                  {custodian ? (
-                    <>
-                      {(custodian as any).type === 'faculty' ? 'Faculty' : 
-                       (custodian as any).type === 'directorate' ? 'Directorate' : 
-                       (custodian as any).type === 'department' ? 'Dept' : 
-                       (custodian as any).type === 'unit' ? 'Unit' : 'Unknown'}: {custodian.name}
-                    </>
-                  ) : 'Unknown'}
-                </p>
-              </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-slate-50 rounded-2xl">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Completed</p>
@@ -218,13 +198,13 @@ export const FacilityProfile: React.FC = () => {
                   <div key={log.id} className="flex gap-6 relative group">
                     <div className="flex flex-col items-center">
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center z-10 ${
-                        log.maintenanceType === 'Preventive' ? 'bg-emerald-50 text-emerald-600' :
-                        log.maintenanceType === 'Corrective' ? 'bg-rose-50 text-rose-600' :
+                        log.maintenanceType === 'Routine' ? 'bg-emerald-50 text-emerald-600' :
+                        log.maintenanceType === 'Repair/Replacement' ? 'bg-rose-50 text-rose-600' :
                         'bg-blue-50 text-blue-600'
                       }`}>
-                        {log.maintenanceType === 'Preventive' && <CheckCircle2 size={20} />}
-                        {log.maintenanceType === 'Corrective' && <AlertTriangle size={20} />}
-                        {log.maintenanceType === 'Predictive' && <Activity size={20} />}
+                        {log.maintenanceType === 'Routine' && <CheckCircle2 size={20} />}
+                        {log.maintenanceType === 'Repair/Replacement' && <AlertTriangle size={20} />}
+                        {log.maintenanceType === 'Inspection' && <Activity size={20} />}
                       </div>
                       <div className="w-0.5 flex-1 bg-slate-100 my-2"></div>
                     </div>
@@ -256,7 +236,7 @@ export const FacilityProfile: React.FC = () => {
                 <XCircle size={24} />
               </button>
             </div>
-            <form onSubmit={handleAddLog} className="p-6 space-y-6">
+            <form onSubmit={handleAddLog} className="p-6 space-y-6 max-h-[80vh] overflow-y-auto custom-scrollbar">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Facility Name</label>
                 <input
@@ -268,19 +248,20 @@ export const FacilityProfile: React.FC = () => {
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Maintenance Type</label>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  {['Preventive', 'Corrective', 'Predictive', 'Routine', 'Repair', 'Inspection', 'Emergency'].map((type) => (
+                <div className="grid grid-cols-1 gap-2">
+                  {['Inspection', 'Routine', 'Repair/Replacement'].map((type) => (
                     <button
                       key={type}
                       type="button"
                       onClick={() => setNewLog({ ...newLog, maintenanceType: type as any })}
-                      className={`py-2 rounded-xl text-[10px] font-bold transition-all border ${
+                      className={`py-3 px-4 rounded-xl text-xs font-bold transition-all border text-left flex items-center justify-between ${
                         newLog.maintenanceType === type 
                           ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-100' 
                           : 'bg-slate-50 text-slate-500 border-slate-100 hover:bg-slate-100'
                       }`}
                     >
                       {type}
+                      {newLog.maintenanceType === type && <CheckCircle2 size={16} />}
                     </button>
                   ))}
                 </div>
@@ -296,13 +277,14 @@ export const FacilityProfile: React.FC = () => {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Date & Time Completed</label>
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Date Completed</label>
                 <input
                   required
-                  type="datetime-local"
+                  type="date"
+                  max={new Date().toISOString().split('T')[0]}
                   value={newLog.completedAt}
                   onChange={(e) => setNewLog({ ...newLog, completedAt: e.target.value })}
-                  className="w-full px-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all text-sm"
+                  className="w-full px-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all text-sm font-bold"
                 />
               </div>
               <div className="pt-6 border-t border-slate-100 flex justify-end gap-3">

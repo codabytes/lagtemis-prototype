@@ -19,9 +19,9 @@ async function seedStudents() {
   const facSnap = await getDocs(collection(db, 'faculties'));
   const deptSnap = await getDocs(collection(db, 'departments'));
 
-  const institutions = instSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-  const faculties = facSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-  const departments = deptSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const institutions = instSnap.docs.map(d => ({ id: d.id, ...d.data() } as any));
+  const faculties = facSnap.docs.map(d => ({ id: d.id, ...d.data() } as any));
+  const departments = deptSnap.docs.map(d => ({ id: d.id, ...d.data() } as any));
 
   console.log(`Found ${institutions.length} institutions, ${faculties.length} faculties, ${departments.length} departments.`);
 

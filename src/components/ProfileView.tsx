@@ -266,19 +266,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ type }) => {
                         <p className="text-sm font-semibold">{isStaff ? staff.staffId : student.matricNumber}</p>
                       </div>
                     </div>
-                    {!isStaff && (
-                      <div className="flex items-center gap-3 text-slate-600">
-                        <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
-                          {student.certificateVerified ? <ShieldCheck className="text-emerald-500" size={18} /> : <ShieldAlert className="text-amber-500" size={18} />}
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase">Verification</p>
-                          <p className={`text-sm font-semibold ${student.certificateVerified ? 'text-emerald-600' : 'text-amber-600'}`}>
-                            {student.certificateVerified ? 'Verified' : 'Pending'}
-                          </p>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </section>
 
@@ -299,8 +286,35 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ type }) => {
                         <MapPin size={18} />
                       </div>
                       <div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase">Faculty/Directorate & Dept/Unit</p>
-                        <p className="text-sm font-semibold">{faculty?.name} / {department?.name}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase">Campus</p>
+                        <p className="text-sm font-semibold">{student.campus || 'Main Campus'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 text-slate-600">
+                      <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                        <User size={18} />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase">Programme Type</p>
+                        <p className="text-sm font-semibold">{student.programmeType}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 text-slate-600">
+                      <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                        <Building size={18} />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase">Faculty</p>
+                        <p className="text-sm font-semibold text-slate-700">{faculty?.name || 'N/A'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 text-slate-600">
+                      <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                        <Building size={18} />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase">Department</p>
+                        <p className="text-sm font-semibold text-slate-700">{department?.name || 'N/A'}</p>
                       </div>
                     </div>
                   </div>
@@ -336,37 +350,28 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ type }) => {
                         </div>
                       </>
                     ) : (
-                      <>
-                        <div className="flex items-center gap-3 text-slate-600">
-                          <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
-                            <Calendar size={18} />
-                          </div>
-                          <div>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase">Admission Year</p>
-                            <p className="text-sm font-semibold">{student.admissionYear}</p>
-                          </div>
+                      <div className="p-6 bg-blue-50/50 rounded-2xl border border-blue-100 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center text-blue-600">
+                          <GraduationCap size={24} />
                         </div>
-                        <div className="flex items-center gap-3 text-slate-600">
-                          <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
-                            <Award size={18} />
-                          </div>
-                          <div>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase">Graduation Year</p>
-                            <p className="text-sm font-semibold">{student.graduationYear || 'In Progress'}</p>
-                          </div>
+                        <div>
+                          <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Active Enrollment</p>
+                          <p className="text-sm font-black text-blue-900">{institution?.name}</p>
                         </div>
-                      </>
+                      </div>
                     )}
                   </div>
                 </section>
 
-                <section>
-                  <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Qualifications</h3>
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                    <p className="text-sm font-bold text-slate-900 mb-1">{isStaff ? staff.highestQualification : 'Undergraduate Degree'}</p>
-                    <p className="text-xs text-slate-500 italic">{isStaff ? staff.specialization : 'Full-time Program'}</p>
-                  </div>
-                </section>
+                {isStaff && (
+                  <section>
+                    <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Qualifications</h3>
+                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                      <p className="text-sm font-bold text-slate-900 mb-1">{staff.highestQualification}</p>
+                      <p className="text-xs text-slate-500 italic">{staff.specialization}</p>
+                    </div>
+                  </section>
+                )}
               </div>
 
               {/* Right Column: Personal & Contact */}
@@ -421,15 +426,13 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ type }) => {
                   <thead>
                     <tr className="bg-slate-50">
                       <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Institution</th>
-                      <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Period</th>
-                      <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Qualification Path</th>
                       <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</th>
                       <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
                     {journey
-                      .sort((a, b) => new Date(b.admissionYear).getTime() - new Date(a.admissionYear).getTime())
+                      .sort((a, b) => new Date(b.admissionYear || 0).getTime() - new Date(a.admissionYear || 0).getTime())
                       .map((record) => (
                         <tr key={record.id} className={`${record.id === id ? 'bg-blue-50/50' : 'hover:bg-slate-50'} transition-colors group`}>
                           <td className="px-6 py-4">
@@ -438,26 +441,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ type }) => {
                             </span>
                           </td>
                           <td className="px-6 py-4">
-                            <div className="flex flex-col">
-                              <span className="text-xs font-mono text-slate-500">adm: {record.admissionYear}</span>
-                              {record.graduationYear && (
-                                <span className="text-xs font-mono text-emerald-600 font-bold">grad: {record.graduationYear}</span>
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <p className="text-sm text-slate-700 font-medium">
-                              {record.qualificationType || 'N/A'}
-                            </p>
-                            <p className="text-[10px] text-slate-400 uppercase font-black tracking-tighter">
-                              {record.qualificationClass || 'N/A'}
-                            </p>
-                          </td>
-                          <td className="px-6 py-4">
                             <div className="flex flex-col gap-1">
-                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest w-fit ${
-                                record.enrollmentStatus === 'Graduated' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
-                              }`}>
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest w-fit bg-blue-100 text-blue-700">
                                 {record.enrollmentStatus}
                               </span>
                               {record.id === id && (

@@ -48,17 +48,16 @@
         "sex": { "type": "string", "enum": ["Male", "Female"] },
         "matricNumber": { "type": "string" },
         "institutionId": { "type": "string" },
+        "campus": { "type": "string" },
+        "programmeType": { "type": "string", "enum": ["Full-time", "Part-time", "Sandwich"] },
         "facultyId": { "type": "string" },
         "departmentId": { "type": "string" },
         "admissionYear": { "type": "string", "format": "date" },
-        "graduationYear": { "type": "string", "format": "date" },
-        "qualificationType": { "type": "string", "description": "e.g., B.Sc, HND, OND, NCE." },
-        "qualificationClass": { "type": "string", "description": "e.g., First Class, Distinction." },
-        "enrollmentStatus": { "type": "string", "enum": ["Enrolled", "Graduated", "Withdrawn", "Suspended", "Rusticated", "Archived"] },
+        "enrollmentStatus": { "type": "string", "enum": ["Enrolled", "Withdrawn", "Suspended", "Rusticated"] },
         "certificateVerified": { "type": "boolean" },
         "picture": { "type": "string", "description": "Base64 encoded passport photograph." }
       },
-      "required": ["lasrraId", "firstName", "lastName", "matricNumber", "institutionId", "facultyId", "departmentId", "admissionYear", "status"]
+      "required": ["lasrraId", "firstName", "lastName", "matricNumber", "institutionId", "programmeType", "facultyId", "departmentId", "admissionYear", "enrollmentStatus"]
     },
     "Staff": {
       "title": "Staff",
@@ -85,9 +84,11 @@
         "specialization": { "type": "string" },
         "employmentStatus": { "type": "string", "enum": ["Active", "On Study Leave", "On Sabbatical", "On Leave of Absence", "On Suspension", "Appointment Terminated", "Dismissed", "Retired"] },
         "staffType": { "type": "string", "enum": ["Academic", "Non-Academic"] },
+        "email": { "type": "string", "description": "Staff email address." },
+        "mobilePhone": { "type": "string", "description": "Staff phone number." },
         "picture": { "type": "string" }
       },
-      "required": ["lasrraId", "staffId", "title", "surname", "firstName", "gender", "dob", "institutionId", "departmentId", "designation", "gradeLevel", "dateOfFirstAppointment", "dateOfConfirmation", "dateOfLastPromotion", "highestQualification", "employmentStatus", "staffType"]
+      "required": ["lasrraId", "staffId", "title", "surname", "firstName", "gender", "dob", "institutionId", "departmentId", "designation", "gradeLevel", "dateOfFirstAppointment", "dateOfConfirmation", "dateOfLastPromotion", "highestQualification", "employmentStatus", "staffType", "email", "mobilePhone"]
     },
     "Publication": {
       "title": "Publication",
@@ -116,13 +117,13 @@
         "institutionId": { "type": "string" },
         "campus": { "type": "string" },
         "location": { "type": "string" },
-        "custodianId": { "type": "string" },
         "capacity": { "type": "integer" },
         "dateCompleted": { "type": "string", "format": "date" },
+        "acquisitionCost": { "type": "number", "description": "Cost in Naira" },
         "fundingSource": { "type": "string" },
         "lastMaintenanceDate": { "type": "string", "format": "date" }
       },
-      "required": ["assetId", "name", "type", "institutionId", "campus", "location", "custodianId", "capacity", "dateCompleted", "fundingSource"]
+      "required": ["assetId", "name", "type", "institutionId", "campus", "location", "capacity", "dateCompleted", "fundingSource"]
     },
     "Training": {
       "title": "Training",
@@ -149,9 +150,9 @@
       "properties": {
         "facilityId": { "type": "string" },
         "facilityName": { "type": "string" },
-        "maintenanceType": { "type": "string", "enum": ["Preventive", "Corrective", "Predictive"] },
+        "maintenanceType": { "type": "string", "enum": ["Inspection", "Routine", "Repair/Replacement"] },
         "workPerformed": { "type": "string" },
-        "completedAt": { "type": "string", "format": "date-time" }
+        "completedAt": { "type": "string", "format": "date" }
       },
       "required": ["facilityId", "facilityName", "maintenanceType", "workPerformed", "completedAt"]
     },

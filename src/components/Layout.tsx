@@ -18,7 +18,8 @@ import {
   Wrench,
   Pin,
   PinOff,
-  ChevronLeft
+  ChevronLeft,
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from './AuthGuard';
 

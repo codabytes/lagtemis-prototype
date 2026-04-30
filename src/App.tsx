@@ -4,10 +4,8 @@ import { AuthProvider, AuthGuard } from './components/AuthGuard';
 import { Layout } from './components/Layout';
 import { Dashboard } from './components/Dashboard';
 import { StudentManagement } from './components/StudentManagement';
-import { AcademicStaff } from './components/AcademicStaff';
-import { NonAcademicStaff } from './components/NonAcademicStaff';
+import { StaffManagement } from './components/StaffManagement';
 import { ProfileView } from './components/ProfileView';
-import { MigrationUtility } from './components/MigrationUtility';
 import { FacilityManagement } from './components/FacilityManagement';
 import { FacilityMaintenance } from './components/FacilityMaintenance';
 import { FacilityProfile } from './components/FacilityProfile';
@@ -16,6 +14,7 @@ import { ResearchPublications } from './components/ResearchPublications';
 import { TrainingManagement } from './components/TrainingManagement';
 import { UserManagement } from './components/UserManagement';
 import { AnalyticsBI } from './components/AnalyticsBI';
+import { SystemSettings } from './components/SystemSettings';
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error: any }> {
@@ -83,8 +82,8 @@ export default function App() {
                 <Route path="/institutions" element={<InstitutionManagement />} />
                 <Route path="/students" element={<StudentManagement />} />
                 <Route path="/students/:id" element={<ProfileView type="student" />} />
-                <Route path="/personnel/academic" element={<AcademicStaff />} />
-                <Route path="/personnel/non-academic" element={<NonAcademicStaff />} />
+                <Route path="/personnel/academic" element={<StaffManagement type="Academic" />} />
+                <Route path="/personnel/non-academic" element={<StaffManagement type="Non-Academic" />} />
                 <Route path="/staff/:id" element={<ProfileView type="staff" />} />
                 <Route path="/facilities/management" element={<FacilityManagement />} />
                 <Route path="/facilities/maintenance" element={<FacilityMaintenance />} />
@@ -93,7 +92,7 @@ export default function App() {
                 <Route path="/trainings" element={<TrainingManagement />} />
                 <Route path="/analytics" element={<AnalyticsBI />} />
                 <Route path="/users" element={<UserManagement />} />
-                <Route path="/settings" element={<MigrationUtility />} />
+                <Route path="/settings" element={<SystemSettings />} />
               </Routes>
             </Layout>
           </AuthGuard>

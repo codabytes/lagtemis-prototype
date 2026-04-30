@@ -16,7 +16,7 @@ service cloud.firestore {
     // Fields: name (string), facultyId (string), isSTEM (bool), type (string: department|unit)
     //
     // Collection: students
-    // Fields: lasrraId (string), firstName (string), otherName (string), lastName (string), dob (string), sex (string), matricNumber (string), institutionId (string), facultyId (string), departmentId (string), admissionYear (string), graduationYear (string), qualificationType (string), qualificationClass (string), enrollmentStatus (string), certificateVerified (bool)
+    // Fields: lasrraId (string), firstName (string), otherName (string), lastName (string), dob (string), sex (string), matricNumber (string), institutionId (string), campus (string), programmeType (string), facultyId (string), departmentId (string), admissionYear (string), enrollmentStatus (string), certificateVerified (bool)
     //
     // Collection: staff
     // Fields: lasrraId (string), staffId (string), title (string), surname (string), firstName (string), otherName (string), gender (string), dob (string), institutionId (string), facultyId (string), departmentId (string), designation (string), gradeLevel (string), dateOfFirstAppointment (string), dateOfConfirmation (string), dateOfLastPromotion (string), highestQualification (string), specialization (string), employmentStatus (string)
@@ -51,9 +51,13 @@ service cloud.firestore {
 
     function isAdmin() {
       return isAuthenticated() && 
-        (request.auth.token.email == "olurantidiyan@gmail.com" || 
+        (request.auth.token.email.matches('(?i)olurantidiyan@gmail\\.com') || 
          (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'SuperUser'));
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SuperUser"));
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
     }
 
     function hasRole(role) {
@@ -100,15 +104,15 @@ service cloud.firestore {
     }
 
     function isValidStudent() {
-      return hasRequiredFields(['lasrraId', 'firstName', 'lastName', 'matricNumber', 'institutionId', 'facultyId', 'departmentId', 'admissionYear', 'enrollmentStatus']) &&
+      return hasRequiredFields(['lasrraId', 'firstName', 'lastName', 'matricNumber', 'institutionId', 'programmeType', 'facultyId', 'departmentId', 'admissionYear', 'enrollmentStatus']) &&
              isValidString('lasrraId', 1, 50) &&
              isValidString('firstName', 1, 50) &&
              isValidString('lastName', 1, 50) &&
              isValidString('matricNumber', 1, 50) &&
              request.resource.data.admissionYear is string &&
-             request.resource.data.enrollmentStatus in ['Enrolled', 'Graduated', 'Withdrawn', 'Suspended', 'Rusticated', 'Archived'] &&
-             (!('qualificationType' in request.resource.data) || request.resource.data.qualificationType is string) &&
-             (!('qualificationClass' in request.resource.data) || request.resource.data.qualificationClass is string);
+             request.resource.data.programmeType in ['Full-time', 'Part-time', 'Sandwich'] &&
+             request.resource.data.enrollmentStatus in ['Enrolled', 'Withdrawn', 'Suspended', 'Rusticated'] &&
+             (!('campus' in request.resource.data) || request.resource.data.campus is string);
     }
 
     function isValidStaff() {
@@ -129,8 +133,9 @@ service cloud.firestore {
     }
 
     function isValidFacility() {
-      return hasRequiredFields(['assetId', 'name', 'type', 'institutionId', 'campus', 'location', 'custodianId', 'capacity', 'dateCompleted', 'fundingSource']) &&
-             request.resource.data.capacity is int;
+      return hasRequiredFields(['assetId', 'name', 'type', 'institutionId', 'campus', 'location', 'capacity', 'dateCompleted', 'acquisitionCost', 'fundingSource']) &&
+             request.resource.data.capacity is int &&
+             (request.resource.data.acquisitionCost is number || request.resource.data.acquisitionCost is int);
     }
 
     // ===============================================================
@@ -138,9 +143,9 @@ service cloud.firestore {
     // ===============================================================
 
     match /users/{userId} {
-      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow read: if isAuthenticated() && (isOwner(userId) || request.auth.token.email == "olurantidiyan@gmail.com");
       allow create: if isAdmin();
-      allow update: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow update: if isAuthenticated() && (isOwner(userId) || isAdmin());
       allow delete: if isAdmin();
     }
 
@@ -213,6 +218,10 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    match /leadership_tenures/{id} {
+      allow read, write: if isAdmin();
+    }
+    
     match /{path=**} {
       allow read, write: if false;
     }

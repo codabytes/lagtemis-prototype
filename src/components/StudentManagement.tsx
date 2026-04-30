@@ -19,7 +19,7 @@ import { Student, Institution, Department, Faculty } from '../types';
 import { useAuth } from './AuthGuard';
 import { format } from 'date-fns';
 import { ConfirmDialog } from './ConfirmDialog';
-import { exportData } from '../lib/exportUtils';
+import { ExportButton } from './ExportButton';
 
 const INITIAL_STUDENT_STATE: Partial<Student> = {
   lasrraId: '',
@@ -34,34 +34,10 @@ const INITIAL_STUDENT_STATE: Partial<Student> = {
   enrollmentStatus: 'Enrolled',
   certificateVerified: false,
   admissionYear: '',
-  graduationYear: null,
-  qualificationType: '',
-  qualificationClass: '',
-  picture: ''
+  picture: '',
+  campus: '',
+  programmeType: 'Full-time'
 };
-
-const UNIVERSITY_QUALS = [
-  'Degree'
-];
-
-const OTHER_QUALS = [
-  'OND', 'HND'
-];
-
-const UNIVERSITY_CLASSES = [
-  'First Class',
-  'Second Class Upper',
-  'Second Class Lower',
-  'Third Class',
-  'Pass'
-];
-
-const OTHER_INST_CLASSES = [
-  'Distinction',
-  'Upper Credit',
-  'Lower Credit',
-  'Pass'
-];
 
 /**
  * StudentManagement Component
@@ -78,10 +54,14 @@ export const StudentManagement: React.FC = () => {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterInstitution, setFilterInstitution] = useState('all');
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [filterQualType, setFilterQualType] = useState('all');
-  const [filterQualClass, setFilterQualClass] = useState('all');
+  const [filters, setFilters] = useState({
+    institutionId: 'all',
+    campus: 'all',
+    programmeType: 'all',
+    facultyId: 'all',
+    departmentId: 'all',
+    enrollmentStatus: 'all'
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isJourneyModalOpen, setIsJourneyModalOpen] = useState(false);
   const [selectedLasrraId, setSelectedLasrraId] = useState('');
@@ -101,17 +81,6 @@ export const StudentManagement: React.FC = () => {
     onConfirm: () => {},
   });
   const [newStudent, setNewStudent] = useState<Partial<Student>>(INITIAL_STUDENT_STATE);
-
-  const getMinGraduationDate = (admissionDate: string) => {
-    if (!admissionDate) return '';
-    const date = new Date(admissionDate);
-    const inst = institutions.find(i => i.id === newStudent.institutionId);
-    
-    // Strict compliance: 4 years for OND+HND (non-university)
-    // 4 to 6 years for Universities (let's default to 4 for min)
-    date.setFullYear(date.getFullYear() + 4);
-    return date.toISOString().split('T')[0];
-  };
 
   const isFormDirty = () => {
     return Object.keys(INITIAL_STUDENT_STATE).some(key => {
@@ -206,9 +175,13 @@ export const StudentManagement: React.FC = () => {
         await logAudit('UPDATE', 'students', editingStudent.id, `Updated student: ${newStudent.firstName} ${newStudent.lastName}`);
         setStudents(students.map(s => s.id === editingStudent.id ? { ...editingStudent, ...newStudent } as Student : s));
       } else {
-        const docRef = await addDoc(collection(db, 'students'), newStudent);
+        const studentData = {
+          ...newStudent,
+          admissionYear: newStudent.admissionYear || new Date().toISOString()
+        };
+        const docRef = await addDoc(collection(db, 'students'), studentData);
         await logAudit('CREATE', 'students', docRef.id, `Added student journey: ${newStudent.firstName} ${newStudent.lastName} for LASRRA ${newStudent.lasrraId}`);
-        setStudents([...students, { id: docRef.id, ...newStudent } as Student]);
+        setStudents([...students, { id: docRef.id, ...studentData } as Student]);
       }
       setIsModalOpen(false);
       setIsJourneyModalOpen(false);
@@ -285,20 +258,27 @@ export const StudentManagement: React.FC = () => {
   }, [students]);
 
   const filteredStudents = React.useMemo(() => {
-    const list = students.filter(s => {
-      const matchesSearch = `${s.firstName} ${s.lastName} ${s.otherName || ''} ${s.matricNumber} ${s.lasrraId} ${s.enrollmentStatus} ${s.qualificationType || ''} ${s.qualificationClass || ''}`.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesInstitution = filterInstitution === 'all' || s.institutionId === filterInstitution;
-      const matchesStatus = filterStatus === 'all' || s.enrollmentStatus === filterStatus;
-      const matchesQualType = filterQualType === 'all' || s.qualificationType === filterQualType;
-      const matchesQualClass = filterQualClass === 'all' || s.qualificationClass === filterQualClass;
+    return students.filter(s => {
+      const searchStr = `${s.firstName} ${s.lastName} ${s.matricNumber}`.toLowerCase();
+      const matchesSearch = searchStr.includes(searchTerm.toLowerCase());
       
-      return matchesSearch && matchesInstitution && matchesStatus && matchesQualType && matchesQualClass;
+      const matchesInstitution = filters.institutionId === 'all' || s.institutionId === filters.institutionId;
+      const matchesCampus = filters.campus === 'all' || s.campus === filters.campus;
+      const matchesProgramme = filters.programmeType === 'all' || s.programmeType === filters.programmeType;
+      const matchesFaculty = filters.facultyId === 'all' || s.facultyId === filters.facultyId;
+      const matchesDept = filters.departmentId === 'all' || s.departmentId === filters.departmentId;
+      const matchesStatus = filters.enrollmentStatus === 'all' || s.enrollmentStatus === filters.enrollmentStatus;
+      
+      return matchesSearch && matchesInstitution && matchesCampus && matchesProgramme && matchesFaculty && matchesDept && matchesStatus;
     });
+  }, [students, searchTerm, filters]);
 
-    // Grouping logic for "Portfolio" view in the list if needed, 
-    // but for now we keep the flat list and emphasize the grouping in the ProfileView.
-    return list;
-  }, [students, searchTerm, filterInstitution, filterStatus, filterQualType, filterQualClass]);
+  const availableCampuses = React.useMemo(() => {
+    const campuses = students
+      .filter(s => s.campus && (filters.institutionId === 'all' || s.institutionId === filters.institutionId))
+      .map(s => s.campus as string);
+    return Array.from(new Set(campuses)).sort();
+  }, [students, filters.institutionId]);
 
   return (
     <div className="space-y-6">
@@ -308,13 +288,7 @@ export const StudentManagement: React.FC = () => {
           <p className="text-slate-500 italic serif text-sm">Centralized database for student lifecycle tracking</p>
         </div>
         <div className="flex items-center gap-3">
-          <button 
-            onClick={() => exportData(filteredStudents, `TEMIS_Students_${new Date().getFullYear()}`, 'csv')}
-            className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors"
-            title="Export Current View"
-          >
-            <Download size={20} />
-          </button>
+          <ExportButton data={filteredStudents} fileName={`TEMIS_Students_${new Date().getFullYear()}`} />
           {canManage('students') && (
             <button 
               onClick={() => setIsModalOpen(true)}
@@ -328,85 +302,144 @@ export const StudentManagement: React.FC = () => {
       </div>
 
       {/* Filters & Search */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-4">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input
-              type="text"
-              placeholder="Search by name, ID, or qualification..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl transition-all duration-200 text-sm"
-            />
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-xl border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all">
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-6">
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+          <input
+            type="text"
+            placeholder="Search by name, or matric number"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-2xl transition-all duration-200 text-base"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Institution</label>
+            <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all">
               <Filter size={14} className="text-slate-400" />
               <select 
-                value={filterInstitution}
-                onChange={(e) => setFilterInstitution(e.target.value)}
-                className="bg-transparent border-none text-[11px] font-bold text-slate-600 outline-none uppercase tracking-wider"
+                value={filters.institutionId}
+                onChange={(e) => setFilters(prev => ({ ...prev, institutionId: e.target.value, facultyId: 'all', departmentId: 'all' }))}
+                className="w-full bg-transparent border-none text-[11px] font-bold text-slate-600 outline-none uppercase tracking-wider"
               >
-                <option value="all">All Institutions</option>
+                <option value="all">Institution: ALL</option>
                 {institutions.map(inst => <option key={inst.id} value={inst.id}>{inst.name}</option>)}
               </select>
             </div>
+          </div>
 
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-xl border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all">
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Campus</label>
+            <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all">
+              <Filter size={14} className="text-slate-400" />
+              <select 
+                value={filters.campus}
+                onChange={(e) => setFilters(prev => ({ ...prev, campus: e.target.value }))}
+                className="w-full bg-transparent border-none text-[11px] font-bold text-slate-600 outline-none uppercase tracking-wider"
+              >
+                <option value="all">Campus: ALL</option>
+                {availableCampuses.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Programme Type</label>
+            <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all">
+              <Filter size={14} className="text-slate-400" />
+              <select 
+                value={filters.programmeType}
+                onChange={(e) => setFilters(prev => ({ ...prev, programmeType: e.target.value }))}
+                className="w-full bg-transparent border-none text-[11px] font-bold text-slate-600 outline-none uppercase tracking-wider"
+              >
+                <option value="all">Type: ALL</option>
+                <option value="Full-time">Full-time</option>
+                <option value="Part-time">Part-time</option>
+                <option value="Sandwich">Sandwich</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Faculty</label>
+            <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all">
+              <Filter size={14} className="text-slate-400" />
+              <select 
+                value={filters.facultyId}
+                onChange={(e) => setFilters(prev => ({ ...prev, facultyId: e.target.value, departmentId: 'all' }))}
+                className="w-full bg-transparent border-none text-[11px] font-bold text-slate-600 outline-none uppercase tracking-wider"
+              >
+                <option value="all">Faculty: ALL</option>
+                {faculties
+                  .filter(f => filters.institutionId === 'all' || f.institutionId === filters.institutionId)
+                  .map(f => <option key={f.id} value={f.id}>{f.name}</option>)
+                }
+              </select>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Department</label>
+            <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all">
+              <Filter size={14} className="text-slate-400" />
+              <select 
+                value={filters.departmentId}
+                onChange={(e) => setFilters(prev => ({ ...prev, departmentId: e.target.value }))}
+                className="w-full bg-transparent border-none text-[11px] font-bold text-slate-600 outline-none uppercase tracking-wider"
+              >
+                <option value="all">Dept: ALL</option>
+                {departments
+                  .filter(d => filters.facultyId === 'all' || d.facultyId === filters.facultyId)
+                  .map(d => <option key={d.id} value={d.id}>{d.name}</option>)
+                }
+              </select>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Enrollment Status</label>
+            <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all">
               <GraduationCap size={14} className="text-slate-400" />
               <select 
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="bg-transparent border-none text-[11px] font-bold text-slate-600 outline-none uppercase tracking-wider"
+                value={filters.enrollmentStatus}
+                onChange={(e) => setFilters(prev => ({ ...prev, enrollmentStatus: e.target.value }))}
+                className="w-full bg-transparent border-none text-[11px] font-bold text-slate-600 outline-none uppercase tracking-wider"
               >
-                <option value="all">All Statuses</option>
+                <option value="all">Status: ALL</option>
                 <option value="Enrolled">Enrolled</option>
-                <option value="Graduated">Graduated</option>
                 <option value="Withdrawn">Withdrawn</option>
                 <option value="Suspended">Suspended</option>
                 <option value="Rusticated">Rusticated</option>
-                <option value="Archived">Archived</option>
               </select>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-slate-50">
-          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Alumni Filters:</span>
-          <select 
-            value={filterQualType}
-            onChange={(e) => setFilterQualType(e.target.value)}
-            className="bg-slate-50 border-none text-xs font-bold rounded-lg px-3 py-1.5 text-slate-500 outline-none focus:ring-2 focus:ring-blue-100"
-          >
-            <option value="all">All Qualifications</option>
-            {[...UNIVERSITY_QUALS, ...OTHER_QUALS].map(type => <option key={type} value={type}>{type}</option>)}
-          </select>
-
-          <select 
-            value={filterQualClass}
-            onChange={(e) => setFilterQualClass(e.target.value)}
-            className="bg-slate-50 border-none text-xs font-bold rounded-lg px-3 py-1.5 text-slate-500 outline-none focus:ring-2 focus:ring-blue-100"
-          >
-            <option value="all">All Classes</option>
-            {[...UNIVERSITY_CLASSES, ...OTHER_INST_CLASSES.filter(c => !UNIVERSITY_CLASSES.includes(c))].map(cls => <option key={cls} value={cls}>{cls}</option>)}
-          </select>
-
-          {(filterInstitution !== 'all' || filterStatus !== 'all' || filterQualType !== 'all' || filterQualClass !== 'all' || searchTerm) && (
+        {(filters.institutionId !== 'all' || filters.campus !== 'all' || filters.programmeType !== 'all' || filters.facultyId !== 'all' || filters.departmentId !== 'all' || filters.enrollmentStatus !== 'all' || searchTerm) && (
+          <div className="flex items-center justify-between pt-2 border-t border-slate-50">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+              Showing {filteredStudents.length} matching result{filteredStudents.length !== 1 ? 's' : ''}
+            </p>
             <button 
               onClick={() => {
-                setFilterInstitution('all');
-                setFilterStatus('all');
-                setFilterQualType('all');
-                setFilterQualClass('all');
+                setFilters({
+                  institutionId: 'all',
+                  campus: 'all',
+                  programmeType: 'all',
+                  facultyId: 'all',
+                  departmentId: 'all',
+                  enrollmentStatus: 'all'
+                });
                 setSearchTerm('');
               }}
-              className="text-[10px] font-bold text-blue-600 hover:text-blue-700 underline underline-offset-4 uppercase tracking-widest"
+              className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
             >
               Clear All Filters
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Student List */}
@@ -414,31 +447,30 @@ export const StudentManagement: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50">
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Student Name</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Matric Number</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Institution</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Qualification Type</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Class of Qualification</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Faculty/Directorate</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Department/Unit</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Admission</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Verification</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Enrollment Status</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Contact Info</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Actions</th>
-              </tr>
+                <tr className="bg-slate-50">
+                  <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Student Name</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Matric Number</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Institution</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Campus</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Programme Type</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Faculty</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Department</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mobile Phone</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email Address</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Enrollment Status</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Actions</th>
+                </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
               {loading ? (
                 [1, 2, 3, 4, 5].map(i => (
                   <tr key={i} className="animate-pulse">
-                    <td colSpan={12} className="px-6 py-4 h-16 bg-slate-50/50"></td>
+                    <td colSpan={11} className="px-6 py-4 h-16 bg-slate-50/50"></td>
                   </tr>
                 ))
               ) : filteredStudents.length === 0 ? (
                 <tr>
-                  <td colSpan={12} className="px-6 py-12 text-center text-slate-400 italic">No student records found</td>
+                  <td colSpan={11} className="px-6 py-12 text-center text-slate-400 italic">No student records found</td>
                 </tr>
               ) : filteredStudents.map((student) => (
                 <tr key={student.id} className="hover:bg-slate-50 transition-colors group">
@@ -481,19 +513,11 @@ export const StudentManagement: React.FC = () => {
                       {institutions.find(i => i.id === student.institutionId)?.name || 'Unknown'}
                     </p>
                   </td>
-                  <td className="px-6 py-4 uppercase">
-                    {student.qualificationType ? (
-                      <span className="text-sm font-bold text-slate-700">{student.qualificationType}</span>
-                    ) : (
-                      <span className="text-xs text-slate-400 italic">N/A</span>
-                    )}
+                  <td className="px-6 py-4">
+                    <p className="text-[10px] text-slate-400 uppercase tracking-tighter font-bold">{student.campus || 'Main Campus'}</p>
                   </td>
                   <td className="px-6 py-4">
-                    {student.qualificationClass ? (
-                      <span className="text-sm font-medium text-blue-600 font-bold">{student.qualificationClass}</span>
-                    ) : (
-                      <span className="text-xs text-slate-400 italic">N/A</span>
-                    )}
+                    <span className="text-xs font-bold text-slate-600">{student.programmeType}</span>
                   </td>
                   <td className="px-6 py-4">
                     <p className="text-sm text-slate-600">
@@ -501,57 +525,26 @@ export const StudentManagement: React.FC = () => {
                     </p>
                   </td>
                   <td className="px-6 py-4">
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-slate-600 font-medium">
                       {departments.find(d => d.id === student.departmentId)?.name || 'Unknown'}
                     </p>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-col gap-1 text-slate-600">
-                      <div className="flex items-center gap-2">
-                        <History size={14} className="text-slate-400" />
-                        <span className="text-sm font-mono">
-                          {student.admissionYear ? new Date(student.admissionYear).getFullYear() : 'N/A'}
-                        </span>
-                      </div>
-                      {student.graduationYear && (
-                        <div className="flex items-center gap-2 text-[10px] text-slate-400">
-                          <GraduationCap size={12} />
-                          <span>Grad: {new Date(student.graduationYear).getFullYear()}</span>
-                        </div>
-                      )}
-                    </div>
+                  <td className="px-6 py-4 text-xs font-mono text-slate-500">
+                    {student.mobilePhone}
                   </td>
-                  <td className="px-6 py-4">
-                    <button 
-                      onClick={() => toggleVerification(student)}
-                      disabled={!canManage('students')}
-                      className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-colors ${
-                        student.certificateVerified 
-                          ? 'bg-green-50 text-green-600' 
-                          : 'bg-amber-50 text-amber-600'
-                      } ${!canManage('students') ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-80'}`}
-                    >
-                      {student.certificateVerified ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
-                      {student.certificateVerified ? 'Verified' : 'Pending'}
-                    </button>
+                  <td className="px-6 py-4 text-xs font-semibold text-blue-600">
+                    {student.email}
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                       student.enrollmentStatus === 'Enrolled' ? 'bg-blue-50 text-blue-600' :
-                      student.enrollmentStatus === 'Graduated' ? 'bg-emerald-50 text-emerald-600' :
                       student.enrollmentStatus === 'Withdrawn' ? 'bg-amber-50 text-amber-600' :
                       student.enrollmentStatus === 'Suspended' ? 'bg-rose-50 text-rose-600' :
+                      student.enrollmentStatus === 'Rusticated' ? 'bg-rose-600 text-white' :
                       'bg-slate-100 text-slate-500'
                     }`}>
                       {student.enrollmentStatus}
                     </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-col gap-1">
-                      <p className="text-xs font-semibold text-slate-600">{student.email}</p>
-                      <p className="text-[10px] text-slate-400">{student.mobilePhone}</p>
-                      <p className="text-[10px] text-slate-400">DOB: {student.dob}</p>
-                    </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
@@ -785,7 +778,33 @@ export const StudentManagement: React.FC = () => {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Faculty/Directorate</label>
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Campus</label>
+                  <input
+                    type="text"
+                    placeholder="Main Campus, etc."
+                    value={newStudent.campus || ''}
+                    onChange={(e) => setNewStudent({ ...newStudent, campus: e.target.value })}
+                    className="w-full px-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Programme Type</label>
+                  <select
+                    required
+                    value={newStudent.programmeType}
+                    onChange={(e) => setNewStudent({ ...newStudent, programmeType: e.target.value as any })}
+                    className="w-full px-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all"
+                  >
+                    {['Full-time', 'Part-time', 'Sandwich'].map(opt => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Faculty</label>
                   <select
                     required
                     disabled={!newStudent.institutionId}
@@ -793,7 +812,7 @@ export const StudentManagement: React.FC = () => {
                     onChange={(e) => setNewStudent({ ...newStudent, facultyId: e.target.value, departmentId: '' })}
                     className="w-full px-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all disabled:opacity-50"
                   >
-                    <option value="">Select Faculty/Directorate</option>
+                    <option value="">Select Faculty</option>
                     {faculties
                       .filter(f => f.institutionId === newStudent.institutionId)
                       .map(f => <option key={f.id} value={f.id}>{f.name}</option>)
@@ -801,7 +820,7 @@ export const StudentManagement: React.FC = () => {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Department/Unit</label>
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Department</label>
                   <select
                     required
                     disabled={!newStudent.facultyId}
@@ -809,7 +828,7 @@ export const StudentManagement: React.FC = () => {
                     onChange={(e) => setNewStudent({ ...newStudent, departmentId: e.target.value })}
                     className="w-full px-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all disabled:opacity-50"
                   >
-                    <option value="">Select Department/Unit</option>
+                    <option value="">Select Department</option>
                     {departments
                       .filter(d => d.facultyId === newStudent.facultyId)
                       .map(dept => <option key={dept.id} value={dept.id}>{dept.name}</option>)
@@ -818,53 +837,7 @@ export const StudentManagement: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Date of Admission</label>
-                  <input
-                    required
-                    type="date"
-                    max={new Date().toISOString().split('T')[0]}
-                    value={newStudent.admissionYear}
-                    onChange={(e) => {
-                      const newDate = e.target.value;
-                      setNewStudent(prev => {
-                        const updated = { ...prev, admissionYear: newDate };
-                        // Clear graduation year if it's now before the new min date
-                        if (prev.graduationYear && newDate) {
-                          const minGrad = getMinGraduationDate(newDate);
-                          if (prev.graduationYear < minGrad) {
-                            updated.graduationYear = null;
-                          }
-                        }
-                        return updated;
-                      });
-                    }}
-                    className="w-full px-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Date of Graduation</label>
-                  <input
-                    type="date"
-                    disabled={!newStudent.admissionYear}
-                    min={getMinGraduationDate(newStudent.admissionYear || '')}
-                    value={newStudent.graduationYear || ''}
-                    onChange={(e) => {
-                      const gradDate = e.target.value;
-                      setNewStudent({ 
-                        ...newStudent, 
-                        graduationYear: gradDate,
-                        enrollmentStatus: gradDate ? 'Graduated' : newStudent.enrollmentStatus
-                      });
-                    }}
-                    placeholder="Optional"
-                    className={`w-full px-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all ${!newStudent.admissionYear ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  />
-                  {!newStudent.admissionYear && (
-                    <p className="text-[10px] text-amber-600 font-medium italic">Please select admission date first</p>
-                  )}
-                </div>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Enrollment Status</label>
                   <select
@@ -873,7 +846,7 @@ export const StudentManagement: React.FC = () => {
                     onChange={(e) => setNewStudent({ ...newStudent, enrollmentStatus: e.target.value as any })}
                     className={`w-full px-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all ${!editingStudent ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    {['Enrolled', 'Graduated', 'Withdrawn', 'Suspended', 'Rusticated', 'Archived'].map(opt => (
+                    {['Enrolled', 'Withdrawn', 'Suspended', 'Rusticated'].map(opt => (
                       <option key={opt} value={opt}>{opt}</option>
                     ))}
                   </select>
@@ -883,46 +856,6 @@ export const StudentManagement: React.FC = () => {
                 </div>
               </div>
 
-              {(newStudent.enrollmentStatus === 'Graduated' || newStudent.graduationYear) && (
-                <div className="p-6 bg-blue-50/50 rounded-3xl space-y-4 border border-blue-100/50">
-                  <div className="flex items-center gap-2 mb-2">
-                    <GraduationCap className="text-blue-600" size={20} />
-                    <h3 className="text-sm font-black text-blue-900 uppercase tracking-widest">Alumni/Graduation Details</h3>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Qualification Awarded</label>
-                      <select
-                        value={newStudent.qualificationType}
-                        onChange={(e) => setNewStudent({ ...newStudent, qualificationType: e.target.value })}
-                        className="w-full px-4 py-3 bg-white border-2 border-transparent focus:border-blue-500 focus:ring-4 focus:ring-blue-50 rounded-2xl outline-none transition-all text-sm font-bold text-slate-700 shadow-sm"
-                      >
-                        <option value="">Select Qualification</option>
-                        {(() => {
-                          const inst = institutions.find(i => i.id === newStudent.institutionId);
-                          const quals = inst?.name.toLowerCase().includes('university') ? UNIVERSITY_QUALS : OTHER_QUALS;
-                          return quals.map(type => <option key={type} value={type}>{type}</option>);
-                        })()}
-                      </select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Class of Qualification</label>
-                      <select
-                        value={newStudent.qualificationClass}
-                        onChange={(e) => setNewStudent({ ...newStudent, qualificationClass: e.target.value })}
-                        className="w-full px-4 py-3 bg-white border-2 border-transparent focus:border-blue-500 focus:ring-4 focus:ring-blue-50 rounded-2xl outline-none transition-all text-sm font-bold text-slate-700 shadow-sm"
-                      >
-                        <option value="">Select Class</option>
-                        {(() => {
-                          const inst = institutions.find(i => i.id === newStudent.institutionId);
-                          const classes = inst?.name.toLowerCase().includes('university') ? UNIVERSITY_CLASSES : OTHER_INST_CLASSES;
-                          return classes.map(cls => <option key={cls} value={cls}>{cls}</option>);
-                        })()}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              )}
               <div className="pt-6 border-t border-slate-100 flex justify-end gap-3">
                 <button
                   type="button"
