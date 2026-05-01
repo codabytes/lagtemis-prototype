@@ -2,6 +2,7 @@ export const ACADEMIC_DATA = [
   {
     name: "Lagos State University of Science and Technology",
     shortName: "LASUSTECH",
+    category: "University",
     faculties: [
       {
         name: "College of Agriculture",
@@ -38,6 +39,7 @@ export const ACADEMIC_DATA = [
   {
     name: "Lagos State University",
     shortName: "LASU",
+    category: "University",
     faculties: [
       {
         name: "Faculty of Arts",
@@ -109,6 +111,7 @@ export const ACADEMIC_DATA = [
   {
     name: "Lagos State University College of Medicine",
     shortName: "LASUCOM",
+    category: "University",
     faculties: [
       {
         name: "Faculty of Basic Medical Sciences",
@@ -139,6 +142,7 @@ export const ACADEMIC_DATA = [
   {
     name: "Lagos State College of Health Technology",
     shortName: "LASCOHET",
+    category: "Polytechnic/Monotechnic",
     faculties: [
       {
         name: "School of Environmental Health",
@@ -193,6 +197,7 @@ export const ACADEMIC_DATA = [
   {
     name: "Lagos State College of Nursing",
     shortName: "LASCON",
+    category: "Polytechnic/Monotechnic",
     faculties: [
       {
         name: "College of Nursing, Midwifery and Public Health Nursing",

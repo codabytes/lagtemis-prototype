@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Plus, Search, Database } from 'lucide-react';
+import { Plus, Search, Database, ChevronRight, ArrowLeft, Building, Layers, Trash2, Edit2 } from 'lucide-react';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, writeBatch } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType, logAudit } from '../firebase';
 import { Institution, Faculty, Department, Student } from '../types';
@@ -19,14 +19,17 @@ export const InstitutionManagement: React.FC = () => {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedInst, setExpandedInst] = useState<string | null>(null);
-  const [expandedFaculty, setExpandedFaculty] = useState<string | null>(null);
+  const [viewLevel, setViewLevel] = useState<'institutions' | 'faculties' | 'departments'>('institutions');
+  const [selectedInst, setSelectedInst] = useState<Institution | null>(null);
+  const [selectedFaculty, setSelectedFaculty] = useState<Faculty | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingInst, setEditingInst] = useState<Institution | null>(null);
   const [isFacultyModalOpen, setIsFacultyModalOpen] = useState(false);
+  const [editingFaculty, setEditingFaculty] = useState<Faculty | null>(null);
   const [isDeptModalOpen, setIsDeptModalOpen] = useState(false);
-  const [selectedInstId, setSelectedInstId] = useState<string | null>(null);
-  const [selectedFacultyId, setSelectedFacultyId] = useState<string | null>(null);
+  const [editingDept, setEditingDept] = useState<Department | null>(null);
+  const selectedInstId = selectedInst?.id || null;
+  const selectedFacultyId = selectedFaculty?.id || null;
 
   const [confirmState, setConfirmState] = useState<{
     isOpen: boolean;
@@ -45,6 +48,7 @@ export const InstitutionManagement: React.FC = () => {
     name: '',
     shortName: '',
     type: 'Public',
+    category: 'University',
     address: '',
     website: '',
     logoUrl: ''
@@ -78,7 +82,7 @@ export const InstitutionManagement: React.FC = () => {
     return Object.keys(initialFacultyState).some(key => {
       const k = key as keyof Faculty;
       if (k === 'institutionId') return false;
-      return newFaculty[k] !== initialFacultyState[k];
+      return newFaculty[k] !== (editingFaculty ? editingFaculty[k] : initialFacultyState[k]);
     });
   };
 
@@ -86,7 +90,7 @@ export const InstitutionManagement: React.FC = () => {
     return Object.keys(initialDeptState).some(key => {
       const k = key as keyof Department;
       if (k === 'facultyId') return false;
-      return newDept[k] !== initialDeptState[k];
+      return newDept[k] !== (editingDept ? editingDept[k] : initialDeptState[k]);
     });
   };
 
@@ -119,6 +123,7 @@ export const InstitutionManagement: React.FC = () => {
         message: 'You have unsaved changes. Are you sure you want to close the form?',
         onConfirm: () => {
           setIsFacultyModalOpen(false);
+          setEditingFaculty(null);
           setNewFaculty(initialFacultyState);
           setConfirmState(prev => ({ ...prev, isOpen: false }));
         },
@@ -126,6 +131,7 @@ export const InstitutionManagement: React.FC = () => {
       });
     } else {
       setIsFacultyModalOpen(false);
+      setEditingFaculty(null);
       setNewFaculty(initialFacultyState);
     }
   };
@@ -138,6 +144,7 @@ export const InstitutionManagement: React.FC = () => {
         message: 'You have unsaved changes. Are you sure you want to close the form?',
         onConfirm: () => {
           setIsDeptModalOpen(false);
+          setEditingDept(null);
           setNewDept(initialDeptState);
           setConfirmState(prev => ({ ...prev, isOpen: false }));
         },
@@ -145,6 +152,7 @@ export const InstitutionManagement: React.FC = () => {
       });
     } else {
       setIsDeptModalOpen(false);
+      setEditingDept(null);
       setNewDept(initialDeptState);
     }
   };
@@ -209,8 +217,10 @@ export const InstitutionManagement: React.FC = () => {
       } else {
         const docRef = await addDoc(collection(db, 'institutions'), newInst);
         await logAudit('CREATE', 'institutions', docRef.id, `Added institution: ${newInst.name}`);
-        setInstitutions([...institutions, { id: docRef.id, ...newInst } as Institution]);
-        setExpandedInst(docRef.id);
+        const createdInst = { id: docRef.id, ...newInst } as Institution;
+        setInstitutions([...institutions, createdInst]);
+        setSelectedInst(createdInst);
+        setViewLevel('faculties');
       }
       setIsModalOpen(false);
       setEditingInst(null);
@@ -231,31 +241,64 @@ export const InstitutionManagement: React.FC = () => {
     e.preventDefault();
     if (!canManage('faculties') || !selectedInstId) return;
     try {
-      const facultyData = { ...newFaculty, institutionId: selectedInstId };
-      const docRef = await addDoc(collection(db, 'faculties'), facultyData);
-      await logAudit('CREATE', 'faculties', docRef.id, `Added ${newFaculty.type}: ${newFaculty.name} to institution ${selectedInstId}`);
-      setFaculties([...faculties, { id: docRef.id, ...facultyData } as Faculty]);
-      setExpandedFaculty(docRef.id);
+      if (editingFaculty) {
+        await updateDoc(doc(db, 'faculties', editingFaculty.id), newFaculty);
+        await logAudit('UPDATE', 'faculties', editingFaculty.id, `Updated faculty: ${newFaculty.name}`);
+        setFaculties(faculties.map(f => f.id === editingFaculty.id ? { ...f, ...newFaculty } as Faculty : f));
+        if (selectedFaculty?.id === editingFaculty.id) {
+          setSelectedFaculty({ ...selectedFaculty, ...newFaculty } as Faculty);
+        }
+      } else {
+        const facultyData = { ...newFaculty, institutionId: selectedInstId };
+        const docRef = await addDoc(collection(db, 'faculties'), facultyData);
+        await logAudit('CREATE', 'faculties', docRef.id, `Added ${newFaculty.type}: ${newFaculty.name} to institution ${selectedInstId}`);
+        const createdFac = { id: docRef.id, ...facultyData } as Faculty;
+        setFaculties([...faculties, createdFac]);
+        setSelectedFaculty(createdFac);
+        setViewLevel('departments');
+      }
       setIsFacultyModalOpen(false);
+      setEditingFaculty(null);
       setNewFaculty(initialFacultyState);
     } catch (error) {
-      handleFirestoreError(error, OperationType.CREATE, 'faculties');
+      handleFirestoreError(error, editingFaculty ? OperationType.UPDATE : OperationType.CREATE, 'faculties');
     }
+  };
+
+  const handleEditFaculty = (e: React.MouseEvent, faculty: Faculty) => {
+    e.stopPropagation();
+    setEditingFaculty(faculty);
+    setNewFaculty(faculty);
+    setIsFacultyModalOpen(true);
   };
 
   const handleAddDepartment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canManage('departments') || !selectedFacultyId) return;
     try {
-      const deptData = { ...newDept, facultyId: selectedFacultyId };
-      const docRef = await addDoc(collection(db, 'departments'), deptData);
-      await logAudit('CREATE', 'departments', docRef.id, `Added ${newDept.type}: ${newDept.name} to faculty ${selectedFacultyId}`);
-      setDepartments([...departments, { id: docRef.id, ...deptData } as Department]);
+      if (editingDept) {
+        await updateDoc(doc(db, 'departments', editingDept.id), newDept);
+        await logAudit('UPDATE', 'departments', editingDept.id, `Updated department: ${newDept.name}`);
+        setDepartments(departments.map(d => d.id === editingDept.id ? { ...d, ...newDept } as Department : d));
+      } else {
+        const deptData = { ...newDept, facultyId: selectedFacultyId };
+        const docRef = await addDoc(collection(db, 'departments'), deptData);
+        await logAudit('CREATE', 'departments', docRef.id, `Added ${newDept.type}: ${newDept.name} to faculty ${selectedFacultyId}`);
+        setDepartments([...departments, { id: docRef.id, ...deptData } as Department]);
+      }
       setIsDeptModalOpen(false);
+      setEditingDept(null);
       setNewDept(initialDeptState);
     } catch (error) {
-      handleFirestoreError(error, OperationType.CREATE, 'departments');
+      handleFirestoreError(error, editingDept ? OperationType.UPDATE : OperationType.CREATE, 'departments');
     }
+  };
+
+  const handleEditDepartment = (e: React.MouseEvent, dept: Department) => {
+    e.stopPropagation();
+    setEditingDept(dept);
+    setNewDept(dept);
+    setIsDeptModalOpen(true);
   };
 
   const handleDeleteInstitution = async (e: React.MouseEvent, instId: string, instName: string) => {
@@ -453,7 +496,8 @@ export const InstitutionManagement: React.FC = () => {
   const filteredInstitutions = useMemo(() => {
     return institutions.filter(inst => 
       inst.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      inst.type.toLowerCase().includes(searchTerm.toLowerCase())
+      inst.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (inst.category && inst.category.toLowerCase().includes(searchTerm.toLowerCase()))
     );
   }, [institutions, searchTerm]);
 
@@ -473,6 +517,7 @@ export const InstitutionManagement: React.FC = () => {
           name: instData.name,
           shortName: instData.shortName,
           type: 'Public',
+          category: instData.category || 'University',
           website: '',
           address: ''
         });
@@ -518,36 +563,101 @@ export const InstitutionManagement: React.FC = () => {
     }
   };
 
-  const stemRatio = useMemo(() => {
-    return calculateStemRatio(students, departments);
-  }, [students, departments]);
+  const handleGoBack = () => {
+    if (viewLevel === 'departments') {
+      setViewLevel('faculties');
+      setSelectedFaculty(null);
+    } else if (viewLevel === 'faculties') {
+      setViewLevel('institutions');
+      setSelectedInst(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Institutional Hierarchy</h1>
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-2xl font-bold text-slate-900">Institutional Hierarchy</h1>
+            {viewLevel !== 'institutions' && (
+              <div className="flex items-center gap-2 text-slate-400 text-sm font-medium">
+                <ChevronRight size={16} />
+                <button 
+                  onClick={() => { setViewLevel('institutions'); setSelectedInst(null); setSelectedFaculty(null); }}
+                  className="hover:text-blue-600 transition-colors"
+                >
+                  Institutions
+                </button>
+                {selectedInst && (
+                  <>
+                    <ChevronRight size={16} />
+                    <button 
+                      onClick={() => { setViewLevel('faculties'); setSelectedFaculty(null); }}
+                      className={`hover:text-blue-600 transition-colors ${viewLevel === 'faculties' ? 'text-blue-600 font-bold' : ''}`}
+                    >
+                      {selectedInst.shortName || selectedInst.name}
+                    </button>
+                  </>
+                )}
+                {selectedFaculty && (
+                  <>
+                    <ChevronRight size={16} />
+                    <span className="text-blue-600 font-bold">{selectedFaculty.name}</span>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
           <p className="text-slate-500 italic serif text-sm">Mapping Faculties/Directorates and Departments/Units</p>
         </div>
         <div className="flex flex-col md:flex-row items-center gap-4">
-          <div className="relative w-full md:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input
-              type="text"
-              placeholder="Filter institutions..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all text-sm"
-            />
-          </div>
+          {viewLevel === 'institutions' && (
+            <div className="relative w-full md:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input
+                type="text"
+                placeholder="Filter institutions..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all text-sm"
+              />
+            </div>
+          )}
           <div className="flex items-center gap-3">
-            {canManage('institutions') && (
+            {viewLevel === 'institutions' && canManage('institutions') && (
               <button 
                 onClick={() => setIsModalOpen(true)}
                 className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-lg shadow-blue-100"
               >
                 <Plus size={20} />
                 Add Institution
+              </button>
+            )}
+            {viewLevel === 'faculties' && canManage('faculties') && (
+              <button 
+                onClick={() => setIsFacultyModalOpen(true)}
+                className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-lg shadow-blue-100"
+              >
+                <Plus size={20} />
+                Add Faculty
+              </button>
+            )}
+            {viewLevel === 'departments' && canManage('departments') && (
+              <button 
+                onClick={() => setIsDeptModalOpen(true)}
+                className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-lg shadow-blue-100"
+              >
+                <Plus size={20} />
+                Add Department
+              </button>
+            )}
+            {viewLevel !== 'institutions' && (
+              <button 
+                onClick={handleGoBack}
+                className="px-4 py-2 bg-slate-100 text-slate-700 font-semibold rounded-xl hover:bg-slate-200 transition-colors flex items-center gap-2"
+              >
+                <ArrowLeft size={20} />
+                Back
               </button>
             )}
           </div>
@@ -560,42 +670,166 @@ export const InstitutionManagement: React.FC = () => {
             [1, 2, 3].map(i => (
               <div key={i} className="h-20 bg-white rounded-2xl border border-slate-100 animate-pulse"></div>
             ))
-          ) : filteredInstitutions.length === 0 ? (
-            <div className="py-12 text-center bg-white rounded-3xl border border-slate-100 flex flex-col items-center gap-4">
-              <p className="text-slate-400 italic">No institutions found matching your search</p>
-              {institutions.length === 0 && user?.role === 'SuperUser' && (
-                <button
-                  onClick={handleSeed}
-                  disabled={isSeeding}
-                  className="px-6 py-3 bg-emerald-600 text-white font-bold rounded-2xl hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-100 flex items-center gap-2"
-                >
-                  <Database size={20} />
-                  {isSeeding ? 'Seeding Data...' : 'Populate Initial Academic Data'}
-                </button>
-              )}
+          ) : viewLevel === 'institutions' ? (
+            filteredInstitutions.length === 0 ? (
+              <div className="py-12 text-center bg-white rounded-3xl border border-slate-100 flex flex-col items-center gap-4">
+                <p className="text-slate-400 italic">No institutions found matching your search</p>
+                {institutions.length === 0 && user?.role === 'SuperUser' && (
+                  <button
+                    onClick={handleSeed}
+                    disabled={isSeeding}
+                    className="px-6 py-3 bg-emerald-600 text-white font-bold rounded-2xl hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-100 flex items-center gap-2"
+                  >
+                    <Database size={20} />
+                    {isSeeding ? 'Seeding Data...' : 'Populate Initial Academic Data'}
+                  </button>
+                )}
+              </div>
+            ) : filteredInstitutions.map((inst) => (
+              <InstitutionCard
+                key={inst.id}
+                inst={inst}
+                user={user}
+                faculties={faculties}
+                departments={departments}
+                students={students}
+                handleEditInstitution={handleEditInstitution}
+                handleDeleteInstitution={handleDeleteInstitution}
+                onDrillDown={() => {
+                  setSelectedInst(inst);
+                  setViewLevel('faculties');
+                }}
+              />
+            ))
+          ) : viewLevel === 'faculties' && selectedInst ? (
+            <div className="space-y-6">
+              <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100 flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-blue-900">{selectedInst.name} ({faculties.filter(f => f.institutionId === selectedInst.id).length})</h2>
+                  <p className="text-sm text-blue-600 font-medium">Select a Faculty or Directorate to view departments</p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                {faculties.filter(f => f.institutionId === selectedInst.id).length === 0 ? (
+                  <div className="py-12 bg-white rounded-3xl border border-slate-100 text-center">
+                    <p className="text-slate-400 italic">No faculties or directorates added yet.</p>
+                  </div>
+                ) : (
+                  faculties
+                    .filter(f => f.institutionId === selectedInst.id)
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .map(faculty => (
+                      <div 
+                        key={faculty.id}
+                        onClick={() => {
+                          setSelectedFaculty(faculty);
+                          setViewLevel('departments');
+                        }}
+                        className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:border-blue-300 hover:shadow-md transition-all cursor-pointer group"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className="p-3 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                              <Building size={24} />
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-bold text-slate-900">{faculty.name}</h3>
+                              <div className="flex items-center gap-2">
+                                <span className="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold rounded uppercase tracking-wider">
+                                  {faculty.type || 'Faculty'}
+                                </span>
+                                <span className="text-xs text-slate-400 font-medium">
+                                  {departments.filter(d => d.facultyId === faculty.id).length} Departments/Units
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {canManage('faculties') && (
+                              <button
+                                onClick={(e) => handleEditFaculty(e, faculty)}
+                                className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
+                                title="Edit Faculty"
+                              >
+                                <Edit2 size={18} />
+                              </button>
+                            )}
+                            <button
+                              onClick={(e) => handleDeleteFaculty(e, faculty.id, faculty.name)}
+                              className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                              title="Delete Faculty"
+                            >
+                              <Trash2 size={20} />
+                            </button>
+                            <ChevronRight size={24} className="text-slate-300 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                )}
+              </div>
             </div>
-          ) : filteredInstitutions.map((inst) => (
-            <InstitutionCard
-              key={inst.id}
-              inst={inst}
-              expandedInst={expandedInst}
-              setExpandedInst={setExpandedInst}
-              user={user}
-              faculties={faculties}
-              departments={departments}
-              expandedFaculty={expandedFaculty}
-              setExpandedFaculty={setExpandedFaculty}
-              handleEditInstitution={handleEditInstitution}
-              handleDeleteInstitution={handleDeleteInstitution}
-              handleDeleteAllFacultyDepartments={handleDeleteAllFacultyDepartments}
-              handleDeleteFaculty={handleDeleteFaculty}
-              handleDeleteDepartment={handleDeleteDepartment}
-              setSelectedInstId={setSelectedInstId}
-              setIsFacultyModalOpen={setIsFacultyModalOpen}
-              setSelectedFacultyId={setSelectedFacultyId}
-              setIsDeptModalOpen={setIsDeptModalOpen}
-            />
-          ))}
+          ) : viewLevel === 'departments' && selectedFaculty ? (
+            <div className="space-y-6">
+              <div className="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100 flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-emerald-900">{selectedFaculty.name} ({departments.filter(d => d.facultyId === selectedFaculty.id).length})</h2>
+                  <p className="text-sm text-emerald-600 font-medium">Departmental breakdown and management</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 gap-3">
+                {departments.filter(d => d.facultyId === selectedFaculty.id).length === 0 ? (
+                  <div className="py-12 bg-white rounded-3xl border border-slate-100 text-center">
+                    <p className="text-slate-400 italic">No departments or units added yet.</p>
+                  </div>
+                ) : (
+                  departments
+                    .filter(d => d.facultyId === selectedFaculty.id)
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .map(dept => (
+                      <div key={dept.id} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                            <Layers size={24} />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-bold text-slate-900">{dept.name}</h3>
+                            <div className="flex items-center gap-2">
+                              <span className="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold rounded uppercase tracking-wider">
+                                {dept.type || 'Department'}
+                              </span>
+                              {dept.isSTEM && (
+                                <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded uppercase tracking-wider">
+                                  STEM
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {canManage('departments') && (
+                            <button
+                              onClick={(e) => handleEditDepartment(e, dept)}
+                              className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
+                              title="Edit Department"
+                            >
+                              <Edit2 size={18} />
+                            </button>
+                          )}
+                          <button
+                            onClick={(e) => handleDeleteDepartment(e, dept.id, dept.name)}
+                            className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                            title="Delete Department"
+                          >
+                            <Trash2 size={20} />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                )}
+              </div>
+            </div>
+          ) : null}
         </div>
 
         <InstitutionInsights 
@@ -603,7 +837,6 @@ export const InstitutionManagement: React.FC = () => {
           faculties={faculties}
           departments={departments}
           students={students}
-          stemRatio={stemRatio}
         />
       </div>
 
@@ -616,11 +849,13 @@ export const InstitutionManagement: React.FC = () => {
         setNewInst={setNewInst}
         handleFileChange={handleFileChange}
         isFacultyModalOpen={isFacultyModalOpen}
+        editingFaculty={editingFaculty}
         handleCloseFacultyModal={handleCloseFacultyModal}
         handleAddFaculty={handleAddFaculty}
         newFaculty={newFaculty}
         setNewFaculty={setNewFaculty}
         isDeptModalOpen={isDeptModalOpen}
+        editingDept={editingDept}
         handleCloseDeptModal={handleCloseDeptModal}
         handleAddDepartment={handleAddDepartment}
         newDept={newDept}

@@ -612,7 +612,7 @@ export const StudentManagement: React.FC = () => {
                 <XCircle size={24} />
               </button>
             </div>
-            <form onSubmit={handleAddStudent} className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+            <form onSubmit={handleAddStudent} className="p-6 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
               <div className="flex flex-col md:flex-row gap-6 items-start">
                 <div className="w-full md:w-1/3 space-y-2">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Upload Picture</label>

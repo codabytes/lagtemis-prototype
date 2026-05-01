@@ -32,8 +32,7 @@ import { collection, getDocs, query, where, writeBatch, doc } from 'firebase/fir
 import { db } from '../firebase';
 import { Student, Staff, Institution, Facility, Faculty, Department, Publication, Training } from '../types';
 import { useAuth } from './AuthGuard';
-import { ComplianceCard } from './institution/InstitutionInsights';
-import { calculateStemRatio } from '../lib/academicUtils';
+import { calculateStemRatio, getStemRatioData } from '../lib/academicUtils';
 
 const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
@@ -44,20 +43,38 @@ const StatCard: React.FC<{
   color: string;
   onClick?: () => void;
   drillable?: boolean;
-}> = ({ title, value, icon, color, onClick, drillable }) => (
+  extra?: React.ReactNode;
+  label?: string;
+  footer?: string;
+}> = ({ title, value, icon, color, onClick, drillable, extra, label, footer }) => (
   <div 
     onClick={onClick}
-    className={`bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4 transition-all duration-200 ${drillable ? 'cursor-pointer hover:shadow-lg hover:border-blue-200 active:scale-[0.98]' : ''}`}
+    className={`bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-6 transition-all duration-300 ${drillable ? 'cursor-pointer hover:shadow-xl hover:border-blue-200 active:scale-[0.98]' : ''}`}
   >
-    <div className="flex items-center justify-between">
-      <div className={`p-3 rounded-xl ${color} bg-opacity-10 text-${color.split('-')[1]}-600`}>
+    <div className="flex justify-between items-start">
+      <div className="flex flex-col">
+        <h3 className="text-lg font-bold text-slate-800 tracking-tight leading-tight mb-2">{title}</h3>
+        <div>
+          <p className="text-4xl font-black text-slate-900 tabular-nums leading-none tracking-tight">{value}</p>
+          <p className="text-slate-500 font-bold mt-2 uppercase text-[10px] tracking-widest opacity-70">{label || 'Total'}</p>
+        </div>
+      </div>
+      <div className={`p-3 rounded-2xl ${color} bg-opacity-100 text-white shrink-0 shadow-lg shadow-${color.split('-')[1]}-100`}>
         {icon}
       </div>
     </div>
-    <div>
-      <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">{title}</p>
-      <h3 className="text-3xl font-bold text-slate-900 tabular-nums">{value}</h3>
-    </div>
+    
+    {extra && (
+      <div className="w-full h-full flex items-center justify-center">
+        {extra}
+      </div>
+    )}
+    
+    {footer && (
+      <div className="pt-4 border-t border-slate-50 mt-auto">
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{footer}</p>
+      </div>
+    )}
   </div>
 );
 
@@ -589,6 +606,187 @@ const StaffDrillDownModal: React.FC<{
 };
 
 
+const StemDrillDownModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  students: Student[];
+  institutions: Institution[];
+  departments: Department[];
+}> = ({ isOpen, onClose, students, institutions, departments }) => {
+  const [selectedInstId, setSelectedInstId] = useState<string | null>(null);
+
+  const selectedInstitution = institutions.find(i => i.id === selectedInstId);
+
+  const instStats = useMemo(() => {
+    return institutions.map(inst => {
+      const instStudents = students.filter(s => s.institutionId === inst.id);
+      const ratioData = getStemRatioData(instStudents, departments);
+      return {
+        ...inst,
+        ...ratioData
+      };
+    }).sort((a, b) => b.percentage - a.percentage);
+  }, [students, institutions, departments]);
+
+  const genderStats = useMemo(() => {
+    if (!selectedInstId) return null;
+    const instStudents = students.filter(s => s.institutionId === selectedInstId);
+    
+    const femaleStudents = instStudents.filter(s => s.sex === 'Female');
+    const maleStudents = instStudents.filter(s => s.sex === 'Male');
+    
+    return {
+      female: getStemRatioData(femaleStudents, departments),
+      male: getStemRatioData(maleStudents, departments),
+      overall: getStemRatioData(instStudents, departments)
+    };
+  }, [students, selectedInstId, departments]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="bg-white w-full max-w-4xl h-[80vh] rounded-[32px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+        <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              {selectedInstId && (
+                <button 
+                  onClick={() => setSelectedInstId(null)}
+                  className="p-1.5 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors"
+                >
+                  <ArrowRight className="rotate-180" size={20} />
+                </button>
+              )}
+              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+                {!selectedInstId ? 'STEM:Non-STEM Ratio By Institution' : `Gender-based STEM Ratio: ${selectedInstitution?.name}`}
+              </h2>
+            </div>
+            <p className="text-slate-500 text-sm italic serif">
+              {!selectedInstId ? 'Analysis of student enrollment in STEM vs Non-STEM courses' : 'Multidimensional breakdown of STEM compliance by gender'}
+            </p>
+          </div>
+          <button onClick={onClose} className="p-3 text-slate-400 hover:bg-white hover:shadow-sm rounded-2xl transition-all">
+            <TrendingUp size={24} />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-hidden flex flex-col">
+          {!selectedInstId ? (
+            <div className="flex-1 p-8 overflow-y-auto custom-scrollbar">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {instStats.map(inst => (
+                  <button 
+                    key={inst.id}
+                    onClick={() => setSelectedInstId(inst.id)}
+                    className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-left hover:border-purple-300 hover:bg-white hover:shadow-lg transition-all group active:scale-[0.98]"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-lg">
+                        {inst.shortName[0]}
+                      </div>
+                      <ArrowRight className="text-slate-300 group-hover:text-purple-500 group-hover:translate-x-1 transition-all" size={20} />
+                    </div>
+                    <h3 className="font-bold text-slate-900 mb-2 group-hover:text-purple-600 transition-colors">{inst.name}</h3>
+                    
+                    <div className="flex items-end justify-between mb-2">
+                       <p className="text-3xl font-black text-slate-900 tabular-nums">{inst.ratioString}</p>
+                       <span className={`text-xs font-bold px-2 py-1 rounded-lg ${inst.percentage >= 60 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                         {inst.percentage}% STEM
+                       </span>
+                    </div>
+
+                    <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full ${inst.percentage >= 60 ? 'bg-emerald-500' : 'bg-purple-500'}`}
+                        style={{ width: `${inst.percentage}%` }}
+                      ></div>
+                    </div>
+                    <div className="flex justify-between mt-1">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">STEM:Non-STEM</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{inst.total.toLocaleString()} Students</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1 p-8 overflow-y-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Female Card */}
+                <div className="p-8 bg-pink-50 rounded-[32px] border border-pink-100 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8 text-pink-200 -rotate-12 translate-x-4 -translate-y-4">
+                    <Users size={120} />
+                  </div>
+                  <div className="relative z-10">
+                    <h4 className="text-xs font-black text-pink-400 uppercase tracking-[0.2em] mb-4">Female Students</h4>
+                    <p className="text-5xl font-black text-pink-900 mb-2 tabular-nums">{genderStats?.female.ratioString}</p>
+                    <p className="text-sm font-bold text-pink-600 mb-6">STEM:Non-STEM Ratio</p>
+                    
+                    <div className="space-y-4">
+                      <div className="flex justify-between text-xs font-bold text-pink-700">
+                        <span>STEM Percentage</span>
+                        <span>{genderStats?.female.percentage}%</span>
+                      </div>
+                      <div className="h-3 bg-white/50 rounded-full overflow-hidden">
+                        <div className="h-full bg-pink-500 rounded-full" style={{ width: `${genderStats?.female.percentage}%` }}></div>
+                      </div>
+                      <div className="flex justify-between text-[10px] font-bold text-pink-400 uppercase tracking-widest">
+                        <span>{genderStats?.female.stem.toLocaleString()} STEM</span>
+                        <span>{genderStats?.female.total.toLocaleString()} Total</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Male Card */}
+                <div className="p-8 bg-indigo-50 rounded-[32px] border border-indigo-100 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8 text-indigo-200 rotate-12 translate-x-4 -translate-y-4">
+                    <Users size={120} />
+                  </div>
+                  <div className="relative z-10">
+                    <h4 className="text-xs font-black text-indigo-400 uppercase tracking-[0.2em] mb-4">Male Students</h4>
+                    <p className="text-5xl font-black text-indigo-900 mb-2 tabular-nums">{genderStats?.male.ratioString}</p>
+                    <p className="text-sm font-bold text-indigo-600 mb-6">STEM:Non-STEM Ratio</p>
+                    
+                    <div className="space-y-4">
+                      <div className="flex justify-between text-xs font-bold text-indigo-700">
+                        <span>STEM Percentage</span>
+                        <span>{genderStats?.male.percentage}%</span>
+                      </div>
+                      <div className="h-3 bg-white/50 rounded-full overflow-hidden">
+                        <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${genderStats?.male.percentage}%` }}></div>
+                      </div>
+                      <div className="flex justify-between text-[10px] font-bold text-indigo-400 uppercase tracking-widest">
+                        <span>{genderStats?.male.stem.toLocaleString()} STEM</span>
+                        <span>{genderStats?.male.total.toLocaleString()} Total</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Overall Summary */}
+              <div className="mt-8 p-6 bg-slate-900 rounded-3xl text-white flex items-center justify-between">
+                <div>
+                  <h4 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-1">Combined Institutional Ratio</h4>
+                  <p className="text-2xl font-black text-white">{genderStats?.overall.ratioString}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-bold text-slate-400">Policy Target: 60:40</p>
+                  <p className={`text-sm font-black ${genderStats?.overall.percentage >= 60 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    {genderStats?.overall.percentage >= 60 ? '✓ COMPLIANT' : '✗ NON-COMPLIANT'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const DrillDownModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
@@ -840,6 +1038,7 @@ export const Dashboard: React.FC = () => {
   const [isDrillDownOpen, setIsDrillDownOpen] = useState(false);
   const [isStaffDrillDownOpen, setIsStaffDrillDownOpen] = useState(false);
   const [isFacilityDrillDownOpen, setIsFacilityDrillDownOpen] = useState(false);
+  const [isStemDrillDownOpen, setIsStemDrillDownOpen] = useState(false);
   const [rawData, setRawData] = useState<{
     students: Student[];
     staff: Staff[];
@@ -1006,6 +1205,18 @@ export const Dashboard: React.FC = () => {
     }, {});
     const institutionDistribution = Object.entries(dist).map(([name, value]) => ({ name, value }));
 
+    const stemRatioData = getStemRatioData(realStudents, realDepts);
+
+    // Gender Distribution
+    const genderDist: Record<string, number> = realStudents.reduce((acc: Record<string, number>, curr) => {
+      acc[curr.sex] = (acc[curr.sex] || 0) + 1;
+      return acc;
+    }, {});
+    const genderDistribution = Object.entries(genderDist).map(([name, value]) => ({ name, value }));
+
+    const lastUpdatedDate = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    const lastUpdated = `Last Updated: ${lastUpdatedDate}`;
+
     return {
       stats: {
         students: realStudents.length,
@@ -1014,16 +1225,19 @@ export const Dashboard: React.FC = () => {
         facilities: realFacilities.length,
         publications: realPublications.length,
         trainings: realTrainings.length,
-        stemRatio
+        stemRatio: stemRatioData.percentage,
+        stemRatioString: stemRatioData.ratioString
       },
       enrollmentData: enrollmentData.length > 0 ? enrollmentData : [{ year: '2024', students: 0, graduates: 0 }],
       institutionDistribution,
+      genderDistribution,
       recentFacilities: realFacilities.slice(0, 5),
       recentPublications: realPublications.slice(0, 5),
       realInstitutions,
       realFaculties,
       realDepts,
-      realStudents
+      realStudents,
+      lastUpdated
     };
   }, [rawData]);
 
@@ -1060,48 +1274,102 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
         <StatCard 
           title="Total Students" 
           value={processedData.stats.students.toLocaleString()} 
           icon={<GraduationCap size={24} />} 
-          color="bg-blue-500"
+          color="bg-blue-600"
           onClick={canDrillDown ? () => setIsDrillDownOpen(true) : undefined}
           drillable={canDrillDown}
+          footer={processedData.lastUpdated}
+          extra={
+            <div className="h-full w-full flex flex-col items-center justify-center">
+              <div className="h-48 w-full relative">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={processedData.genderDistribution}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={75}
+                      dataKey="value"
+                      isAnimationActive={false}
+                      labelLine={false}
+                      label={({ cx, cy, midAngle, innerRadius, outerRadius, value }) => {
+                        const RADIAN = Math.PI / 180;
+                        const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+                        const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                        const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                        return (
+                          <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize="14" fontWeight="900" className="drop-shadow-md">
+                            {value.toLocaleString()}
+                          </text>
+                        );
+                      }}
+                    >
+                      <Cell fill="#2563eb" stroke="#fff" strokeWidth={2} />
+                      <Cell fill="#ec4899" stroke="#fff" strokeWidth={2} />
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex gap-4 mt-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded bg-blue-600"></div>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Male</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded bg-pink-500"></div>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Female</span>
+                </div>
+              </div>
+            </div>
+          }
         />
         <StatCard 
           title="Staff Strength" 
           value={processedData.stats.staff.toLocaleString()} 
           icon={<Users size={24} />} 
-          color="bg-emerald-500"
+          color="bg-emerald-600"
           onClick={canDrillDown ? () => setIsStaffDrillDownOpen(true) : undefined}
           drillable={canDrillDown}
+          footer={processedData.lastUpdated}
         />
         <StatCard 
           title="Total Facilities" 
           value={processedData.stats.facilities.toLocaleString()} 
           icon={<Building2 size={24} />} 
-          color="bg-amber-500"
+          color="bg-amber-600"
           onClick={canDrillDown ? () => setIsFacilityDrillDownOpen(true) : undefined}
           drillable={canDrillDown}
+          footer={processedData.lastUpdated}
         />
         <StatCard 
-          title="STEM Ratio" 
-          value={`${processedData.stats.stemRatio}%`} 
+          title="STEM:Non-STEM Ratio" 
+          value={processedData.stats.stemRatioString} 
           icon={<TrendingUp size={24} />} 
-          color="bg-purple-500"
+          color="bg-purple-600"
+          onClick={canDrillDown ? () => setIsStemDrillDownOpen(true) : undefined}
+          drillable={canDrillDown}
+          footer={processedData.lastUpdated}
+          label="Compliance"
         />
         <StatCard 
           title="Research Outputs" 
           value={processedData.stats.publications.toLocaleString()} 
           icon={<BookOpen size={24} />} 
-          color="bg-indigo-500"
+          color="bg-indigo-600"
+          footer={processedData.lastUpdated}
+          label="Total Publications"
         />
         <StatCard 
           title="Staff Trainings" 
           value={processedData.stats.trainings.toLocaleString()} 
           icon={<Activity size={24} />} 
-          color="bg-pink-500"
+          color="bg-pink-600"
+          footer={processedData.lastUpdated}
+          label="Conducted Sessions"
         />
       </div>
 
@@ -1167,7 +1435,7 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Institution Distribution */}
-        <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+        <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 lg:col-span-1">
           <h3 className="text-lg font-bold text-slate-900 mb-1">Institution Types</h3>
           <p className="text-sm text-slate-400 font-medium uppercase tracking-wider mb-8">Current Distribution</p>
           <div className="h-[250px] w-full min-w-0">
@@ -1202,15 +1470,6 @@ export const Dashboard: React.FC = () => {
             ))}
           </div>
         </div>
-
-        {/* Policy Compliance Card */}
-        <ComplianceCard 
-          institutions={processedData.realInstitutions}
-          faculties={processedData.realFaculties}
-          departments={processedData.realDepts}
-          students={processedData.realStudents}
-          globalStemRatio={processedData.stats.stemRatio}
-        />
       </div>
 
       {/* Recent Facilities */}
@@ -1297,6 +1556,16 @@ export const Dashboard: React.FC = () => {
           onClose={() => setIsFacilityDrillDownOpen(false)}
           facilities={rawData.facilities}
           institutions={processedData.realInstitutions}
+        />
+      )}
+
+      {isStemDrillDownOpen && (
+        <StemDrillDownModal
+          isOpen={isStemDrillDownOpen}
+          onClose={() => setIsStemDrillDownOpen(false)}
+          students={processedData.realStudents}
+          institutions={processedData.realInstitutions}
+          departments={processedData.realDepts}
         />
       )}
     </div>

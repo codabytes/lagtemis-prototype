@@ -329,7 +329,7 @@ export const UserManagement: React.FC = () => {
               </button>
             </div>
 
-            <form onSubmit={handleAddUser} className="p-8 space-y-8">
+            <form onSubmit={handleAddUser} className="p-8 space-y-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
               <div className="space-y-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Official Email Address</label>

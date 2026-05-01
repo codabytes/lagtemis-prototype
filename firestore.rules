@@ -85,9 +85,11 @@ service cloud.firestore {
     // ===============================================================
 
     function isValidInstitution() {
-      return hasRequiredFields(['name', 'type']) &&
+      return hasRequiredFields(['name', 'shortName', 'type', 'category']) &&
              isValidString('name', 2, 100) &&
-             request.resource.data.type in ['Public', 'Private'];
+             isValidString('shortName', 2, 20) &&
+             request.resource.data.type in ['Public', 'Private'] &&
+             request.resource.data.category in ['University', 'Polytechnic/Monotechnic', 'College of Education', 'Vocational School'];
     }
 
     function isValidFaculty() {

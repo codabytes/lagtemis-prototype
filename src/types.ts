@@ -20,6 +20,7 @@ export interface Institution {
   name: string;
   shortName: string; // e.g., LASU, LASPOTECH
   type: 'Public' | 'Private';
+  category: 'University' | 'Polytechnic/Monotechnic' | 'College of Education' | 'Vocational School';
   address?: string;
   website?: string;
   logoUrl?: string;

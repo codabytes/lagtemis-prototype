@@ -12,12 +12,14 @@ interface InstitutionModalsProps {
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   
   isFacultyModalOpen: boolean;
+  editingFaculty: Faculty | null;
   handleCloseFacultyModal: () => void;
   handleAddFaculty: (e: React.FormEvent) => void;
   newFaculty: Partial<Faculty>;
   setNewFaculty: (faculty: Partial<Faculty>) => void;
   
   isDeptModalOpen: boolean;
+  editingDept: Department | null;
   handleCloseDeptModal: () => void;
   handleAddDepartment: (e: React.FormEvent) => void;
   newDept: Partial<Department>;
@@ -26,8 +28,8 @@ interface InstitutionModalsProps {
 
 export const InstitutionModals: React.FC<InstitutionModalsProps> = ({
   isModalOpen, editingInst, handleCloseInstModal, handleAddInstitution, newInst, setNewInst, handleFileChange,
-  isFacultyModalOpen, handleCloseFacultyModal, handleAddFaculty, newFaculty, setNewFaculty,
-  isDeptModalOpen, handleCloseDeptModal, handleAddDepartment, newDept, setNewDept
+  isFacultyModalOpen, editingFaculty, handleCloseFacultyModal, handleAddFaculty, newFaculty, setNewFaculty,
+  isDeptModalOpen, editingDept, handleCloseDeptModal, handleAddDepartment, newDept, setNewDept
 }) => {
   return (
     <>
@@ -41,7 +43,7 @@ export const InstitutionModals: React.FC<InstitutionModalsProps> = ({
                 <XCircle size={24} />
               </button>
             </div>
-            <form onSubmit={handleAddInstitution} className="p-6 space-y-6">
+            <form onSubmit={handleAddInstitution} className="p-6 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
               <div className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Institution Logo</label>
@@ -86,17 +88,33 @@ export const InstitutionModals: React.FC<InstitutionModalsProps> = ({
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Type</label>
-                  <select
-                    required
-                    value={newInst.type}
-                    onChange={(e) => setNewInst({ ...newInst, type: e.target.value as any })}
-                    className="w-full px-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all"
-                  >
-                    <option>Public</option>
-                    <option>Private</option>
-                  </select>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Institution Type</label>
+                    <select
+                      required
+                      value={newInst.type}
+                      onChange={(e) => setNewInst({ ...newInst, type: e.target.value as any })}
+                      className="w-full px-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all text-sm font-semibold"
+                    >
+                      <option value="Public">Public</option>
+                      <option value="Private">Private</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Institution Category</label>
+                    <select
+                      required
+                      value={newInst.category}
+                      onChange={(e) => setNewInst({ ...newInst, category: e.target.value as any })}
+                      className="w-full px-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all text-sm font-semibold"
+                    >
+                      <option value="University">University</option>
+                      <option value="Polytechnic/Monotechnic">Polytechnic/Monotechnic</option>
+                      <option value="College of Education">College of Education</option>
+                      <option value="Vocational School">Vocational School</option>
+                    </select>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Website</label>
@@ -133,12 +151,12 @@ export const InstitutionModals: React.FC<InstitutionModalsProps> = ({
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-slate-900">Add Faculty/Directorate</h2>
+              <h2 className="text-xl font-bold text-slate-900">{editingFaculty ? 'Update Faculty/Directorate' : 'Add Faculty/Directorate'}</h2>
               <button onClick={handleCloseFacultyModal} className="p-2 text-slate-400 hover:bg-slate-100 rounded-lg">
                 <XCircle size={24} />
               </button>
             </div>
-            <form onSubmit={handleAddFaculty} className="p-6 space-y-6">
+            <form onSubmit={handleAddFaculty} className="p-6 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
               <div className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Faculty/Directorate Name</label>
@@ -173,7 +191,7 @@ export const InstitutionModals: React.FC<InstitutionModalsProps> = ({
                   type="submit"
                   className="px-8 py-2 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-100"
                 >
-                  Add Faculty/Directorate
+                  {editingFaculty ? 'Update' : 'Add Faculty/Directorate'}
                 </button>
               </div>
             </form>
@@ -186,12 +204,12 @@ export const InstitutionModals: React.FC<InstitutionModalsProps> = ({
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-slate-900">Add Department/Unit</h2>
+              <h2 className="text-xl font-bold text-slate-900">{editingDept ? 'Update Department/Unit' : 'Add Department/Unit'}</h2>
               <button onClick={handleCloseDeptModal} className="p-2 text-slate-400 hover:bg-slate-100 rounded-lg">
                 <XCircle size={24} />
               </button>
             </div>
-            <form onSubmit={handleAddDepartment} className="p-6 space-y-6">
+            <form onSubmit={handleAddDepartment} className="p-6 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
               <div className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Department/Unit Name</label>
@@ -244,7 +262,7 @@ export const InstitutionModals: React.FC<InstitutionModalsProps> = ({
                   type="submit"
                   className="px-8 py-2 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-100"
                 >
-                  Add Department
+                  {editingDept ? 'Update' : 'Add Department'}
                 </button>
               </div>
             </form>

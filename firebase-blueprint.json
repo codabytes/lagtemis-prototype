@@ -6,11 +6,13 @@
       "type": "object",
       "properties": {
         "name": { "type": "string", "description": "Name of the institution." },
+        "shortName": { "type": "string" },
         "type": { "type": "string", "enum": ["Public", "Private"], "description": "Type of institution." },
+        "category": { "type": "string", "enum": ["University", "Polytechnic/Monotechnic", "College of Education", "Vocational School"] },
         "address": { "type": "string" },
         "website": { "type": "string" }
       },
-      "required": ["name", "type"]
+      "required": ["name", "shortName", "type", "category"]
     },
     "Faculty": {
       "title": "Faculty",

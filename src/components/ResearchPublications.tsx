@@ -296,7 +296,7 @@ export const ResearchPublications: React.FC = () => {
                 <XCircle size={24} />
               </button>
             </div>
-            <form onSubmit={handleAddPublication} className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
+            <form onSubmit={handleAddPublication} className="p-6 space-y-6 max-h-[80vh] overflow-y-auto custom-scrollbar">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Staff Member</label>
