@@ -10,6 +10,7 @@ import { FacilityManagement } from './components/FacilityManagement';
 import { FacilityMaintenance } from './components/FacilityMaintenance';
 import { FacilityProfile } from './components/FacilityProfile';
 import { InstitutionManagement } from './components/InstitutionManagement';
+import { LeadershipManagement } from './components/LeadershipManagement';
 import { ResearchPublications } from './components/ResearchPublications';
 import { TrainingManagement } from './components/TrainingManagement';
 import { UserManagement } from './components/UserManagement';
@@ -80,6 +81,7 @@ export default function App() {
               <Routes>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/institutions" element={<InstitutionManagement />} />
+                <Route path="/leadership" element={<LeadershipManagement />} />
                 <Route path="/students" element={<StudentManagement />} />
                 <Route path="/students/:id" element={<ProfileView type="student" />} />
                 <Route path="/personnel/academic" element={<StaffManagement type="Academic" />} />

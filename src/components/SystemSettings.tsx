@@ -71,6 +71,9 @@ export const SystemSettings: React.FC = () => {
           addLog(`  Institution "${instData.name}" not found. Creating...`);
           const instDoc = await addDoc(collection(db, 'institutions'), {
             name: instData.name,
+            shortName: instData.shortName || '',
+            category: instData.category || 'University',
+            order: instData.order || 99,
             type: 'Public', // Default for these institutions
             website: '',
             address: ''
@@ -78,6 +81,15 @@ export const SystemSettings: React.FC = () => {
           instId = instDoc.id;
           // Add to local list to avoid duplicates in same run if any
           institutions.push({ id: instId, name: instData.name });
+        } else {
+          // Sync order and shortName for existing institutions
+          addLog(`  Institution "${instData.name}" exists. Syncing order/shortName...`);
+          const batch = writeBatch(db);
+          batch.update(doc(db, 'institutions', instId), {
+            order: instData.order,
+            shortName: instData.shortName
+          });
+          await batch.commit();
         }
 
         const facultyCollection = collection(db, 'faculties');
@@ -175,10 +187,31 @@ export const SystemSettings: React.FC = () => {
       });
       addLog(`Normalized ${fixedIdentities} identity records.`);
 
-      if (removedOrphans > 0 || fixedIdentities > 0) {
+      // 3. Sync Institution Weights/Ordering
+      addLog('Syncing institution display order weights...');
+      let syncedOrders = 0;
+      const instSnap = await getDocs(collection(db, 'institutions'));
+      const dbInstitutions = instSnap.docs.map(d => ({ id: d.id, ...d.data() } as any));
+      
+      for (const refData of ACADEMIC_DATA) {
+        const found = dbInstitutions.find(i => 
+          i.name.toLowerCase().includes(refData.name.toLowerCase()) || 
+          refData.name.toLowerCase().includes(i.name.toLowerCase())
+        );
+        if (found && (found.order !== refData.order || found.shortName !== refData.shortName)) {
+          batch.update(doc(db, 'institutions', found.id), { 
+            order: refData.order,
+            shortName: refData.shortName
+          });
+          syncedOrders++;
+        }
+      }
+      addLog(`Queued ${syncedOrders} institution order updates.`);
+
+      if (removedOrphans > 0 || fixedIdentities > 0 || syncedOrders > 0) {
         addLog('Applying fixes...');
         await batch.commit();
-        await logAudit('PURGE', 'system', 'hygiene', `Database hygiene completed. Removed: ${removedOrphans}, Fixed: ${fixedIdentities}`);
+        await logAudit('PURGE', 'system', 'hygiene', `Database hygiene completed. Removed: ${removedOrphans}, Fixed: ${fixedIdentities}, Orders Synced: ${syncedOrders}`);
         addLog('Hygiene check completed successfully.');
       } else {
         addLog('Database is clean. No actions required.');

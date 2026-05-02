@@ -30,6 +30,7 @@ export const InstitutionManagement: React.FC = () => {
   const [editingDept, setEditingDept] = useState<Department | null>(null);
   const selectedInstId = selectedInst?.id || null;
   const selectedFacultyId = selectedFaculty?.id || null;
+  const [isLogoDragging, setIsLogoDragging] = useState(false);
 
   const [confirmState, setConfirmState] = useState<{
     isOpen: boolean;
@@ -51,7 +52,8 @@ export const InstitutionManagement: React.FC = () => {
     category: 'University',
     address: '',
     website: '',
-    logoUrl: ''
+    logoUrl: '',
+    order: 0
   };
 
   const initialFacultyState: Partial<Faculty> = {
@@ -181,7 +183,14 @@ export const InstitutionManagement: React.FC = () => {
 
         const sortedInsts = instSnap.docs
           .map(d => ({ id: d.id, ...d.data() } as Institution))
-          .sort((a, b) => a.name.localeCompare(b.name));
+          .sort((a, b) => {
+            if (a.order !== undefined && b.order !== undefined) {
+              return a.order - b.order;
+            }
+            if (a.order !== undefined) return -1;
+            if (b.order !== undefined) return 1;
+            return a.name.localeCompare(b.name);
+          });
 
         setInstitutions(sortedInsts);
         setFaculties(facultySnap.docs.map(d => ({ id: d.id, ...d.data() } as Faculty)));
@@ -195,15 +204,45 @@ export const InstitutionManagement: React.FC = () => {
     fetchData();
   }, []);
 
+  const processLogoFile = (file: File) => {
+    if (file.size > 500000) {
+      setConfirmState({
+        isOpen: true,
+        title: 'File Too Large',
+        message: 'The logo must be less than 500KB.',
+        onConfirm: () => setConfirmState(prev => ({ ...prev, isOpen: false })),
+        isDangerous: false
+      });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setNewInst({ ...newInst, logoUrl: reader.result as string });
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewInst({ ...newInst, logoUrl: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+    if (file) processLogoFile(file);
+  };
+
+  const handleLogoDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsLogoDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      processLogoFile(file);
     }
+  };
+
+  const handleLogoDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsLogoDragging(true);
+  };
+
+  const handleLogoDragLeave = () => {
+    setIsLogoDragging(false);
   };
 
   const handleAddInstitution = async (e: React.FormEvent) => {
@@ -518,6 +557,7 @@ export const InstitutionManagement: React.FC = () => {
           shortName: instData.shortName,
           type: 'Public',
           category: instData.category || 'University',
+          order: instData.order,
           website: '',
           address: ''
         });
@@ -552,7 +592,14 @@ export const InstitutionManagement: React.FC = () => {
         getDocs(collection(db, 'faculties')),
         getDocs(collection(db, 'departments'))
       ]);
-      setInstitutions(instSnap.docs.map(d => ({ id: d.id, ...d.data() } as Institution)).sort((a, b) => a.name.localeCompare(b.name)));
+      setInstitutions(instSnap.docs.map(d => ({ id: d.id, ...d.data() } as Institution)).sort((a, b) => {
+        if (a.order !== undefined && b.order !== undefined) {
+          return a.order - b.order;
+        }
+        if (a.order !== undefined) return -1;
+        if (b.order !== undefined) return 1;
+        return a.name.localeCompare(b.name);
+      }));
       setFaculties(facultySnap.docs.map(d => ({ id: d.id, ...d.data() } as Faculty)));
       setDepartments(deptSnap.docs.map(d => ({ id: d.id, ...d.data() } as Department)));
     } catch (error) {
@@ -848,6 +895,10 @@ export const InstitutionManagement: React.FC = () => {
         newInst={newInst}
         setNewInst={setNewInst}
         handleFileChange={handleFileChange}
+        isLogoDragging={isLogoDragging}
+        handleLogoDragOver={handleLogoDragOver}
+        handleLogoDragLeave={handleLogoDragLeave}
+        handleLogoDrop={handleLogoDrop}
         isFacultyModalOpen={isFacultyModalOpen}
         editingFaculty={editingFaculty}
         handleCloseFacultyModal={handleCloseFacultyModal}

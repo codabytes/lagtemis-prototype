@@ -10,6 +10,10 @@ interface InstitutionModalsProps {
   newInst: Partial<Institution>;
   setNewInst: (inst: Partial<Institution>) => void;
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  isLogoDragging: boolean;
+  handleLogoDragOver: (e: React.DragEvent) => void;
+  handleLogoDragLeave: () => void;
+  handleLogoDrop: (e: React.DragEvent) => void;
   
   isFacultyModalOpen: boolean;
   editingFaculty: Faculty | null;
@@ -28,6 +32,7 @@ interface InstitutionModalsProps {
 
 export const InstitutionModals: React.FC<InstitutionModalsProps> = ({
   isModalOpen, editingInst, handleCloseInstModal, handleAddInstitution, newInst, setNewInst, handleFileChange,
+  isLogoDragging, handleLogoDragOver, handleLogoDragLeave, handleLogoDrop,
   isFacultyModalOpen, editingFaculty, handleCloseFacultyModal, handleAddFaculty, newFaculty, setNewFaculty,
   isDeptModalOpen, editingDept, handleCloseDeptModal, handleAddDepartment, newDept, setNewDept
 }) => {
@@ -48,7 +53,12 @@ export const InstitutionModals: React.FC<InstitutionModalsProps> = ({
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Institution Logo</label>
                   <div className="flex gap-4 items-center">
-                    <div className="w-16 h-16 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden relative group">
+                    <div 
+                      className={`w-16 h-16 rounded-2xl border-2 border-dashed flex items-center justify-center overflow-hidden relative group transition-all ${isLogoDragging ? 'bg-blue-50 border-blue-400 ring-4 ring-blue-100' : 'bg-slate-50 border-slate-200 group-hover:border-blue-400 group-hover:bg-blue-50/50'}`}
+                      onDragOver={handleLogoDragOver}
+                      onDragLeave={handleLogoDragLeave}
+                      onDrop={handleLogoDrop}
+                    >
                       {newInst.logoUrl ? (
                         <img src={newInst.logoUrl} alt="Logo Preview" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
                       ) : (
@@ -60,7 +70,7 @@ export const InstitutionModals: React.FC<InstitutionModalsProps> = ({
                       </label>
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs text-slate-400">Click the box to upload institution logo (PNG, JPG)</p>
+                      <p className="text-xs text-slate-400">Click or Drag & Drop institution logo (PNG, JPG, max 500KB)</p>
                     </div>
                   </div>
                 </div>
@@ -84,6 +94,17 @@ export const InstitutionModals: React.FC<InstitutionModalsProps> = ({
                       placeholder="e.g. LASU"
                       value={newInst.shortName}
                       onChange={(e) => setNewInst({ ...newInst, shortName: e.target.value })}
+                      className="w-full px-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all text-sm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Order</label>
+                    <input
+                      required
+                      type="number"
+                      placeholder="e.g. 1"
+                      value={newInst.order || ''}
+                      onChange={(e) => setNewInst({ ...newInst, order: parseInt(e.target.value) || 0 })}
                       className="w-full px-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl outline-none transition-all text-sm"
                     />
                   </div>

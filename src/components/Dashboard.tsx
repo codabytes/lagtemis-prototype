@@ -1184,7 +1184,14 @@ export const Dashboard: React.FC = () => {
     const realStaff = staff.filter(s => s.lasrraId);
     const realPublications = publications;
     const realTrainings = trainings;
-    const realInstitutions = institutions;
+    const realInstitutions = [...institutions].sort((a, b) => {
+      if (a.order !== undefined && b.order !== undefined) {
+        return a.order - b.order;
+      }
+      if (a.order !== undefined) return -1;
+      if (b.order !== undefined) return 1;
+      return a.name.localeCompare(b.name);
+    });
     const realFaculties = faculties;
     const realFacilities = facilities;
     const realDepts = departments;
@@ -1195,7 +1202,8 @@ export const Dashboard: React.FC = () => {
     const enrollmentYears = Array.from(new Set(realStudents.map(s => s.admissionYear?.split('-')[0]).filter(Boolean) as string[])).sort();
     const enrollmentData = enrollmentYears.map(year => ({
       year,
-      students: realStudents.filter(s => s.admissionYear?.startsWith(year)).length
+      students: realStudents.filter(s => s.admissionYear?.startsWith(year)).length,
+      graduates: 0
     }));
 
     // Institution distribution
@@ -1206,6 +1214,26 @@ export const Dashboard: React.FC = () => {
     const institutionDistribution = Object.entries(dist).map(([name, value]) => ({ name, value }));
 
     const stemRatioData = getStemRatioData(realStudents, realDepts);
+
+    // Staff Distribution
+    const staffDist: Record<string, number> = realStaff.reduce((acc: Record<string, number>, curr) => {
+      acc[curr.staffType] = (acc[curr.staffType] || 0) + 1;
+      return acc;
+    }, {});
+    const staffDistribution = Object.entries(staffDist).map(([name, value]) => ({ name, value }));
+
+    // Facility Distribution
+    const facilityDist: Record<string, number> = realFacilities.reduce((acc: Record<string, number>, curr) => {
+      acc[curr.type] = (acc[curr.type] || 0) + 1;
+      return acc;
+    }, {});
+    const facilityDistribution = Object.entries(facilityDist).map(([name, value]) => ({ name, value }));
+
+    // STEM Distribution
+    const stemDistribution = [
+      { name: 'STEM', value: stemRatioData.stem },
+      { name: 'Non-STEM', value: stemRatioData.total - stemRatioData.stem }
+    ];
 
     // Gender Distribution
     const genderDist: Record<string, number> = realStudents.reduce((acc: Record<string, number>, curr) => {
@@ -1231,6 +1259,9 @@ export const Dashboard: React.FC = () => {
       enrollmentData: enrollmentData.length > 0 ? enrollmentData : [{ year: '2024', students: 0, graduates: 0 }],
       institutionDistribution,
       genderDistribution,
+      staffDistribution,
+      facilityDistribution,
+      stemDistribution,
       recentFacilities: realFacilities.slice(0, 5),
       recentPublications: realPublications.slice(0, 5),
       realInstitutions,
@@ -1297,10 +1328,12 @@ export const Dashboard: React.FC = () => {
                       isAnimationActive={false}
                       labelLine={false}
                       label={({ cx, cy, midAngle, innerRadius, outerRadius, value }) => {
+                        if (value === 0) return null;
                         const RADIAN = Math.PI / 180;
                         const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
                         const x = cx + radius * Math.cos(-midAngle * RADIAN);
                         const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                        if (isNaN(x) || isNaN(y)) return null;
                         return (
                           <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize="14" fontWeight="900" className="drop-shadow-md">
                             {value.toLocaleString()}
@@ -1335,6 +1368,51 @@ export const Dashboard: React.FC = () => {
           onClick={canDrillDown ? () => setIsStaffDrillDownOpen(true) : undefined}
           drillable={canDrillDown}
           footer={processedData.lastUpdated}
+          extra={
+            <div className="h-full w-full flex flex-col items-center justify-center">
+              <div className="h-48 w-full relative">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={processedData.staffDistribution}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={75}
+                      dataKey="value"
+                      isAnimationActive={false}
+                      labelLine={false}
+                      label={({ cx, cy, midAngle, innerRadius, outerRadius, value }) => {
+                        if (value === 0) return null;
+                        const RADIAN = Math.PI / 180;
+                        const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+                        const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                        const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                        if (isNaN(x) || isNaN(y)) return null;
+                        return (
+                          <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize="14" fontWeight="900" className="drop-shadow-md">
+                            {value.toLocaleString()}
+                          </text>
+                        );
+                      }}
+                    >
+                      <Cell fill="#10b981" stroke="#fff" strokeWidth={2} />
+                      <Cell fill="#3b82f6" stroke="#fff" strokeWidth={2} />
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex gap-4 mt-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded bg-emerald-500"></div>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Academic</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded bg-blue-500"></div>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Non-Acad</span>
+                </div>
+              </div>
+            </div>
+          }
         />
         <StatCard 
           title="Total Facilities" 
@@ -1344,6 +1422,53 @@ export const Dashboard: React.FC = () => {
           onClick={canDrillDown ? () => setIsFacilityDrillDownOpen(true) : undefined}
           drillable={canDrillDown}
           footer={processedData.lastUpdated}
+          extra={
+            <div className="h-full w-full flex flex-col items-center justify-center">
+              <div className="h-48 w-full relative">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={processedData.facilityDistribution}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={75}
+                      dataKey="value"
+                      isAnimationActive={false}
+                      labelLine={false}
+                      label={({ cx, cy, midAngle, innerRadius, outerRadius, value }) => {
+                        if (value === 0) return null;
+                        const RADIAN = Math.PI / 180;
+                        const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+                        const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                        const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                        if (isNaN(x) || isNaN(y)) return null;
+                        return (
+                          <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize="12" fontWeight="900" className="drop-shadow-md">
+                            {value.toLocaleString()}
+                          </text>
+                        );
+                      }}
+                    >
+                      {processedData.facilityDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="#fff" strokeWidth={2} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-2">
+                {processedData.facilityDistribution.slice(0, 3).map((entry, index) => (
+                  <div key={entry.name} className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest truncate max-w-[60px]">{entry.name}</span>
+                  </div>
+                ))}
+                {processedData.facilityDistribution.length > 3 && (
+                   <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">+{processedData.facilityDistribution.length - 3} More</span>
+                )}
+              </div>
+            </div>
+          }
         />
         <StatCard 
           title="STEM:Non-STEM Ratio" 
@@ -1354,6 +1479,51 @@ export const Dashboard: React.FC = () => {
           drillable={canDrillDown}
           footer={processedData.lastUpdated}
           label="Compliance"
+          extra={
+            <div className="h-full w-full flex flex-col items-center justify-center">
+              <div className="h-48 w-full relative">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={processedData.stemDistribution}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={75}
+                      dataKey="value"
+                      isAnimationActive={false}
+                      labelLine={false}
+                      label={({ cx, cy, midAngle, innerRadius, outerRadius, value }) => {
+                        if (value === 0) return null;
+                        const RADIAN = Math.PI / 180;
+                        const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+                        const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                        const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                        if (isNaN(x) || isNaN(y)) return null;
+                        return (
+                          <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize="14" fontWeight="900" className="drop-shadow-md">
+                            {value.toLocaleString()}
+                          </text>
+                        );
+                      }}
+                    >
+                      <Cell fill="#9333ea" stroke="#fff" strokeWidth={2} />
+                      <Cell fill="#cbd5e1" stroke="#fff" strokeWidth={2} />
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex gap-4 mt-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded bg-purple-600"></div>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">STEM</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded bg-slate-300"></div>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Non-STEM</span>
+                </div>
+              </div>
+            </div>
+          }
         />
         <StatCard 
           title="Research Outputs" 

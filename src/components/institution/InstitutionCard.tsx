@@ -163,6 +163,7 @@ export const InstitutionCard: React.FC<InstitutionCardProps> = ({
                 const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
                 const x = cx + radius * Math.cos(-midAngle * RADIAN);
                 const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                if (isNaN(x) || isNaN(y)) return null;
                 return (
                   <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize="11" fontWeight="900" className="drop-shadow-sm">
                     {value}

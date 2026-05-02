@@ -89,6 +89,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const navigation = [
     { to: '/', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
     { to: '/institutions', icon: <School size={20} />, label: 'Institutions' },
+    { to: '/leadership', icon: <ShieldCheck size={20} />, label: 'Institutional Leadership' },
     { to: '/students', icon: <GraduationCap size={20} />, label: 'Students' },
     { 
       label: 'Personnel Management', 

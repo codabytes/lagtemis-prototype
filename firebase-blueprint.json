@@ -10,7 +10,8 @@
         "type": { "type": "string", "enum": ["Public", "Private"], "description": "Type of institution." },
         "category": { "type": "string", "enum": ["University", "Polytechnic/Monotechnic", "College of Education", "Vocational School"] },
         "address": { "type": "string" },
-        "website": { "type": "string" }
+        "website": { "type": "string" },
+        "order": { "type": "number", "description": "Display order of the institution." }
       },
       "required": ["name", "shortName", "type", "category"]
     },
@@ -170,6 +171,26 @@
       },
       "required": ["email", "role"]
     },
+    "LeadershipRecord": {
+      "title": "LeadershipRecord",
+      "description": "A record of an institutional leader (Political or Management).",
+      "type": "object",
+      "properties": {
+        "institutionId": { "type": "string" },
+        "type": { "type": "string", "enum": ["Political", "Management"] },
+        "category": { "type": "string", "enum": ["Visitor", "Chancellor", "Governing Council", "Vice-Chancellor", "Deputy Vice-Chancellor", "Registrar", "Bursar", "Librarian"] },
+        "personName": { "type": "string" },
+        "title": { "type": "string" },
+        "photoUrl": { "type": "string" },
+        "startDate": { "type": "string", "format": "date" },
+        "tenureYears": { "type": "number" },
+        "endDate": { "type": "string", "format": "date" },
+        "councilPosition": { "type": "string" },
+        "portfolio": { "type": "string" },
+        "isVisitorProprietor": { "type": "boolean" }
+      },
+      "required": ["institutionId", "type", "category", "personName", "startDate", "tenureYears", "endDate"]
+    },
     "AuditLog": {
       "title": "AuditLog",
       "description": "A log of data entry and edits.",
@@ -197,6 +218,7 @@
     "/maintenance_logs/{id}": { "schema": "MaintenanceLog", "description": "Facility maintenance records." },
     "/trainings/{id}": { "schema": "Training", "description": "Professional training records." },
     "/users/{id}": { "schema": "User", "description": "System users and roles." },
+    "/leadership/{id}": { "schema": "LeadershipRecord", "description": "Records of institutional leadership (Political and Management)." },
     "/logs/{id}": { "schema": "AuditLog", "description": "System audit logs." }
   }
 }

@@ -140,6 +140,13 @@ service cloud.firestore {
              (request.resource.data.acquisitionCost is number || request.resource.data.acquisitionCost is int);
     }
 
+    function isValidLeadershipRecord() {
+      return hasRequiredFields(['institutionId', 'type', 'category', 'personName', 'startDate', 'tenureYears', 'endDate']) &&
+             request.resource.data.type in ['Political', 'Management'] &&
+             request.resource.data.category in ['Visitor', 'Chancellor', 'Governing Council', 'Vice-Chancellor', 'Deputy Vice-Chancellor', 'Registrar', 'Bursar', 'Librarian'] &&
+             request.resource.data.tenureYears is number;
+    }
+
     // ===============================================================
     // Rules
     // ===============================================================
@@ -220,10 +227,13 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    match /leadership_tenures/{id} {
-      allow read, write: if isAdmin();
+    match /leadership/{id} {
+      allow read: if isAuthenticated();
+      allow create: if (isAdmin() || hasRole('DirectorAdminHR')) && isValidLeadershipRecord();
+      allow update: if (isAdmin() || hasRole('DirectorAdminHR')) && isValidLeadershipRecord();
+      allow delete: if isAdmin();
     }
-    
+
     match /{path=**} {
       allow read, write: if false;
     }

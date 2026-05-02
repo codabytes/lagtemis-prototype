@@ -24,6 +24,7 @@ export interface Institution {
   address?: string;
   website?: string;
   logoUrl?: string;
+  order?: number;
 }
 
 export interface Faculty {
@@ -141,6 +142,22 @@ export interface Training {
   provider: string;
   fundingSource: 'Federal Government' | 'Lagos State Government' | 'TETFund' | 'LASRIC' | 'Self-Sponsored' | 'Other';
   description?: string;
+}
+
+export interface LeadershipRecord {
+  id: string;
+  institutionId: string;
+  type: 'Political' | 'Management';
+  category: string; // Dynamic based on institution type and appointment group
+  personName: string;
+  title?: string;
+  photoUrl?: string;
+  startDate: string; // ISO date string
+  tenureYears: number;
+  endDate: string; // Calculated: startDate + tenureYears (lapses on last working day)
+  councilPosition?: string; // e.g., "Member", "Pro-Chancellor", "Industry Representative"
+  portfolio?: string; // for DVCs
+  isVisitorProprietor?: boolean;
 }
 
 export interface AuditLog {

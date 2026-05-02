@@ -1,45 +1,9 @@
 export const ACADEMIC_DATA = [
   {
-    name: "Lagos State University of Science and Technology",
-    shortName: "LASUSTECH",
-    category: "University",
-    faculties: [
-      {
-        name: "College of Agriculture",
-        type: "faculty",
-        allSTEM: true,
-        departments: ["Agricultural Economics and Farm Management", "Agricultural Extension and Rural Development", "Animal Production and Science", "Crop Science", "Fisheries and Aquaculture Management", "Horticulture and Landscape Management"]
-      },
-      {
-        name: "College of Engineering and Technology",
-        type: "faculty",
-        allSTEM: true,
-        departments: ["Agricultural and Biosystems Engineering", "Chemical Engineering", "Civil and Construction Engineering", "Computer Engineering", "Electrical and Electronics Engineering", "Food Science and Technology", "Mechanical Engineering", "Mechatronics Engineering"]
-      },
-      {
-        name: "College of Environmental Design and Technology",
-        type: "faculty",
-        allSTEM: true,
-        departments: ["Architecture", "Arts and Industrial Design", "Building Technology", "Estate Management and Valuation", "Quantity Surveying", "Urban and Regional Planning"]
-      },
-      {
-        name: "College of Basic Sciences",
-        type: "faculty",
-        allSTEM: true,
-        departments: ["Biological Sciences (Botany, Zoology, Microbiology)", "Chemical Sciences (Chemistry, Biochemistry, Industrial Chemistry)", "Computer Science", "Mathematical Sciences (Mathematics, Statistics, Industrial Mathematics)", "Physical Sciences (Physics with Electronics)"]
-      },
-      {
-        name: "College of Applied Social Sciences",
-        type: "faculty",
-        allSTEM: false,
-        departments: ["Accounting", "Actuarial Science", "Banking and Finance", "Business Administration/Management", "Economic Science", "Hospitality and Tourism Management", "Insurance", "Marketing", "Mass Communication", "Office and Information Management"]
-      }
-    ]
-  },
-  {
     name: "Lagos State University",
     shortName: "LASU",
     category: "University",
+    order: 1,
     faculties: [
       {
         name: "Faculty of Arts",
@@ -112,6 +76,7 @@ export const ACADEMIC_DATA = [
     name: "Lagos State University College of Medicine",
     shortName: "LASUCOM",
     category: "University",
+    order: 2,
     faculties: [
       {
         name: "Faculty of Basic Medical Sciences",
@@ -140,9 +105,80 @@ export const ACADEMIC_DATA = [
     ]
   },
   {
+    name: "Lagos State University of Science and Technology",
+    shortName: "LASUSTECH",
+    category: "University",
+    order: 3,
+    faculties: [
+      {
+        name: "College of Agriculture",
+        type: "faculty",
+        allSTEM: true,
+        departments: ["Agricultural Economics and Farm Management", "Agricultural Extension and Rural Development", "Animal Production and Science", "Crop Science", "Fisheries and Aquaculture Management", "Horticulture and Landscape Management"]
+      },
+      {
+        name: "College of Engineering and Technology",
+        type: "faculty",
+        allSTEM: true,
+        departments: ["Agricultural and Biosystems Engineering", "Chemical Engineering", "Civil and Construction Engineering", "Computer Engineering", "Electrical and Electronics Engineering", "Food Science and Technology", "Mechanical Engineering", "Mechatronics Engineering"]
+      },
+      {
+        name: "College of Environmental Design and Technology",
+        type: "faculty",
+        allSTEM: true,
+        departments: ["Architecture", "Arts and Industrial Design", "Building Technology", "Estate Management and Valuation", "Quantity Surveying", "Urban and Regional Planning"]
+      },
+      {
+        name: "College of Basic Sciences",
+        type: "faculty",
+        allSTEM: true,
+        departments: ["Biological Sciences (Botany, Zoology, Microbiology)", "Chemical Sciences (Chemistry, Biochemistry, Industrial Chemistry)", "Computer Science", "Mathematical Sciences (Mathematics, Statistics, Industrial Mathematics)", "Physical Sciences (Physics with Electronics)"]
+      },
+      {
+        name: "College of Applied Social Sciences",
+        type: "faculty",
+        allSTEM: false,
+        departments: ["Accounting", "Actuarial Science", "Banking and Finance", "Business Administration/Management", "Economic Science", "Hospitality and Tourism Management", "Insurance", "Marketing", "Mass Communication", "Office and Information Management"]
+      }
+    ]
+  },
+  {
+    name: "Lagos State University of Education",
+    shortName: "LASUED",
+    category: "University",
+    order: 4,
+    faculties: [
+      {
+        name: "College of Humanities Education",
+        type: "faculty",
+        allSTEM: false,
+        departments: ["English Education", "Yoruba Education", "French Education", "Christian Religious Education", "Islamic Religious Education", "Music Education", "Fine Arts Education"]
+      },
+      {
+        name: "College of Science Education",
+        type: "faculty",
+        allSTEM: true,
+        departments: ["Biology Education", "Chemistry Education", "Physics Education", "Mathematics Education", "Computer Science Education", "Integrated Science Education"]
+      },
+      {
+        name: "College of Social Sciences Education",
+        type: "faculty",
+        allSTEM: false,
+        departments: ["Economics Education", "Geography Education", "Political Science Education", "Social Studies Education"]
+      },
+      {
+        name: "College of Vocational and Technology Education",
+        type: "faculty",
+        allSTEM: true,
+        departments: ["Business Education", "Agricultural Science Education", "Home Economics Education", "Technical Education"]
+      }
+    ]
+  },
+  {
     name: "Lagos State College of Health Technology",
     shortName: "LASCOHET",
     category: "Polytechnic/Monotechnic",
+    order: 5,
     faculties: [
       {
         name: "School of Environmental Health",
@@ -198,6 +234,7 @@ export const ACADEMIC_DATA = [
     name: "Lagos State College of Nursing",
     shortName: "LASCON",
     category: "Polytechnic/Monotechnic",
+    order: 6,
     faculties: [
       {
         name: "College of Nursing, Midwifery and Public Health Nursing",

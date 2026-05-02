@@ -69,6 +69,7 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ type }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
   const [newStaff, setNewStaff] = useState<Partial<Staff>>({ ...INITIAL_STAFF_STATE, staffType: type });
+  const [isPhotoDragging, setIsPhotoDragging] = useState(false);
 
   const [confirmState, setConfirmState] = useState<{
     isOpen: boolean;
@@ -98,7 +99,14 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ type }) => {
       ]);
 
       setStaff(staffData);
-      setInstitutions(instData);
+      setInstitutions(instData.sort((a, b) => {
+        if (a.order !== undefined && b.order !== undefined) {
+          return a.order - b.order;
+        }
+        if (a.order !== undefined) return -1;
+        if (b.order !== undefined) return 1;
+        return a.name.localeCompare(b.name);
+      }));
       setDepartments(deptData);
       setFaculties(facultyData);
       setLoading(false);
@@ -122,25 +130,45 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ type }) => {
     });
   }, [staff, searchTerm, filters]);
 
+  const processPictureFile = (file: File) => {
+    if (file.size > 500000) {
+      setConfirmState({
+        isOpen: true,
+        title: 'File Too Large',
+        message: 'The photograph must be less than 500KB.',
+        onConfirm: () => setConfirmState(prev => ({ ...prev, isOpen: false })),
+        isDangerous: false
+      });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setNewStaff({ ...newStaff, picture: reader.result as string });
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 500000) {
-        setConfirmState({
-          isOpen: true,
-          title: 'File Too Large',
-          message: 'The photograph must be less than 500KB.',
-          onConfirm: () => setConfirmState(prev => ({ ...prev, isOpen: false })),
-          isDangerous: false
-        });
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewStaff({ ...newStaff, picture: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+    if (file) processPictureFile(file);
+  };
+
+  const handlePhotoDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsPhotoDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      processPictureFile(file);
     }
+  };
+
+  const handlePhotoDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsPhotoDragging(true);
+  };
+
+  const handlePhotoDragLeave = () => {
+    setIsPhotoDragging(false);
   };
 
   const handleSaveStaff = async (e: React.FormEvent) => {
@@ -461,13 +489,19 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ type }) => {
               <section className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                 <div className="space-y-4">
                   <div className="relative group mx-auto lg:mx-0 w-48 aspect-square lg:w-full">
-                    <div className="w-full h-full bg-slate-50 rounded-[40px] border-4 border-dashed border-slate-200 flex flex-col items-center justify-center overflow-hidden transition-all group-hover:border-blue-400 group-hover:bg-blue-50/50 relative">
+                    <div 
+                      className={`w-full h-full rounded-[40px] border-4 border-dashed flex flex-col items-center justify-center overflow-hidden transition-all relative ${isPhotoDragging ? 'bg-blue-50 border-blue-400 ring-4 ring-blue-100' : 'bg-slate-50 border-slate-200 group-hover:border-blue-400 group-hover:bg-blue-50/50'}`}
+                      onDragOver={handlePhotoDragOver}
+                      onDragLeave={handlePhotoDragLeave}
+                      onDrop={handlePhotoDrop}
+                    >
                       {newStaff.picture ? (
                         <img src={newStaff.picture} alt="Preview" className="w-full h-full object-cover" />
                       ) : (
                         <div className="text-center p-6">
                           <Plus className="mx-auto text-slate-300 mb-4" size={48} />
                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Upload Passport</p>
+                          <p className="text-[8px] text-slate-400 mt-2 uppercase tracking-tight font-black">Drop file here</p>
                         </div>
                       )}
                       <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer" />

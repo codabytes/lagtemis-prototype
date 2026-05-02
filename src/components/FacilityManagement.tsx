@@ -129,7 +129,14 @@ export const FacilityManagement: React.FC = () => {
         console.log(`Loaded: ${fetchedFacilities.length} facilities, ${fetchedInstitutions.length} institutions`);
 
         setFacilities(fetchedFacilities);
-        setInstitutions(fetchedInstitutions);
+        setInstitutions(fetchedInstitutions.sort((a, b) => {
+          if (a.order !== undefined && b.order !== undefined) {
+            return a.order - b.order;
+          }
+          if (a.order !== undefined) return -1;
+          if (b.order !== undefined) return 1;
+          return a.name.localeCompare(b.name);
+        }));
       } catch (error) {
         console.error('Error fetching facility management data:', error);
         handleFirestoreError(error, OperationType.LIST, 'facilities');

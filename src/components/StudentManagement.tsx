@@ -81,6 +81,7 @@ export const StudentManagement: React.FC = () => {
     onConfirm: () => {},
   });
   const [newStudent, setNewStudent] = useState<Partial<Student>>(INITIAL_STUDENT_STATE);
+  const [isPhotoDragging, setIsPhotoDragging] = useState(false);
 
   const isFormDirty = () => {
     return Object.keys(INITIAL_STUDENT_STATE).some(key => {
@@ -132,7 +133,14 @@ export const StudentManagement: React.FC = () => {
         ]);
 
         setStudents(studentsSnap.docs.map(d => ({ id: d.id, ...d.data() } as Student)));
-        setInstitutions(instSnap.docs.map(d => ({ id: d.id, ...d.data() } as Institution)));
+        setInstitutions(instSnap.docs.map(d => ({ id: d.id, ...d.data() } as Institution)).sort((a, b) => {
+          if (a.order !== undefined && b.order !== undefined) {
+            return a.order - b.order;
+          }
+          if (a.order !== undefined) return -1;
+          if (b.order !== undefined) return 1;
+          return a.name.localeCompare(b.name);
+        }));
         setFaculties(facultySnap.docs.map(d => ({ id: d.id, ...d.data() } as Faculty)));
         setDepartments(deptSnap.docs.map(d => ({ id: d.id, ...d.data() } as Department)));
         setLoading(false);
@@ -144,25 +152,45 @@ export const StudentManagement: React.FC = () => {
     fetchData();
   }, []);
 
+  const processPictureFile = (file: File) => {
+    if (file.size > 500000) { // 500KB limit for base64
+      setConfirmState({
+        isOpen: true,
+        title: 'File Too Large',
+        message: 'The photograph must be less than 500KB.',
+        onConfirm: () => setConfirmState(prev => ({ ...prev, isOpen: false })),
+        isDangerous: false
+      });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setNewStudent({ ...newStudent, picture: reader.result as string });
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 500000) { // 500KB limit for base64
-        setConfirmState({
-          isOpen: true,
-          title: 'File Too Large',
-          message: 'The photograph must be less than 500KB.',
-          onConfirm: () => setConfirmState(prev => ({ ...prev, isOpen: false })),
-          isDangerous: false
-        });
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewStudent({ ...newStudent, picture: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+    if (file) processPictureFile(file);
+  };
+
+  const handlePhotoDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsPhotoDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      processPictureFile(file);
     }
+  };
+
+  const handlePhotoDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsPhotoDragging(true);
+  };
+
+  const handlePhotoDragLeave = () => {
+    setIsPhotoDragging(false);
   };
 
   const handleAddStudent = async (e: React.FormEvent) => {
@@ -617,7 +645,12 @@ export const StudentManagement: React.FC = () => {
                 <div className="w-full md:w-1/3 space-y-2">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Upload Picture</label>
                   <div className="relative group">
-                    <div className="w-full aspect-square bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center overflow-hidden transition-all group-hover:border-blue-400 group-hover:bg-blue-50/30">
+                    <div 
+                      className={`w-full aspect-square rounded-2xl border-2 border-dashed flex flex-col items-center justify-center overflow-hidden transition-all ${isPhotoDragging ? 'bg-blue-50 border-blue-400 ring-4 ring-blue-100' : 'bg-slate-50 border-slate-200 group-hover:border-blue-400 group-hover:bg-blue-50/30'}`}
+                      onDragOver={handlePhotoDragOver}
+                      onDragLeave={handlePhotoDragLeave}
+                      onDrop={handlePhotoDrop}
+                    >
                       {newStudent.picture ? (
                         <img 
                           src={newStudent.picture} 
@@ -629,6 +662,7 @@ export const StudentManagement: React.FC = () => {
                         <div className="text-center p-4">
                           <Plus className="mx-auto text-slate-300 mb-2" size={32} />
                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Passport Photo</p>
+                          <p className="text-[8px] text-slate-400 mt-1 uppercase tracking-tight font-black">Drop file here</p>
                         </div>
                       )}
                       <input
