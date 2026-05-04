@@ -475,7 +475,7 @@ const StaffDrillDownModal: React.FC<{
                           <p className="text-3xl font-black text-slate-900 tabular-nums mb-1">{inst.count.toLocaleString()}</p>
                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Staff</p>
                         </div>
-                        <div className="h-16 w-16 -mr-2">
+                        <div className="h-24 w-24 -mr-4 flex items-center justify-center">
                           <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                               <Tooltip 
@@ -484,8 +484,11 @@ const StaffDrillDownModal: React.FC<{
                                     const data = payload[0].payload;
                                     const percentage = inst.count > 0 ? ((data.value / inst.count) * 100).toFixed(0) : 0;
                                     return (
-                                      <div className="bg-slate-900 text-white px-2 py-1 rounded-lg text-[10px] font-bold">
-                                        {data.name}: {percentage}%
+                                      <div className="bg-white p-2 rounded-lg shadow-xl border border-slate-100 text-[10px] font-bold">
+                                        <div className="flex items-center gap-2">
+                                          <div className={`w-2 h-2 rounded-full ${data.name === 'Male' ? 'bg-emerald-500' : 'bg-blue-500'}`}></div>
+                                          <span className="text-slate-600">{data.name}: {data.value.toLocaleString()} ({percentage}%)</span>
+                                        </div>
                                       </div>
                                     );
                                   }
@@ -494,10 +497,30 @@ const StaffDrillDownModal: React.FC<{
                               />
                               <Pie
                                 data={inst.genderDist}
-                                innerRadius={18}
-                                outerRadius={30}
+                                innerRadius={22}
+                                outerRadius={38}
                                 paddingAngle={2}
                                 dataKey="value"
+                                labelLine={false}
+                                label={({ cx, cy, midAngle, innerRadius, outerRadius, value, index }) => {
+                                  if (value === 0) return null;
+                                  const RADIAN = Math.PI / 180;
+                                  const radius = outerRadius + 12;
+                                  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                                  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                                  return (
+                                    <text 
+                                      x={x} 
+                                      y={y} 
+                                      fill="#64748b" 
+                                      textAnchor={x > cx ? 'start' : 'end'} 
+                                      dominantBaseline="central" 
+                                      className="text-[9px] font-black"
+                                    >
+                                      {value}
+                                    </text>
+                                  );
+                                }}
                               >
                                 <Cell fill="#10b981" />
                                 <Cell fill="#3b82f6" />
@@ -769,18 +792,21 @@ const StemDrillDownModal: React.FC<{
                             {inst.percentage}% STEM
                           </span>
                         </div>
-                        <div className="h-16 w-16 ml-auto">
+                        <div className="h-24 w-24 -mr-4 flex items-center justify-center">
                           <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                               <Tooltip 
                                 content={({ active, payload }) => {
                                   if (active && payload && payload.length) {
                                     const data = payload[0].payload;
-                                    const total = inst.genderDist.reduce((a, b) => a + b.value, 0);
+                                    const total = inst.genderDist.reduce((a: any, b: any) => a + b.value, 0);
                                     const percentage = total > 0 ? ((data.value / total) * 100).toFixed(0) : 0;
                                     return (
-                                      <div className="bg-slate-900 text-white px-2 py-1 rounded-lg text-[10px] font-bold">
-                                        {data.name}: {percentage}%
+                                      <div className="bg-white p-2 rounded-lg shadow-xl border border-slate-100 text-[10px] font-bold">
+                                        <div className="flex items-center gap-2">
+                                          <div className={`w-2 h-2 rounded-full ${data.name === 'Male' ? 'bg-indigo-500' : 'bg-pink-500'}`}></div>
+                                          <span className="text-slate-600">{data.name}: {data.value.toLocaleString()} ({percentage}%)</span>
+                                        </div>
                                       </div>
                                     );
                                   }
@@ -789,10 +815,30 @@ const StemDrillDownModal: React.FC<{
                               />
                               <Pie
                                 data={inst.genderDist}
-                                innerRadius={18}
-                                outerRadius={30}
+                                innerRadius={22}
+                                outerRadius={38}
                                 paddingAngle={2}
                                 dataKey="value"
+                                labelLine={false}
+                                label={({ cx, cy, midAngle, innerRadius, outerRadius, value, index }) => {
+                                  if (value === 0) return null;
+                                  const RADIAN = Math.PI / 180;
+                                  const radius = outerRadius + 12;
+                                  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                                  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                                  return (
+                                    <text 
+                                      x={x} 
+                                      y={y} 
+                                      fill="#64748b" 
+                                      textAnchor={x > cx ? 'start' : 'end'} 
+                                      dominantBaseline="central" 
+                                      className="text-[9px] font-black"
+                                    >
+                                      {value}
+                                    </text>
+                                  );
+                                }}
                               >
                                 <Cell fill="#4f46e5" />
                                 <Cell fill="#ec4899" />
@@ -1025,7 +1071,7 @@ const DrillDownModal: React.FC<{
                           <p className="text-3xl font-black text-slate-900 tabular-nums mb-1">{inst.count.toLocaleString()}</p>
                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Enrollment</p>
                         </div>
-                        <div className="h-16 w-16 -mr-2">
+                        <div className="h-24 w-24 -mr-4 flex items-center justify-center">
                           <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                               <Tooltip 
@@ -1034,8 +1080,11 @@ const DrillDownModal: React.FC<{
                                     const data = payload[0].payload;
                                     const percentage = inst.count > 0 ? ((data.value / inst.count) * 100).toFixed(0) : 0;
                                     return (
-                                      <div className="bg-slate-900 text-white px-2 py-1 rounded-lg text-[10px] font-bold">
-                                        {data.name}: {percentage}%
+                                      <div className="bg-white p-2 rounded-lg shadow-xl border border-slate-100 text-[10px] font-bold">
+                                        <div className="flex items-center gap-2">
+                                          <div className={`w-2 h-2 rounded-full ${data.name === 'Male' ? 'bg-blue-500' : 'bg-pink-500'}`}></div>
+                                          <span className="text-slate-600">{data.name}: {data.value.toLocaleString()} ({percentage}%)</span>
+                                        </div>
                                       </div>
                                     );
                                   }
@@ -1044,10 +1093,30 @@ const DrillDownModal: React.FC<{
                               />
                               <Pie
                                 data={inst.genderDist}
-                                innerRadius={18}
-                                outerRadius={30}
+                                innerRadius={22}
+                                outerRadius={38}
                                 paddingAngle={2}
                                 dataKey="value"
+                                labelLine={false}
+                                label={({ cx, cy, midAngle, innerRadius, outerRadius, value, index }) => {
+                                  if (value === 0) return null;
+                                  const RADIAN = Math.PI / 180;
+                                  const radius = outerRadius + 12;
+                                  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                                  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                                  return (
+                                    <text 
+                                      x={x} 
+                                      y={y} 
+                                      fill="#64748b" 
+                                      textAnchor={x > cx ? 'start' : 'end'} 
+                                      dominantBaseline="central" 
+                                      className="text-[9px] font-black"
+                                    >
+                                      {value}
+                                    </text>
+                                  );
+                                }}
                               >
                                 <Cell fill="#2563eb" />
                                 <Cell fill="#ec4899" />
