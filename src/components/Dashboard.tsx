@@ -153,7 +153,7 @@ const FacilityDrillDownModal: React.FC<{
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
       <div className="bg-white w-full max-w-7xl h-[90vh] rounded-[32px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
-        <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div className="p-4 px-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div>
             <div className="flex items-center gap-3 mb-1">
               {selectedInstId && (
@@ -161,19 +161,19 @@ const FacilityDrillDownModal: React.FC<{
                   onClick={() => setSelectedInstId(null)}
                   className="p-1.5 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors"
                 >
-                  <ArrowRight className="rotate-180" size={20} />
+                  <ArrowRight className="rotate-180" size={18} />
                 </button>
               )}
-              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight">
                 {!selectedInstId ? 'Total Facilities By Institution' : `Facilities Breakdown: ${selectedInstitution?.name}`}
               </h2>
             </div>
-            <p className="text-slate-500 text-sm italic serif">
+            <p className="text-slate-400 text-[11px] italic serif">
               {!selectedInstId ? 'Overall infrastructure inventory across the state' : 'Detailed asset listing with multidimensional filtering'}
             </p>
           </div>
-          <button onClick={onClose} className="p-3 text-slate-400 hover:bg-white hover:shadow-sm rounded-2xl transition-all">
-            <Building2 size={24} />
+          <button onClick={onClose} className="p-2 text-slate-400 hover:bg-white hover:shadow-sm rounded-xl transition-all">
+            <Building2 size={20} />
           </button>
         </div>
 
@@ -202,35 +202,35 @@ const FacilityDrillDownModal: React.FC<{
             </div>
           ) : (
             <div className="flex-1 flex flex-col overflow-hidden">
-              <div className="p-6 border-b border-slate-100 bg-white grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Campus</label>
+              <div className="p-3 px-6 border-b border-slate-100 bg-white grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
+                <div className="space-y-0.5">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Campus</label>
                   <select 
                     value={filters.campus}
                     onChange={(e) => setFilters(prev => ({ ...prev, campus: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-amber-100 transition-all shadow-sm"
+                    className="w-full bg-slate-50 border-none rounded-lg text-xs font-bold text-slate-700 p-2 outline-none focus:ring-2 focus:ring-amber-50 transition-all shadow-sm"
                   >
                     <option value="ALL">ALL CAMPUSES</option>
                     {availableCampuses.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Facility Type</label>
+                <div className="space-y-0.5">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Facility Type</label>
                   <select 
                     value={filters.type}
                     onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-amber-100 transition-all shadow-sm"
+                    className="w-full bg-slate-50 border-none rounded-lg text-xs font-bold text-slate-700 p-2 outline-none focus:ring-2 focus:ring-amber-50 transition-all shadow-sm"
                   >
                     <option value="ALL">ALL TYPES</option>
                     {types.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Capacity</label>
+                <div className="space-y-0.5">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Capacity</label>
                   <select 
                     value={filters.capacity}
                     onChange={(e) => setFilters(prev => ({ ...prev, capacity: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-amber-100 transition-all shadow-sm"
+                    className="w-full bg-slate-50 border-none rounded-lg text-xs font-bold text-slate-700 p-2 outline-none focus:ring-2 focus:ring-amber-50 transition-all shadow-sm"
                   >
                     <option value="ALL">ANY CAPACITY</option>
                     <option value="0-50">Up to 50</option>
@@ -240,12 +240,12 @@ const FacilityDrillDownModal: React.FC<{
                     <option value="501+">Above 500</option>
                   </select>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Funding Source</label>
+                <div className="space-y-0.5">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Funding Source</label>
                   <select 
                     value={filters.fundingSource}
                     onChange={(e) => setFilters(prev => ({ ...prev, fundingSource: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-amber-100 transition-all shadow-sm"
+                    className="w-full bg-slate-50 border-none rounded-lg text-xs font-bold text-slate-700 p-2 outline-none focus:ring-2 focus:ring-amber-50 transition-all shadow-sm"
                   >
                     <option value="ALL">ALL SOURCES</option>
                     {fundingSources.map(s => <option key={s} value={s}>{s}</option>)}
@@ -253,21 +253,21 @@ const FacilityDrillDownModal: React.FC<{
                 </div>
                 <button 
                   onClick={clearFilters}
-                  className="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                  className="py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all h-[34px]"
                 >
                   Clear All
                 </button>
               </div>
 
-              <div className="flex-1 overflow-hidden bg-slate-50/20 p-8 flex flex-col">
-                <div className="flex items-center justify-between mb-4">
+              <div className="flex-1 overflow-hidden bg-slate-50/20 p-4 px-6 flex flex-col">
+                <div className="flex items-center justify-between mb-2">
                   <div>
-                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Infrastructure Records</h4>
-                    <p className="text-sm font-bold text-slate-600">Showing {filteredFacilities.length} matching assets</p>
+                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Infrastructure Records</h4>
+                    <p className="text-xs font-bold text-slate-500">Showing {filteredFacilities.length} matching assets</p>
                   </div>
-                  <div className="px-4 py-2 bg-white rounded-xl border border-slate-100 shadow-sm flex items-center gap-3">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Matches:</span>
-                    <span className="text-xl font-black text-amber-600">{filteredFacilities.length}</span>
+                  <div className="px-3 py-1 bg-white rounded-lg border border-slate-100 shadow-sm flex items-center gap-2">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Matches:</span>
+                    <span className="text-sm font-black text-amber-600">{filteredFacilities.length}</span>
                   </div>
                 </div>
 
@@ -423,7 +423,7 @@ const StaffDrillDownModal: React.FC<{
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
       <div className="bg-white w-full max-w-7xl h-[90vh] rounded-[32px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
-        <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div className="p-4 px-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div>
             <div className="flex items-center gap-3 mb-1">
               {(selectedInstId || selectedType) && (
@@ -431,23 +431,23 @@ const StaffDrillDownModal: React.FC<{
                   onClick={navigateBack}
                   className="p-1.5 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors"
                 >
-                  <ArrowRight className="rotate-180" size={20} />
+                  <ArrowRight className="rotate-180" size={18} />
                 </button>
               )}
-              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight">
                 {!selectedInstId ? 'Staff Strength By Institution' : 
                  !selectedType ? `Staff Breakdown: ${selectedInstitution?.name}` :
                  `${selectedType} Staff: ${selectedInstitution?.name}`}
               </h2>
             </div>
-            <p className="text-slate-500 text-sm italic serif">
+            <p className="text-slate-400 text-[11px] italic serif">
               {!selectedInstId ? 'Total human resource capacity across all institutions' : 
                !selectedType ? 'Academic and Non-Academic personnel breakdown' :
                'Advanced filtering and detailed records view'}
             </p>
           </div>
-          <button onClick={onClose} className="p-3 text-slate-400 hover:bg-white hover:shadow-sm rounded-2xl transition-all">
-            <Users size={24} />
+          <button onClick={onClose} className="p-2 text-slate-400 hover:bg-white hover:shadow-sm rounded-xl transition-all">
+            <Users size={20} />
           </button>
         </div>
 
@@ -562,46 +562,46 @@ const StaffDrillDownModal: React.FC<{
             </div>
           ) : (
             <div className="flex-1 flex flex-col overflow-hidden">
-              <div className="p-6 border-b border-slate-100 bg-white grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Faculty/Directorate</label>
+              <div className="p-3 px-6 border-b border-slate-100 bg-white grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
+                <div className="space-y-0.5">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Faculty/Directorate</label>
                   <select 
                     value={filters.facultyId}
                     onChange={(e) => setFilters(prev => ({ ...prev, facultyId: e.target.value, departmentId: 'ALL' }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-emerald-100 transition-all shadow-sm"
+                    className="w-full bg-slate-50 border-none rounded-lg text-xs font-bold text-slate-700 p-2 outline-none focus:ring-2 focus:ring-emerald-50 transition-all shadow-sm"
                   >
                     <option value="ALL">ALL {selectedType === 'Academic' ? 'FACULTIES' : 'DIRECTORATES'}</option>
                     {availableFaculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
                   </select>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Department/Unit</label>
+                <div className="space-y-0.5">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Department/Unit</label>
                   <select 
                     value={filters.departmentId}
                     onChange={(e) => setFilters(prev => ({ ...prev, departmentId: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-emerald-100 transition-all shadow-sm"
+                    className="w-full bg-slate-50 border-none rounded-lg text-xs font-bold text-slate-700 p-2 outline-none focus:ring-2 focus:ring-emerald-50 transition-all shadow-sm"
                   >
                     <option value="ALL">ALL {selectedType === 'Academic' ? 'DEPARTMENTS' : 'UNITS'}</option>
                     {availableDepartments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                   </select>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Qualification</label>
+                <div className="space-y-0.5">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Qualification</label>
                   <select 
                     value={filters.qualification}
                     onChange={(e) => setFilters(prev => ({ ...prev, qualification: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-emerald-100 transition-all shadow-sm"
+                    className="w-full bg-slate-50 border-none rounded-lg text-xs font-bold text-slate-700 p-2 outline-none focus:ring-2 focus:ring-emerald-50 transition-all shadow-sm"
                   >
                     <option value="ALL">ALL QUALIFICATIONS</option>
                     {qualifications.map(q => <option key={q} value={q}>{q}</option>)}
                   </select>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Status</label>
+                <div className="space-y-0.5">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Status</label>
                   <select 
                     value={filters.employmentStatus}
                     onChange={(e) => setFilters(prev => ({ ...prev, employmentStatus: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-emerald-100 transition-all shadow-sm"
+                    className="w-full bg-slate-50 border-none rounded-lg text-xs font-bold text-slate-700 p-2 outline-none focus:ring-2 focus:ring-emerald-50 transition-all shadow-sm"
                   >
                     <option value="ALL">ALL STATUSES</option>
                     {statuses.map(s => <option key={s} value={s}>{s}</option>)}
@@ -609,21 +609,21 @@ const StaffDrillDownModal: React.FC<{
                 </div>
                 <button 
                   onClick={clearFilters}
-                  className="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                  className="py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all h-[34px]"
                 >
                   Clear All
                 </button>
               </div>
 
-              <div className="flex-1 overflow-hidden bg-slate-50/20 p-8 flex flex-col">
-                <div className="flex items-center justify-between mb-4">
+              <div className="flex-1 overflow-hidden bg-slate-50/20 p-4 px-6 flex flex-col">
+                <div className="flex items-center justify-between mb-2">
                   <div>
-                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Personnel Records</h4>
-                    <p className="text-sm font-bold text-slate-600">Showing {filteredStaff.length} filtered staff members</p>
+                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Personnel Records</h4>
+                    <p className="text-xs font-bold text-slate-500">Showing {filteredStaff.length} staff members</p>
                   </div>
-                  <div className="px-4 py-2 bg-white rounded-xl border border-slate-100 shadow-sm flex items-center gap-3">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Matches:</span>
-                    <span className={`text-xl font-black ${selectedType === 'Academic' ? 'text-emerald-600' : 'text-blue-600'}`}>{filteredStaff.length}</span>
+                  <div className="px-3 py-1 bg-white rounded-lg border border-slate-100 shadow-sm flex items-center gap-2">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Matches:</span>
+                    <span className={`text-lg font-black ${selectedType === 'Academic' ? 'text-emerald-600' : 'text-blue-600'}`}>{filteredStaff.length}</span>
                   </div>
                 </div>
 
@@ -739,7 +739,7 @@ const StemDrillDownModal: React.FC<{
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
       <div className="bg-white w-full max-w-7xl h-[90vh] rounded-[32px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
-        <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div className="p-4 px-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div>
             <div className="flex items-center gap-3 mb-1">
               {selectedInstId && (
@@ -747,19 +747,19 @@ const StemDrillDownModal: React.FC<{
                   onClick={() => setSelectedInstId(null)}
                   className="p-1.5 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors"
                 >
-                  <ArrowRight className="rotate-180" size={20} />
+                  <ArrowRight className="rotate-180" size={18} />
                 </button>
               )}
-              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight">
                 {!selectedInstId ? 'STEM:Non-STEM Ratio By Institution' : `Gender-based STEM Ratio: ${selectedInstitution?.name}`}
               </h2>
             </div>
-            <p className="text-slate-500 text-sm italic serif">
+            <p className="text-slate-400 text-[11px] italic serif">
               {!selectedInstId ? 'Analysis of student enrollment in STEM vs Non-STEM courses' : 'Multidimensional breakdown of STEM compliance by gender'}
             </p>
           </div>
-          <button onClick={onClose} className="p-3 text-slate-400 hover:bg-white hover:shadow-sm rounded-2xl transition-all">
-            <TrendingUp size={24} />
+          <button onClick={onClose} className="p-2 text-slate-400 hover:bg-white hover:shadow-sm rounded-xl transition-all">
+            <TrendingUp size={20} />
           </button>
         </div>
 
@@ -1023,7 +1023,7 @@ const DrillDownModal: React.FC<{
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
       <div className="bg-white w-full max-w-7xl h-[90vh] rounded-[32px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
-        <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div className="p-4 px-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div>
             <div className="flex items-center gap-3 mb-1">
               {selectedInstitutionId && (
@@ -1031,19 +1031,19 @@ const DrillDownModal: React.FC<{
                   onClick={() => setSelectedInstitutionId(null)}
                   className="p-1.5 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors"
                 >
-                  <ArrowRight className="rotate-180" size={20} />
+                  <ArrowRight className="rotate-180" size={18} />
                 </button>
               )}
-              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight">
                 {selectedInstitutionId ? `Drill Down: ${selectedInstitution?.name}` : 'Student Enrollment By Institution'}
               </h2>
             </div>
-            <p className="text-slate-500 text-sm italic serif">
+            <p className="text-slate-400 text-[11px] italic serif">
               {selectedInstitutionId ? 'Filter and explore detailed student records' : 'Total enrollment breakdown by institution'}
             </p>
           </div>
-          <button onClick={onClose} className="p-3 text-slate-400 hover:bg-white hover:shadow-sm rounded-2xl transition-all">
-            <Users size={24} />
+          <button onClick={onClose} className="p-2 text-slate-400 hover:bg-white hover:shadow-sm rounded-xl transition-all">
+            <Users size={20} />
           </button>
         </div>
 
@@ -1093,8 +1093,8 @@ const DrillDownModal: React.FC<{
                               />
                               <Pie
                                 data={inst.genderDist}
-                                innerRadius={22}
-                                outerRadius={38}
+                                innerRadius={0}
+                                outerRadius={28}
                                 paddingAngle={2}
                                 dataKey="value"
                                 labelLine={false}
@@ -1132,24 +1132,24 @@ const DrillDownModal: React.FC<{
             </div>
           ) : (
             <div className="flex-1 flex flex-col">
-              <div className="p-6 border-b border-slate-100 bg-white grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Campus</label>
+              <div className="p-3 px-6 border-b border-slate-100 bg-white grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
+                <div className="space-y-0.5">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Campus</label>
                   <select 
                     value={filters.campus}
                     onChange={(e) => setFilters(prev => ({ ...prev, campus: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-sm font-bold text-slate-700 p-2.5 transition-all shadow-sm outline-none focus:ring-2 focus:ring-blue-100"
+                    className="w-full bg-slate-50 border-none rounded-lg text-xs font-bold text-slate-700 p-2 transition-all shadow-sm outline-none focus:ring-2 focus:ring-blue-50"
                   >
                     <option value="ALL">ALL CAMPUSES</option>
                     {availableCampuses.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Programme Type</label>
+                <div className="space-y-0.5">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Programme Type</label>
                   <select 
                     value={filters.programmeType}
                     onChange={(e) => setFilters(prev => ({ ...prev, programmeType: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-sm font-bold text-slate-700 p-2.5 transition-all shadow-sm outline-none focus:ring-2 focus:ring-blue-100"
+                    className="w-full bg-slate-50 border-none rounded-lg text-xs font-bold text-slate-700 p-2 transition-all shadow-sm outline-none focus:ring-2 focus:ring-blue-50"
                   >
                     <option value="ALL">ALL TYPES</option>
                     <option value="Full-time">FULL-TIME</option>
@@ -1157,23 +1157,23 @@ const DrillDownModal: React.FC<{
                     <option value="Sandwich">SANDWICH</option>
                   </select>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Faculty</label>
+                <div className="space-y-0.5">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Faculty</label>
                   <select 
                     value={filters.facultyId}
                     onChange={(e) => setFilters(prev => ({ ...prev, facultyId: e.target.value, departmentId: 'ALL' }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-sm font-bold text-slate-700 p-2.5 transition-all shadow-sm outline-none focus:ring-2 focus:ring-blue-100"
+                    className="w-full bg-slate-50 border-none rounded-lg text-xs font-bold text-slate-700 p-2 transition-all shadow-sm outline-none focus:ring-2 focus:ring-blue-50"
                   >
                     <option value="ALL">ALL FACULTIES</option>
                     {availableFaculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
                   </select>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Department</label>
+                <div className="space-y-0.5">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Department</label>
                   <select 
                     value={filters.departmentId}
                     onChange={(e) => setFilters(prev => ({ ...prev, departmentId: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-sm font-bold text-slate-700 p-2.5 transition-all shadow-sm outline-none focus:ring-2 focus:ring-blue-100"
+                    className="w-full bg-slate-50 border-none rounded-lg text-xs font-bold text-slate-700 p-2 transition-all shadow-sm outline-none focus:ring-2 focus:ring-blue-50"
                   >
                     <option value="ALL">ALL DEPARTMENTS</option>
                     {availableDepartments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
@@ -1181,21 +1181,21 @@ const DrillDownModal: React.FC<{
                 </div>
                 <button 
                   onClick={clearFilters}
-                  className="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                  className="py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all h-[34px]"
                 >
                   Clear All
                 </button>
               </div>
 
-              <div className="flex-1 overflow-hidden bg-slate-50/30 p-6 flex flex-col">
-                <div className="flex items-center justify-between mb-4">
+              <div className="flex-1 overflow-hidden bg-slate-50/20 p-4 px-6 flex flex-col">
+                <div className="flex items-center justify-between mb-2">
                   <div>
-                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Student Records</h4>
-                    <p className="text-sm font-bold text-slate-600">Showing {filteredStudents.length} students matching criteria</p>
+                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Student Records</h4>
+                    <p className="text-xs font-bold text-slate-500">Showing {filteredStudents.length} students</p>
                   </div>
-                  <div className="px-4 py-2 bg-white rounded-xl border border-slate-100 shadow-sm">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mr-2">Result Count:</span>
-                    <span className="text-lg font-black text-blue-600">{filteredStudents.length}</span>
+                  <div className="px-3 py-1 bg-white rounded-lg border border-slate-100 shadow-sm flex items-center gap-2">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Count:</span>
+                    <span className="text-sm font-black text-blue-600">{filteredStudents.length}</span>
                   </div>
                 </div>
 
@@ -1204,43 +1204,43 @@ const DrillDownModal: React.FC<{
                     <table className="w-full text-left">
                       <thead className="sticky top-0 bg-slate-50 z-10">
                         <tr>
-                          <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Student</th>
-                          <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Matric No</th>
-                          <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Faculty</th>
-                          <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Department</th>
-                          <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Campus</th>
-                          <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Gender</th>
-                          <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">DOB</th>
-                          <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Programme Type</th>
+                          <th className="px-6 py-2 text-[9px] font-black text-slate-400 uppercase tracking-widest">Student</th>
+                          <th className="px-6 py-2 text-[9px] font-black text-slate-400 uppercase tracking-widest">Matric No</th>
+                          <th className="px-6 py-2 text-[9px] font-black text-slate-400 uppercase tracking-widest">Faculty</th>
+                          <th className="px-6 py-2 text-[9px] font-black text-slate-400 uppercase tracking-widest">Department</th>
+                          <th className="px-6 py-2 text-[9px] font-black text-slate-400 uppercase tracking-widest">Campus</th>
+                          <th className="px-6 py-2 text-[9px] font-black text-slate-400 uppercase tracking-widest">Gender</th>
+                          <th className="px-6 py-2 text-[9px] font-black text-slate-400 uppercase tracking-widest">DOB</th>
+                          <th className="px-6 py-2 text-[9px] font-black text-slate-400 uppercase tracking-widest">Programme</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-50">
                         {filteredStudents.length === 0 ? (
                           <tr>
-                            <td colSpan={6} className="px-6 py-12 text-center text-slate-400 italic font-medium">No students found for this selection</td>
+                            <td colSpan={8} className="px-6 py-8 text-center text-slate-400 italic font-medium">No students found for this selection</td>
                           </tr>
                         ) : filteredStudents.map(s => (
                           <tr key={s.id} className="hover:bg-slate-50/50">
-                            <td className="px-6 py-4">
-                              <p className="text-sm font-bold text-slate-900">{s.firstName} {s.lastName}</p>
-                              <p className="text-[10px] text-blue-500 font-mono">LASRRA: {s.lasrraId}</p>
+                            <td className="px-6 py-2">
+                              <p className="text-xs font-bold text-slate-900">{s.firstName} {s.lastName}</p>
+                              <p className="text-[9px] text-blue-500 font-mono">LASRRA: {s.lasrraId}</p>
                             </td>
-                            <td className="px-6 py-4">
-                              <span className="text-xs font-mono text-slate-600">{s.matricNumber}</span>
+                            <td className="px-6 py-2">
+                              <span className="text-[10px] font-mono text-slate-600">{s.matricNumber}</span>
                             </td>
-                            <td className="px-6 py-4">
-                              <p className="text-[10px] font-bold text-slate-700">{faculties.find(f => f.id === s.facultyId)?.name}</p>
+                            <td className="px-6 py-2">
+                              <p className="text-[9px] font-bold text-slate-700 line-clamp-1">{faculties.find(f => f.id === s.facultyId)?.shortName || faculties.find(f => f.id === s.facultyId)?.name}</p>
                             </td>
-                            <td className="px-6 py-4">
-                              <p className="text-[9px] text-slate-400 font-medium">{departments.find(d => d.id === s.departmentId)?.name}</p>
+                            <td className="px-6 py-2">
+                              <p className="text-[9px] text-slate-400 font-medium line-clamp-1">{departments.find(d => d.id === s.departmentId)?.name}</p>
                             </td>
-                            <td className="px-6 py-4">
-                              <p className="text-[10px] text-slate-400 uppercase tracking-tighter font-bold">{s.campus || 'Main Campus'}</p>
+                            <td className="px-6 py-2">
+                              <p className="text-[9px] text-slate-400 uppercase tracking-tighter font-bold">{s.campus || 'Main'}</p>
                             </td>
-                            <td className="px-6 py-4 text-xs font-bold text-slate-600">{s.sex || 'N/A'}</td>
-                            <td className="px-6 py-4 text-xs font-mono text-slate-600">{s.dob || 'N/A'}</td>
-                            <td className="px-6 py-4">
-                              <p className="text-xs font-bold text-slate-600">{s.programmeType}</p>
+                            <td className="px-6 py-2 text-[10px] font-bold text-slate-600">{s.sex || 'N/A'}</td>
+                            <td className="px-6 py-2 text-[10px] font-mono text-slate-600">{s.dob || 'N/A'}</td>
+                            <td className="px-6 py-2">
+                              <p className="text-[10px] font-bold text-slate-600">{s.programmeType}</p>
                             </td>
                           </tr>
                         ))}
