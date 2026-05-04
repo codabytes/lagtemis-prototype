@@ -83,8 +83,15 @@ const FacilityDrillDownModal: React.FC<{
   onClose: () => void;
   facilities: Facility[];
   institutions: Institution[];
-}> = ({ isOpen, onClose, facilities, institutions }) => {
-  const [selectedInstId, setSelectedInstId] = useState<string | null>(null);
+  initialInstitutionId?: string | null;
+}> = ({ isOpen, onClose, facilities, institutions, initialInstitutionId }) => {
+  const [selectedInstId, setSelectedInstId] = useState<string | null>(initialInstitutionId || null);
+
+  useEffect(() => {
+    if (initialInstitutionId) {
+      setSelectedInstId(initialInstitutionId);
+    }
+  }, [initialInstitutionId]);
   const [filters, setFilters] = useState({
     campus: 'ALL',
     type: 'ALL',
@@ -145,7 +152,7 @@ const FacilityDrillDownModal: React.FC<{
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-6xl h-[85vh] rounded-[32px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+      <div className="bg-white w-full max-w-7xl h-[90vh] rounded-[32px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
         <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div>
             <div className="flex items-center gap-3 mb-1">
@@ -201,7 +208,7 @@ const FacilityDrillDownModal: React.FC<{
                   <select 
                     value={filters.campus}
                     onChange={(e) => setFilters(prev => ({ ...prev, campus: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-amber-100"
+                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-amber-100 transition-all shadow-sm"
                   >
                     <option value="ALL">ALL CAMPUSES</option>
                     {availableCampuses.map(c => <option key={c} value={c}>{c}</option>)}
@@ -212,7 +219,7 @@ const FacilityDrillDownModal: React.FC<{
                   <select 
                     value={filters.type}
                     onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-amber-100"
+                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-amber-100 transition-all shadow-sm"
                   >
                     <option value="ALL">ALL TYPES</option>
                     {types.map(t => <option key={t} value={t}>{t}</option>)}
@@ -223,7 +230,7 @@ const FacilityDrillDownModal: React.FC<{
                   <select 
                     value={filters.capacity}
                     onChange={(e) => setFilters(prev => ({ ...prev, capacity: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-amber-100"
+                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-amber-100 transition-all shadow-sm"
                   >
                     <option value="ALL">ANY CAPACITY</option>
                     <option value="0-50">Up to 50</option>
@@ -238,23 +245,21 @@ const FacilityDrillDownModal: React.FC<{
                   <select 
                     value={filters.fundingSource}
                     onChange={(e) => setFilters(prev => ({ ...prev, fundingSource: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-amber-100"
+                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-amber-100 transition-all shadow-sm"
                   >
                     <option value="ALL">ALL SOURCES</option>
                     {fundingSources.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
-                <div className="pb-1">
-                  <button 
-                    onClick={clearFilters}
-                    className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
-                  >
-                    Clear All
-                  </button>
-                </div>
+                <button 
+                  onClick={clearFilters}
+                  className="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                >
+                  Clear All
+                </button>
               </div>
 
-              <div className="flex-1 overflow-hidden bg-slate-50/20 p-8">
+              <div className="flex-1 overflow-hidden bg-slate-50/20 p-8 flex flex-col">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h4 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Infrastructure Records</h4>
@@ -266,7 +271,7 @@ const FacilityDrillDownModal: React.FC<{
                   </div>
                 </div>
 
-                <div className="bg-white rounded-[24px] shadow-sm border border-slate-100 overflow-hidden h-full max-h-[calc(85vh-350px)]">
+                <div className="bg-white rounded-[24px] shadow-sm border border-slate-100 overflow-hidden flex-1 min-h-0">
                   <div className="overflow-x-auto overflow-y-auto h-full custom-scrollbar">
                     <table className="w-full text-left">
                       <thead className="sticky top-0 bg-slate-50 z-10">
@@ -331,8 +336,15 @@ const StaffDrillDownModal: React.FC<{
   institutions: Institution[];
   faculties: Faculty[];
   departments: Department[];
-}> = ({ isOpen, onClose, staff, institutions, faculties, departments }) => {
-  const [selectedInstId, setSelectedInstId] = useState<string | null>(null);
+  initialInstitutionId?: string | null;
+}> = ({ isOpen, onClose, staff, institutions, faculties, departments, initialInstitutionId }) => {
+  const [selectedInstId, setSelectedInstId] = useState<string | null>(initialInstitutionId || null);
+
+  useEffect(() => {
+    if (initialInstitutionId) {
+      setSelectedInstId(initialInstitutionId);
+    }
+  }, [initialInstitutionId]);
   const [selectedType, setSelectedType] = useState<'Academic' | 'Non-Academic' | null>(null);
   const [filters, setFilters] = useState({
     facultyId: 'ALL',
@@ -344,10 +356,19 @@ const StaffDrillDownModal: React.FC<{
   const selectedInstitution = institutions.find(i => i.id === selectedInstId);
 
   const instStats = useMemo(() => {
-    return institutions.map(inst => ({
-      ...inst,
-      count: staff.filter(s => s.institutionId === inst.id).length
-    })).sort((a, b) => b.count - a.count);
+    return institutions.map(inst => {
+      const instStaff = staff.filter(s => s.institutionId === inst.id);
+      const maleCount = instStaff.filter(s => s.gender === 'Male').length;
+      const femaleCount = instStaff.filter(s => s.gender === 'Female').length;
+      return {
+        ...inst,
+        count: instStaff.length,
+        genderDist: [
+          { name: 'Male', value: maleCount },
+          { name: 'Female', value: femaleCount }
+        ]
+      };
+    }).sort((a, b) => b.count - a.count);
   }, [staff, institutions]);
 
   const typeCounts = useMemo(() => {
@@ -401,7 +422,7 @@ const StaffDrillDownModal: React.FC<{
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-6xl h-[85vh] rounded-[32px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+      <div className="bg-white w-full max-w-7xl h-[90vh] rounded-[32px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
         <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div>
             <div className="flex items-center gap-3 mb-1">
@@ -438,7 +459,7 @@ const StaffDrillDownModal: React.FC<{
                   <button 
                     key={inst.id}
                     onClick={() => setSelectedInstId(inst.id)}
-                    className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-left hover:border-emerald-300 hover:bg-white hover:shadow-lg transition-all group active:scale-[0.98]"
+                    className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-left hover:border-emerald-300 hover:bg-white hover:shadow-lg transition-all group active:scale-[0.98] flex flex-col h-full"
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-lg">
@@ -446,9 +467,46 @@ const StaffDrillDownModal: React.FC<{
                       </div>
                       <ArrowRight className="text-slate-300 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all" size={20} />
                     </div>
-                    <h3 className="font-bold text-slate-900 mb-1 group-hover:text-emerald-600 transition-colors">{inst.name}</h3>
-                    <p className="text-3xl font-black text-slate-900 tabular-nums mb-1">{inst.count.toLocaleString()}</p>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Staff Strength</p>
+                    
+                    <div className="flex-1">
+                      <h3 className="font-bold text-slate-900 mb-1 group-hover:text-emerald-600 transition-colors line-clamp-2 min-h-[2.5rem]">{inst.name}</h3>
+                      <div className="flex items-center justify-between gap-4 mt-2">
+                        <div>
+                          <p className="text-3xl font-black text-slate-900 tabular-nums mb-1">{inst.count.toLocaleString()}</p>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Staff</p>
+                        </div>
+                        <div className="h-16 w-16 -mr-2">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Tooltip 
+                                content={({ active, payload }) => {
+                                  if (active && payload && payload.length) {
+                                    const data = payload[0].payload;
+                                    const percentage = inst.count > 0 ? ((data.value / inst.count) * 100).toFixed(0) : 0;
+                                    return (
+                                      <div className="bg-slate-900 text-white px-2 py-1 rounded-lg text-[10px] font-bold">
+                                        {data.name}: {percentage}%
+                                      </div>
+                                    );
+                                  }
+                                  return null;
+                                }}
+                              />
+                              <Pie
+                                data={inst.genderDist}
+                                innerRadius={18}
+                                outerRadius={30}
+                                paddingAngle={2}
+                                dataKey="value"
+                              >
+                                <Cell fill="#10b981" />
+                                <Cell fill="#3b82f6" />
+                              </Pie>
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+                    </div>
                   </button>
                 ))}
               </div>
@@ -487,7 +545,7 @@ const StaffDrillDownModal: React.FC<{
                   <select 
                     value={filters.facultyId}
                     onChange={(e) => setFilters(prev => ({ ...prev, facultyId: e.target.value, departmentId: 'ALL' }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-emerald-100"
+                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-emerald-100 transition-all shadow-sm"
                   >
                     <option value="ALL">ALL {selectedType === 'Academic' ? 'FACULTIES' : 'DIRECTORATES'}</option>
                     {availableFaculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
@@ -498,7 +556,7 @@ const StaffDrillDownModal: React.FC<{
                   <select 
                     value={filters.departmentId}
                     onChange={(e) => setFilters(prev => ({ ...prev, departmentId: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-emerald-100"
+                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-emerald-100 transition-all shadow-sm"
                   >
                     <option value="ALL">ALL {selectedType === 'Academic' ? 'DEPARTMENTS' : 'UNITS'}</option>
                     {availableDepartments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
@@ -509,7 +567,7 @@ const StaffDrillDownModal: React.FC<{
                   <select 
                     value={filters.qualification}
                     onChange={(e) => setFilters(prev => ({ ...prev, qualification: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-emerald-100"
+                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-emerald-100 transition-all shadow-sm"
                   >
                     <option value="ALL">ALL QUALIFICATIONS</option>
                     {qualifications.map(q => <option key={q} value={q}>{q}</option>)}
@@ -520,23 +578,21 @@ const StaffDrillDownModal: React.FC<{
                   <select 
                     value={filters.employmentStatus}
                     onChange={(e) => setFilters(prev => ({ ...prev, employmentStatus: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-emerald-100"
+                    className="w-full bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-emerald-100 transition-all shadow-sm"
                   >
                     <option value="ALL">ALL STATUSES</option>
                     {statuses.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
-                <div className="pb-1">
-                  <button 
-                    onClick={clearFilters}
-                    className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
-                  >
-                    Clear All
-                  </button>
-                </div>
+                <button 
+                  onClick={clearFilters}
+                  className="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                >
+                  Clear All
+                </button>
               </div>
 
-              <div className="flex-1 overflow-hidden bg-slate-50/20 p-8">
+              <div className="flex-1 overflow-hidden bg-slate-50/20 p-8 flex flex-col">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h4 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Personnel Records</h4>
@@ -548,7 +604,7 @@ const StaffDrillDownModal: React.FC<{
                   </div>
                 </div>
 
-                <div className="bg-white rounded-[24px] shadow-sm border border-slate-100 overflow-hidden h-full max-h-[calc(85vh-350px)]">
+                <div className="bg-white rounded-[24px] shadow-sm border border-slate-100 overflow-hidden flex-1 min-h-0">
                   <div className="overflow-y-auto h-full custom-scrollbar">
                     <table className="w-full text-left">
                       <thead className="sticky top-0 bg-slate-50 z-10">
@@ -612,8 +668,15 @@ const StemDrillDownModal: React.FC<{
   students: Student[];
   institutions: Institution[];
   departments: Department[];
-}> = ({ isOpen, onClose, students, institutions, departments }) => {
-  const [selectedInstId, setSelectedInstId] = useState<string | null>(null);
+  initialInstitutionId?: string | null;
+}> = ({ isOpen, onClose, students, institutions, departments, initialInstitutionId }) => {
+  const [selectedInstId, setSelectedInstId] = useState<string | null>(initialInstitutionId || null);
+
+  useEffect(() => {
+    if (initialInstitutionId) {
+      setSelectedInstId(initialInstitutionId);
+    }
+  }, [initialInstitutionId]);
 
   const selectedInstitution = institutions.find(i => i.id === selectedInstId);
 
@@ -621,9 +684,15 @@ const StemDrillDownModal: React.FC<{
     return institutions.map(inst => {
       const instStudents = students.filter(s => s.institutionId === inst.id);
       const ratioData = getStemRatioData(instStudents, departments);
+      const maleCount = instStudents.filter(s => s.sex === 'Male').length;
+      const femaleCount = instStudents.filter(s => s.sex === 'Female').length;
       return {
         ...inst,
-        ...ratioData
+        ...ratioData,
+        genderDist: [
+          { name: 'Male', value: maleCount },
+          { name: 'Female', value: femaleCount }
+        ]
       };
     }).sort((a, b) => b.percentage - a.percentage);
   }, [students, institutions, departments]);
@@ -646,7 +715,7 @@ const StemDrillDownModal: React.FC<{
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-4xl h-[80vh] rounded-[32px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+      <div className="bg-white w-full max-w-7xl h-[90vh] rounded-[32px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
         <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div>
             <div className="flex items-center gap-3 mb-1">
@@ -679,7 +748,7 @@ const StemDrillDownModal: React.FC<{
                   <button 
                     key={inst.id}
                     onClick={() => setSelectedInstId(inst.id)}
-                    className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-left hover:border-purple-300 hover:bg-white hover:shadow-lg transition-all group active:scale-[0.98]"
+                    className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-left hover:border-purple-300 hover:bg-white hover:shadow-lg transition-all group active:scale-[0.98] flex flex-col"
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div className="w-12 h-12 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-lg">
@@ -687,24 +756,62 @@ const StemDrillDownModal: React.FC<{
                       </div>
                       <ArrowRight className="text-slate-300 group-hover:text-purple-500 group-hover:translate-x-1 transition-all" size={20} />
                     </div>
-                    <h3 className="font-bold text-slate-900 mb-2 group-hover:text-purple-600 transition-colors">{inst.name}</h3>
                     
-                    <div className="flex items-end justify-between mb-2">
-                       <p className="text-3xl font-black text-slate-900 tabular-nums">{inst.ratioString}</p>
-                       <span className={`text-xs font-bold px-2 py-1 rounded-lg ${inst.percentage >= 60 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
-                         {inst.percentage}% STEM
-                       </span>
-                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-slate-900 mb-2 group-hover:text-purple-600 transition-colors line-clamp-1">{inst.name}</h3>
+                      
+                      <div className="grid grid-cols-2 gap-4 items-center mb-4">
+                        <div>
+                          <div className="flex items-end justify-between mb-2">
+                             <p className="text-2xl font-black text-slate-900 tabular-nums">{inst.ratioString}</p>
+                          </div>
+                          <span className={`text-[10px] font-bold px-2 py-1 rounded-lg ${inst.percentage >= 60 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                            {inst.percentage}% STEM
+                          </span>
+                        </div>
+                        <div className="h-16 w-16 ml-auto">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Tooltip 
+                                content={({ active, payload }) => {
+                                  if (active && payload && payload.length) {
+                                    const data = payload[0].payload;
+                                    const total = inst.genderDist.reduce((a, b) => a + b.value, 0);
+                                    const percentage = total > 0 ? ((data.value / total) * 100).toFixed(0) : 0;
+                                    return (
+                                      <div className="bg-slate-900 text-white px-2 py-1 rounded-lg text-[10px] font-bold">
+                                        {data.name}: {percentage}%
+                                      </div>
+                                    );
+                                  }
+                                  return null;
+                                }}
+                              />
+                              <Pie
+                                data={inst.genderDist}
+                                innerRadius={18}
+                                outerRadius={30}
+                                paddingAngle={2}
+                                dataKey="value"
+                              >
+                                <Cell fill="#4f46e5" />
+                                <Cell fill="#ec4899" />
+                              </Pie>
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
 
-                    <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full rounded-full ${inst.percentage >= 60 ? 'bg-emerald-500' : 'bg-purple-500'}`}
-                        style={{ width: `${inst.percentage}%` }}
-                      ></div>
-                    </div>
-                    <div className="flex justify-between mt-1">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">STEM:Non-STEM</p>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{inst.total.toLocaleString()} Students</p>
+                      <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full ${inst.percentage >= 60 ? 'bg-emerald-500' : 'bg-purple-500'}`}
+                          style={{ width: `${inst.percentage}%` }}
+                        ></div>
+                      </div>
+                      <div className="flex justify-between mt-1">
+                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">STEM Compliance</p>
+                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{inst.total.toLocaleString()} Students</p>
+                      </div>
                     </div>
                   </button>
                 ))}
@@ -794,8 +901,15 @@ const DrillDownModal: React.FC<{
   institutions: Institution[];
   faculties: Faculty[];
   departments: Department[];
-}> = ({ isOpen, onClose, students, institutions, faculties, departments }) => {
-  const [selectedInstitutionId, setSelectedInstitutionId] = useState<string | null>(null);
+  initialInstitutionId?: string | null;
+}> = ({ isOpen, onClose, students, institutions, faculties, departments, initialInstitutionId }) => {
+  const [selectedInstitutionId, setSelectedInstitutionId] = useState<string | null>(initialInstitutionId || null);
+
+  useEffect(() => {
+    if (initialInstitutionId) {
+      setSelectedInstitutionId(initialInstitutionId);
+    }
+  }, [initialInstitutionId]);
   const [filters, setFilters] = useState({
     campus: 'ALL',
     programmeType: 'ALL',
@@ -806,10 +920,19 @@ const DrillDownModal: React.FC<{
   const selectedInstitution = institutions.find(i => i.id === selectedInstitutionId);
 
   const institutionStats = useMemo(() => {
-    return institutions.map(inst => ({
-      ...inst,
-      count: students.filter(s => s.institutionId === inst.id).length
-    })).sort((a, b) => b.count - a.count);
+    return institutions.map(inst => {
+      const instStudents = students.filter(s => s.institutionId === inst.id);
+      const maleCount = instStudents.filter(s => s.sex === 'Male').length;
+      const femaleCount = instStudents.filter(s => s.sex === 'Female').length;
+      return {
+        ...inst,
+        count: instStudents.length,
+        genderDist: [
+          { name: 'Male', value: maleCount },
+          { name: 'Female', value: femaleCount }
+        ]
+      };
+    }).sort((a, b) => b.count - a.count);
   }, [students, institutions]);
 
   const filteredStudents = useMemo(() => {
@@ -853,7 +976,7 @@ const DrillDownModal: React.FC<{
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-5xl h-[80vh] rounded-[32px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+      <div className="bg-white w-full max-w-7xl h-[90vh] rounded-[32px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
         <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div>
             <div className="flex items-center gap-3 mb-1">
@@ -886,7 +1009,7 @@ const DrillDownModal: React.FC<{
                   <button 
                     key={inst.id}
                     onClick={() => setSelectedInstitutionId(inst.id)}
-                    className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-left hover:border-blue-300 hover:bg-white hover:shadow-lg transition-all group active:scale-[0.98]"
+                    className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-left hover:border-blue-300 hover:bg-white hover:shadow-lg transition-all group active:scale-[0.98] flex flex-col h-full"
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">
@@ -894,22 +1017,59 @@ const DrillDownModal: React.FC<{
                       </div>
                       <ArrowRight className="text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" size={20} />
                     </div>
-                    <h3 className="font-bold text-slate-900 mb-1 group-hover:text-blue-600 transition-colors">{inst.name}</h3>
-                    <p className="text-3xl font-black text-slate-900 tabular-nums mb-1">{inst.count.toLocaleString()}</p>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Students</p>
+                    
+                    <div className="flex-1">
+                      <h3 className="font-bold text-slate-900 mb-1 group-hover:text-blue-600 transition-colors line-clamp-2 min-h-[2.5rem]">{inst.name}</h3>
+                      <div className="flex items-center justify-between gap-4 mt-2">
+                        <div>
+                          <p className="text-3xl font-black text-slate-900 tabular-nums mb-1">{inst.count.toLocaleString()}</p>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Enrollment</p>
+                        </div>
+                        <div className="h-16 w-16 -mr-2">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Tooltip 
+                                content={({ active, payload }) => {
+                                  if (active && payload && payload.length) {
+                                    const data = payload[0].payload;
+                                    const percentage = inst.count > 0 ? ((data.value / inst.count) * 100).toFixed(0) : 0;
+                                    return (
+                                      <div className="bg-slate-900 text-white px-2 py-1 rounded-lg text-[10px] font-bold">
+                                        {data.name}: {percentage}%
+                                      </div>
+                                    );
+                                  }
+                                  return null;
+                                }}
+                              />
+                              <Pie
+                                data={inst.genderDist}
+                                innerRadius={18}
+                                outerRadius={30}
+                                paddingAngle={2}
+                                dataKey="value"
+                              >
+                                <Cell fill="#2563eb" />
+                                <Cell fill="#ec4899" />
+                              </Pie>
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+                    </div>
                   </button>
                 ))}
               </div>
             </div>
           ) : (
             <div className="flex-1 flex flex-col">
-              <div className="p-6 border-b border-slate-100 bg-white grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="p-6 border-b border-slate-100 bg-white grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Campus</label>
                   <select 
                     value={filters.campus}
                     onChange={(e) => setFilters(prev => ({ ...prev, campus: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-sm font-bold text-slate-700 p-2.5"
+                    className="w-full bg-slate-50 border-none rounded-xl text-sm font-bold text-slate-700 p-2.5 transition-all shadow-sm outline-none focus:ring-2 focus:ring-blue-100"
                   >
                     <option value="ALL">ALL CAMPUSES</option>
                     {availableCampuses.map(c => <option key={c} value={c}>{c}</option>)}
@@ -920,7 +1080,7 @@ const DrillDownModal: React.FC<{
                   <select 
                     value={filters.programmeType}
                     onChange={(e) => setFilters(prev => ({ ...prev, programmeType: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-sm font-bold text-slate-700 p-2.5"
+                    className="w-full bg-slate-50 border-none rounded-xl text-sm font-bold text-slate-700 p-2.5 transition-all shadow-sm outline-none focus:ring-2 focus:ring-blue-100"
                   >
                     <option value="ALL">ALL TYPES</option>
                     <option value="Full-time">FULL-TIME</option>
@@ -933,7 +1093,7 @@ const DrillDownModal: React.FC<{
                   <select 
                     value={filters.facultyId}
                     onChange={(e) => setFilters(prev => ({ ...prev, facultyId: e.target.value, departmentId: 'ALL' }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-sm font-bold text-slate-700 p-2.5"
+                    className="w-full bg-slate-50 border-none rounded-xl text-sm font-bold text-slate-700 p-2.5 transition-all shadow-sm outline-none focus:ring-2 focus:ring-blue-100"
                   >
                     <option value="ALL">ALL FACULTIES</option>
                     {availableFaculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
@@ -944,23 +1104,21 @@ const DrillDownModal: React.FC<{
                   <select 
                     value={filters.departmentId}
                     onChange={(e) => setFilters(prev => ({ ...prev, departmentId: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-xl text-sm font-bold text-slate-700 p-2.5 outline-none focus:ring-2 focus:ring-blue-100"
+                    className="w-full bg-slate-50 border-none rounded-xl text-sm font-bold text-slate-700 p-2.5 transition-all shadow-sm outline-none focus:ring-2 focus:ring-blue-100"
                   >
                     <option value="ALL">ALL DEPARTMENTS</option>
                     {availableDepartments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                   </select>
                 </div>
-                <div className="flex items-end">
-                  <button 
-                    onClick={clearFilters}
-                    className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
-                  >
-                    Clear All
-                  </button>
-                </div>
+                <button 
+                  onClick={clearFilters}
+                  className="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                >
+                  Clear All
+                </button>
               </div>
 
-              <div className="flex-1 overflow-hidden bg-slate-50/30 p-6">
+              <div className="flex-1 overflow-hidden bg-slate-50/30 p-6 flex flex-col">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h4 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Student Records</h4>
@@ -972,8 +1130,8 @@ const DrillDownModal: React.FC<{
                   </div>
                 </div>
 
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden h-full max-h-[calc(80vh-350px)]">
-                  <div className="overflow-y-auto h-full">
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex-1 min-h-0">
+                  <div className="overflow-y-auto h-full custom-scrollbar">
                     <table className="w-full text-left">
                       <thead className="sticky top-0 bg-slate-50 z-10">
                         <tr>
@@ -982,6 +1140,8 @@ const DrillDownModal: React.FC<{
                           <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Faculty</th>
                           <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Department</th>
                           <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Campus</th>
+                          <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Gender</th>
+                          <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">DOB</th>
                           <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Programme Type</th>
                         </tr>
                       </thead>
@@ -1008,6 +1168,8 @@ const DrillDownModal: React.FC<{
                             <td className="px-6 py-4">
                               <p className="text-[10px] text-slate-400 uppercase tracking-tighter font-bold">{s.campus || 'Main Campus'}</p>
                             </td>
+                            <td className="px-6 py-4 text-xs font-bold text-slate-600">{s.sex || 'N/A'}</td>
+                            <td className="px-6 py-4 text-xs font-mono text-slate-600">{s.dob || 'N/A'}</td>
                             <td className="px-6 py-4">
                               <p className="text-xs font-bold text-slate-600">{s.programmeType}</p>
                             </td>
@@ -1035,6 +1197,7 @@ const DrillDownModal: React.FC<{
  */
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const [globalInstFilter, setGlobalInstFilter] = useState<string>('ALL');
   const [isDrillDownOpen, setIsDrillDownOpen] = useState(false);
   const [isStaffDrillDownOpen, setIsStaffDrillDownOpen] = useState(false);
   const [isFacilityDrillDownOpen, setIsFacilityDrillDownOpen] = useState(false);
@@ -1180,10 +1343,22 @@ export const Dashboard: React.FC = () => {
   const processedData = useMemo(() => {
     const { students, staff, institutions, faculties, facilities, departments, publications, trainings } = rawData;
 
-    const realStudents = students.filter(s => s.lasrraId); // Better check than isSeed
-    const realStaff = staff.filter(s => s.lasrraId);
-    const realPublications = publications;
-    const realTrainings = trainings;
+    const filteredRawStudents = globalInstFilter === 'ALL' ? students : students.filter(s => s.institutionId === globalInstFilter);
+    const filteredRawStaff = globalInstFilter === 'ALL' ? staff : staff.filter(s => s.institutionId === globalInstFilter);
+    const filteredRawFacilities = globalInstFilter === 'ALL' ? facilities : facilities.filter(f => f.institutionId === globalInstFilter);
+    const filteredRawPubs = globalInstFilter === 'ALL' ? publications : publications.filter(p => {
+      const author = staff.find(s => s.id === p.staffId);
+      return author?.institutionId === globalInstFilter;
+    });
+    const filteredRawTrainings = globalInstFilter === 'ALL' ? trainings : trainings.filter(t => {
+      const member = staff.find(s => s.id === t.staffId);
+      return member?.institutionId === globalInstFilter;
+    });
+
+    const realStudents = filteredRawStudents.filter(s => s.lasrraId); // Better check than isSeed
+    const realStaff = filteredRawStaff.filter(s => s.lasrraId);
+    const realPublications = filteredRawPubs;
+    const realTrainings = filteredRawTrainings;
     const realInstitutions = [...institutions].sort((a, b) => {
       if (a.order !== undefined && b.order !== undefined) {
         return a.order - b.order;
@@ -1192,26 +1367,12 @@ export const Dashboard: React.FC = () => {
       if (b.order !== undefined) return 1;
       return a.name.localeCompare(b.name);
     });
-    const realFaculties = faculties;
-    const realFacilities = facilities;
-    const realDepts = departments;
-
-    const stemRatio = calculateStemRatio(realStudents, departments);
-
-    // Enrollment trends
-    const enrollmentYears = Array.from(new Set(realStudents.map(s => s.admissionYear?.split('-')[0]).filter(Boolean) as string[])).sort();
-    const enrollmentData = enrollmentYears.map(year => ({
-      year,
-      students: realStudents.filter(s => s.admissionYear?.startsWith(year)).length,
-      graduates: 0
-    }));
-
-    // Institution distribution
-    const dist: Record<string, number> = realInstitutions.reduce((acc: Record<string, number>, curr) => {
-      acc[curr.type] = (acc[curr.type] || 0) + 1;
-      return acc;
-    }, {});
-    const institutionDistribution = Object.entries(dist).map(([name, value]) => ({ name, value }));
+    const realFaculties = globalInstFilter === 'ALL' ? faculties : faculties.filter(f => f.institutionId === globalInstFilter);
+    const realFacilities = filteredRawFacilities;
+    const realDepts = globalInstFilter === 'ALL' ? departments : departments.filter(d => {
+      const faculty = faculties.find(f => f.id === d.facultyId);
+      return faculty?.institutionId === globalInstFilter;
+    });
 
     const stemRatioData = getStemRatioData(realStudents, realDepts);
 
@@ -1244,12 +1405,57 @@ export const Dashboard: React.FC = () => {
 
     const lastUpdatedDate = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
     const lastUpdated = `Last Updated: ${lastUpdatedDate}`;
+    const selectedInstitution = globalInstFilter === 'ALL' ? null : institutions.find(i => i.id === globalInstFilter);
+
+    // Enrollment trends
+    const enrollmentYears = Array.from(new Set(realStudents.map(s => s.admissionYear?.split('-')[0]).filter(Boolean) as string[])).sort();
+    const enrollmentData = enrollmentYears.map(year => ({
+      year,
+      students: realStudents.filter(s => s.admissionYear?.startsWith(year)).length,
+      graduates: 0
+    }));
+
+    // Institution distribution
+    const dist: Record<string, number> = (globalInstFilter === 'ALL' ? realInstitutions : realInstitutions.filter(i => i.id === globalInstFilter)).reduce((acc: Record<string, number>, curr) => {
+      acc[curr.type] = (acc[curr.type] || 0) + 1;
+      return acc;
+    }, {});
+    const institutionDistribution = Object.entries(dist).map(([name, value]) => ({ name, value }));
+
+    // Age Distribution
+    const ageGroups = [
+      { name: 'Under 18', value: 0 },
+      { name: '18-22', value: 0 },
+      { name: '23-27', value: 0 },
+      { name: '28-35', value: 0 },
+      { name: 'Over 35', value: 0 },
+      { name: 'Unknown', value: 0 }
+    ];
+
+    realStudents.forEach(s => {
+      if (s.dob) {
+        try {
+          const birthDate = new Date(s.dob);
+          const age = new Date().getFullYear() - birthDate.getFullYear();
+          if (age < 18) ageGroups[0].value++;
+          else if (age <= 22) ageGroups[1].value++;
+          else if (age <= 27) ageGroups[2].value++;
+          else if (age <= 35) ageGroups[3].value++;
+          else ageGroups[4].value++;
+        } catch (e) {
+          ageGroups[5].value++;
+        }
+      } else {
+        ageGroups[5].value++;
+      }
+    });
+    const ageDistribution = ageGroups.filter(g => g.value > 0);
 
     return {
       stats: {
         students: realStudents.length,
         staff: realStaff.length,
-        institutions: realInstitutions.length,
+        institutions: globalInstFilter === 'ALL' ? realInstitutions.length : 1,
         facilities: realFacilities.length,
         publications: realPublications.length,
         trainings: realTrainings.length,
@@ -1259,6 +1465,7 @@ export const Dashboard: React.FC = () => {
       enrollmentData: enrollmentData.length > 0 ? enrollmentData : [{ year: '2024', students: 0, graduates: 0 }],
       institutionDistribution,
       genderDistribution,
+      ageDistribution,
       staffDistribution,
       facilityDistribution,
       stemDistribution,
@@ -1268,9 +1475,10 @@ export const Dashboard: React.FC = () => {
       realFaculties,
       realDepts,
       realStudents,
-      lastUpdated
+      lastUpdated,
+      selectedInstitution
     };
-  }, [rawData]);
+  }, [rawData, globalInstFilter]);
 
   const canDrillDown = useMemo(() => {
     return ['SuperUser', 'DirectorAdminHR', 'DirectorStandards', 'DirectorInspection', 'DirectorInfrastructure', 'DirectorResearch'].includes(user?.role || '');
@@ -1289,19 +1497,52 @@ export const Dashboard: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Executive Dashboard</h1>
-          <p className="text-slate-500 italic serif">Real-time oversight of Lagos State Tertiary Education</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm mb-8">
+        <div className="flex flex-col md:flex-row md:items-center gap-8 flex-1">
+          <div>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">Executive Dashboard</h1>
+            <p className="text-slate-500 italic serif">Real-time oversight of Lagos State Tertiary Education</p>
+          </div>
+          
+          {user?.role === 'SuperUser' && (
+            <div className="flex-1 max-w-sm">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 block ml-1">Institution focus</label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <School size={16} />
+                </div>
+                <select 
+                  value={globalInstFilter}
+                  onChange={(e) => setGlobalInstFilter(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border-2 border-transparent focus:bg-white focus:border-blue-500 rounded-2xl outline-none transition-all text-sm font-bold text-slate-700 shadow-sm group-hover:shadow"
+                >
+                  <option value="ALL">ALL INSTITUTIONS (GLOBAL)</option>
+                  {processedData.realInstitutions.map(inst => (
+                    <option key={inst.id} value={inst.id}>{inst.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
         </div>
-        <Link 
-          to="/analytics"
-          className="px-6 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all flex items-center gap-2 shadow-lg shadow-blue-100"
-        >
-          <BarChart2 size={18} />
-          Full Analytics View
-          <ArrowRight size={16} />
-        </Link>
+
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => window.print()}
+            className="p-2.5 text-slate-400 hover:bg-slate-50 rounded-xl transition-all"
+            title="Download Report"
+          >
+            <TrendingDown size={20} className="rotate-180" />
+          </button>
+          <Link 
+            to="/analytics"
+            className="px-6 py-2.5 bg-slate-900 text-white font-bold rounded-2xl hover:bg-blue-600 transition-all flex items-center gap-2 shadow-lg shadow-slate-100"
+          >
+            <BarChart2 size={18} />
+            Analytics
+            <ArrowRight size={16} />
+          </Link>
+        </div>
       </div>
 
       {/* Stats Grid */}
@@ -1319,6 +1560,14 @@ export const Dashboard: React.FC = () => {
               <div className="h-48 w-full relative">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
+                    <Tooltip 
+                      formatter={(value: number, name: string) => {
+                        const total = processedData.stats.students;
+                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                        return [`${value.toLocaleString()} (${percentage}%)`, name];
+                      }}
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                    />
                     <Pie
                       data={processedData.genderDistribution}
                       cx="50%"
@@ -1373,6 +1622,14 @@ export const Dashboard: React.FC = () => {
               <div className="h-48 w-full relative">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
+                    <Tooltip 
+                      formatter={(value: number, name: string) => {
+                        const total = processedData.stats.staff;
+                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                        return [`${value.toLocaleString()} (${percentage}%)`, name];
+                      }}
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                    />
                     <Pie
                       data={processedData.staffDistribution}
                       cx="50%"
@@ -1427,6 +1684,14 @@ export const Dashboard: React.FC = () => {
               <div className="h-48 w-full relative">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
+                    <Tooltip 
+                      formatter={(value: number, name: string) => {
+                        const total = processedData.stats.facilities;
+                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                        return [`${value.toLocaleString()} (${percentage}%)`, name];
+                      }}
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                    />
                     <Pie
                       data={processedData.facilityDistribution}
                       cx="50%"
@@ -1484,6 +1749,14 @@ export const Dashboard: React.FC = () => {
               <div className="h-48 w-full relative">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
+                    <Tooltip 
+                      formatter={(value: number, name: string) => {
+                        const total = processedData.stats.students;
+                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                        return [`${value.toLocaleString()} (${percentage}%)`, name];
+                      }}
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                    />
                     <Pie
                       data={processedData.stemDistribution}
                       cx="50%"
@@ -1542,6 +1815,82 @@ export const Dashboard: React.FC = () => {
           label="Conducted Sessions"
         />
       </div>
+      
+      {/* Demographics Audit Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12 animate-in slide-in-from-bottom duration-700">
+        <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center">
+           <div className="flex items-center justify-between mb-8 w-full">
+            <div>
+              <h3 className="text-xl font-black text-slate-900 tracking-tight">Gender Distribution</h3>
+              <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">Equality Audit</p>
+            </div>
+            <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
+              <Users size={24} />
+            </div>
+          </div>
+          <div className="h-[280px] w-full min-w-0">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={processedData.genderDistribution}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={70}
+                  outerRadius={110}
+                  paddingAngle={5}
+                  dataKey="value"
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                >
+                  {processedData.genderDistribution.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.name === 'Male' ? '#4f46e5' : '#ec4899'} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value: number, name: string) => {
+                    const total = processedData.stats.students;
+                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                    return [`${value.toLocaleString()} (${percentage}%)`, name];
+                  }}
+                  contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+           <div className="flex items-center justify-between mb-8">
+            <div>
+              <h3 className="text-xl font-black text-slate-900 tracking-tight">Age Demographics</h3>
+              <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">Enrollment Portfolio</p>
+            </div>
+            <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
+              <Activity size={24} />
+            </div>
+          </div>
+          <div className="h-[280px] w-full min-w-0">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={processedData.ageDistribution}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis 
+                  dataKey="name" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{fill: '#94a3b8', fontSize: 11, fontWeight: 700}}
+                  dy={10}
+                />
+                <YAxis 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{fill: '#94a3b8', fontSize: 11, fontWeight: 700}}
+                />
+                <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
+                <Bar dataKey="value" fill="#10b981" radius={[8, 8, 0, 0]} barSize={40} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -1552,11 +1901,14 @@ export const Dashboard: React.FC = () => {
               <h3 className="text-lg font-bold text-slate-900">Enrollment & Graduation Trends</h3>
               <p className="text-sm text-slate-400 font-medium uppercase tracking-wider">Historical Data (5 Years)</p>
             </div>
-            <select className="bg-slate-50 border-none text-sm font-semibold rounded-lg px-3 py-1 text-slate-600 outline-none focus:ring-2 focus:ring-blue-100">
-              <option>All Institutions</option>
-              <option>LASU</option>
-              <option>LASPOTECH</option>
-            </select>
+            {processedData.selectedInstitution && (
+              <div className="px-4 py-1.5 bg-slate-50 border border-slate-100 rounded-xl flex items-center gap-2">
+                <School size={14} className="text-blue-600" />
+                <span className="text-xs font-bold text-slate-600 truncate max-w-[150px]">
+                  {processedData.selectedInstitution.shortName} Data Only
+                </span>
+              </div>
+            )}
           </div>
           <div className="h-[350px] w-full min-w-0">
             <ResponsiveContainer width="100%" height="100%" minWidth={0}>
@@ -1624,7 +1976,14 @@ export const Dashboard: React.FC = () => {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip 
+                  formatter={(value: number, name: string) => {
+                    const total = processedData.stats.institutions;
+                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                    return [`${value.toLocaleString()} (${percentage}%)`, name];
+                  }}
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -1701,6 +2060,7 @@ export const Dashboard: React.FC = () => {
       {isDrillDownOpen && (
         <DrillDownModal
           isOpen={isDrillDownOpen}
+          initialInstitutionId={globalInstFilter === 'ALL' ? null : globalInstFilter}
           onClose={() => setIsDrillDownOpen(false)}
           students={processedData.realStudents}
           institutions={processedData.realInstitutions}
@@ -1712,6 +2072,7 @@ export const Dashboard: React.FC = () => {
       {isStaffDrillDownOpen && (
         <StaffDrillDownModal
           isOpen={isStaffDrillDownOpen}
+          initialInstitutionId={globalInstFilter === 'ALL' ? null : globalInstFilter}
           onClose={() => setIsStaffDrillDownOpen(false)}
           staff={rawData.staff}
           institutions={processedData.realInstitutions}
@@ -1723,6 +2084,7 @@ export const Dashboard: React.FC = () => {
       {isFacilityDrillDownOpen && (
         <FacilityDrillDownModal
           isOpen={isFacilityDrillDownOpen}
+          initialInstitutionId={globalInstFilter === 'ALL' ? null : globalInstFilter}
           onClose={() => setIsFacilityDrillDownOpen(false)}
           facilities={rawData.facilities}
           institutions={processedData.realInstitutions}
@@ -1732,6 +2094,7 @@ export const Dashboard: React.FC = () => {
       {isStemDrillDownOpen && (
         <StemDrillDownModal
           isOpen={isStemDrillDownOpen}
+          initialInstitutionId={globalInstFilter === 'ALL' ? null : globalInstFilter}
           onClose={() => setIsStemDrillDownOpen(false)}
           students={processedData.realStudents}
           institutions={processedData.realInstitutions}

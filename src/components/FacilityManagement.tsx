@@ -303,13 +303,13 @@ export const FacilityManagement: React.FC = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Institution</label>
             <select 
               value={filters.institutionId}
               onChange={(e) => setFilters(prev => ({ ...prev, institutionId: e.target.value, campus: 'all' }))}
-              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100"
+              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-sm"
             >
               <option value="all">ALL INSTITUTIONS</option>
               {institutions.map(inst => <option key={inst.id} value={inst.id}>{inst.name}</option>)}
@@ -321,7 +321,7 @@ export const FacilityManagement: React.FC = () => {
             <select 
               value={filters.campus}
               onChange={(e) => setFilters(prev => ({ ...prev, campus: e.target.value }))}
-              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100"
+              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-sm"
             >
               <option value="all">ALL CAMPUSES</option>
               {availableCampuses.map(c => <option key={c} value={c}>{c}</option>)}
@@ -333,7 +333,7 @@ export const FacilityManagement: React.FC = () => {
             <select 
               value={filters.type}
               onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
-              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100"
+              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-sm"
             >
               <option value="all">ALL TYPES</option>
               {['Lecture Theater', 'Lecture Hall', 'Lecture Room', 'Library', 'Laboratory', 'Workshop', 'Studio'].map(t => (
@@ -347,7 +347,7 @@ export const FacilityManagement: React.FC = () => {
             <select 
               value={filters.capacity}
               onChange={(e) => setFilters(prev => ({ ...prev, capacity: e.target.value }))}
-              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100"
+              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-sm"
             >
               <option value="all">ANY CAPACITY</option>
               <option value="0-50">Up to 50</option>
@@ -363,7 +363,7 @@ export const FacilityManagement: React.FC = () => {
             <select 
               value={filters.fundingSource}
               onChange={(e) => setFilters(prev => ({ ...prev, fundingSource: e.target.value }))}
-              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100"
+              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-sm"
             >
               <option value="all">ALL SOURCES</option>
               {[
@@ -378,30 +378,32 @@ export const FacilityManagement: React.FC = () => {
               ))}
             </select>
           </div>
+
+          <button 
+            onClick={() => {
+              setFilters({
+                institutionId: 'all',
+                campus: 'all',
+                type: 'all',
+                capacity: 'all',
+                fundingSource: 'all'
+              });
+              setSearchTerm('');
+            }}
+            className="py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all h-[38px] flex items-center justify-center gap-2"
+          >
+            Clear All
+          </button>
         </div>
 
-        {(searchTerm || filters.institutionId !== 'all' || filters.campus !== 'all' || filters.type !== 'all' || filters.capacity !== 'all' || filters.fundingSource !== 'all') && (
-          <div className="flex items-center justify-between pt-2 border-t border-slate-50">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
-              Showing {filteredFacilities.length} matching facility result{filteredFacilities.length !== 1 ? 's' : ''}
-            </p>
-            <button 
-              onClick={() => {
-                setFilters({
-                  institutionId: 'all',
-                  campus: 'all',
-                  type: 'all',
-                  capacity: 'all',
-                  fundingSource: 'all'
-                });
-                setSearchTerm('');
-              }}
-              className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
-            >
-              Clear All Filters
-            </button>
-          </div>
-        )}
+        <div className="pt-2 border-t border-slate-50">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+            {searchTerm || filters.institutionId !== 'all' || filters.campus !== 'all' || filters.type !== 'all' || filters.capacity !== 'all' || filters.fundingSource !== 'all' ? 
+              `Showing ${filteredFacilities.length} matching facility result${filteredFacilities.length !== 1 ? 's' : ''}` : 
+              `Total Facilities: ${filteredFacilities.length}`
+            }
+          </p>
+        </div>
       </div>
 
       {/* Facility List Table */}

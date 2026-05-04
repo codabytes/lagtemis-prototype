@@ -246,13 +246,13 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ type }) => {
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Institution</label>
             <select 
               value={filters.institutionId}
               onChange={(e) => setFilters(prev => ({ ...prev, institutionId: e.target.value, facultyId: 'all', departmentId: 'all' }))}
-              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100"
+              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-sm"
             >
               <option value="all">ALL INSTITUTIONS</option>
               {institutions.map(inst => <option key={inst.id} value={inst.id}>{inst.name}</option>)}
@@ -264,7 +264,7 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ type }) => {
             <select 
               value={filters.facultyId}
               onChange={(e) => setFilters(prev => ({ ...prev, facultyId: e.target.value, departmentId: 'all' }))}
-              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100"
+              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-sm"
             >
               <option value="all">ALL FACULTIES</option>
               {faculties
@@ -278,7 +278,7 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ type }) => {
             <select 
               value={filters.departmentId}
               onChange={(e) => setFilters(prev => ({ ...prev, departmentId: e.target.value }))}
-              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100"
+              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-sm"
             >
               <option value="all">ALL DEPARTMENTS</option>
               {departments
@@ -288,11 +288,11 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ type }) => {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Qualification</label>
+            <label className="text-[10px) font-bold text-slate-400 uppercase tracking-widest ml-1">Qualification</label>
             <select 
               value={filters.qualification}
               onChange={(e) => setFilters(prev => ({ ...prev, qualification: e.target.value }))}
-              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100"
+              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-sm"
             >
               <option value="all">ALL QUALIFICATIONS</option>
               {[...new Set(staff.map(s => s.highestQualification))].sort().map(q => <option key={q} value={q}>{q}</option>)}
@@ -304,7 +304,7 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ type }) => {
             <select 
               value={filters.employmentStatus}
               onChange={(e) => setFilters(prev => ({ ...prev, employmentStatus: e.target.value }))}
-              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100"
+              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-sm"
             >
               <option value="all">ALL STATUSES</option>
               {["Active", "On Study Leave", "On Sabbatical", "On Leave of Absence", "On Suspension", "Appointment Terminated", "Dismissed", "Retired"].map(s => (
@@ -312,30 +312,32 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ type }) => {
               ))}
             </select>
           </div>
+
+          <button 
+            onClick={() => {
+              setFilters({
+                institutionId: 'all',
+                facultyId: 'all',
+                departmentId: 'all',
+                qualification: 'all',
+                employmentStatus: 'all'
+              });
+              setSearchTerm('');
+            }}
+            className="py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all h-[38px] flex items-center justify-center gap-2"
+          >
+            Clear All
+          </button>
         </div>
 
-        {(searchTerm || filters.institutionId !== 'all' || filters.facultyId !== 'all' || filters.departmentId !== 'all' || filters.qualification !== 'all' || filters.employmentStatus !== 'all') && (
-          <div className="flex items-center justify-between pt-2 border-t border-slate-50">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
-              Showing {filteredStaff.length} matching staff result{filteredStaff.length !== 1 ? 's' : ''}
-            </p>
-            <button 
-              onClick={() => {
-                setFilters({
-                  institutionId: 'all',
-                  facultyId: 'all',
-                  departmentId: 'all',
-                  qualification: 'all',
-                  employmentStatus: 'all'
-                });
-                setSearchTerm('');
-              }}
-              className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
-            >
-              Clear All Filters
-            </button>
-          </div>
-        )}
+        <div className="pt-2 border-t border-slate-50">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+            {searchTerm || filters.institutionId !== 'all' || filters.facultyId !== 'all' || filters.departmentId !== 'all' || filters.qualification !== 'all' || filters.employmentStatus !== 'all' ? 
+              `Showing ${filteredStaff.length} matching staff result${filteredStaff.length !== 1 ? 's' : ''}` : 
+              `Total Staff: ${filteredStaff.length}`
+            }
+          </p>
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">

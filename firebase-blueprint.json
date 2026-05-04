@@ -49,6 +49,8 @@
         "lastName": { "type": "string" },
         "dob": { "type": "string", "format": "date" },
         "sex": { "type": "string", "enum": ["Male", "Female"] },
+        "email": { "type": "string" },
+        "mobilePhone": { "type": "string" },
         "matricNumber": { "type": "string" },
         "institutionId": { "type": "string" },
         "campus": { "type": "string" },

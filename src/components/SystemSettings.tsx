@@ -39,111 +39,11 @@ import { ACADEMIC_DATA } from '../constants/academicData';
 export const SystemSettings: React.FC = () => {
   const { user } = useAuth();
   const [status, setStatus] = useState<'idle' | 'running' | 'completed' | 'error'>('idle');
-  const [activeTool, setActiveTool] = useState<'migration' | 'hygiene' | 'seeding' | 'guide' | 'implementation' | 'businessCase'>('migration');
+  const [activeTool, setActiveTool] = useState<'migration' | 'hygiene' | 'guide' | 'implementation' | 'businessCase'>('migration');
   const [log, setLog] = useState<string[]>([]);
   const [stats, setStats] = useState({ staff: 0, students: 0 });
 
   const addLog = (msg: string) => setLog(prev => [...prev, `${new Date().toLocaleTimeString()}: ${msg}`]);
-
-  const seedAcademicData = async () => {
-    if (user?.role !== 'SuperUser') return;
-    setStatus('running');
-    setActiveTool('seeding');
-    setLog([]);
-    addLog('Initiating Academic Data Seeding...');
-
-    try {
-      addLog('Fetching existing institutions to map IDs...');
-      const instSnap = await getDocs(collection(db, 'institutions'));
-      const institutions = instSnap.docs.map(d => ({ id: d.id, name: d.data().name }));
-
-      let facultiesAdded = 0;
-      let departmentsAdded = 0;
-
-      for (const instData of ACADEMIC_DATA) {
-        addLog(`Processing: ${instData.name}`);
-        let instId = institutions.find(i => 
-          i.name.toLowerCase().includes(instData.name.toLowerCase()) || 
-          instData.name.toLowerCase().includes(i.name.toLowerCase())
-        )?.id;
-
-        if (!instId) {
-          addLog(`  Institution "${instData.name}" not found. Creating...`);
-          const instDoc = await addDoc(collection(db, 'institutions'), {
-            name: instData.name,
-            shortName: instData.shortName || '',
-            category: instData.category || 'University',
-            order: instData.order || 99,
-            type: 'Public', // Default for these institutions
-            website: '',
-            address: ''
-          });
-          instId = instDoc.id;
-          // Add to local list to avoid duplicates in same run if any
-          institutions.push({ id: instId, name: instData.name });
-        } else {
-          // Sync order and shortName for existing institutions
-          addLog(`  Institution "${instData.name}" exists. Syncing order/shortName...`);
-          const batch = writeBatch(db);
-          batch.update(doc(db, 'institutions', instId), {
-            order: instData.order,
-            shortName: instData.shortName
-          });
-          await batch.commit();
-        }
-
-        const facultyCollection = collection(db, 'faculties');
-        const deptCollection = collection(db, 'departments');
-
-        for (const facData of instData.faculties) {
-          addLog(`  Creating/Checking Faculty: ${facData.name}`);
-          
-          // Check if faculty exists
-          const facultySnap = await getDocs(collection(db, 'faculties'));
-          let facId = facultySnap.docs.find(d => 
-            d.data().name === facData.name && d.data().institutionId === instId
-          )?.id;
-
-          if (!facId) {
-            const facDoc = await addDoc(facultyCollection, {
-              name: facData.name,
-              institutionId: instId,
-              type: facData.type || 'faculty'
-            });
-            facId = facDoc.id;
-            facultiesAdded++;
-          }
-
-          const existingDepts = await getDocs(collection(db, 'departments'));
-          const currentFacDepts = existingDepts.docs.filter(d => d.data().facultyId === facId);
-
-          for (const dept of facData.departments) {
-            const deptName = typeof dept === 'string' ? dept : dept.name;
-            const isSTEM = typeof dept === 'string' ? (facData.allSTEM ?? true) : dept.isSTEM;
-
-            if (currentFacDepts.some(d => d.data().name === deptName)) {
-              continue;
-            }
-
-            await addDoc(deptCollection, {
-              name: deptName,
-              facultyId: facId,
-              isSTEM: isSTEM,
-              type: 'department'
-            });
-            departmentsAdded++;
-          }
-        }
-      }
-
-      await logAudit('CREATE', 'system', 'seeding', `Seeded academic structure. Faculties: ${facultiesAdded}, Departments: ${departmentsAdded}`);
-      addLog(`Seeding complete! Added ${facultiesAdded} faculties and ${departmentsAdded} departments.`);
-      setStatus('completed');
-    } catch (error) {
-      addLog(`Seeding failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      setStatus('error');
-    }
-  };
 
   const runHygieneCheck = async () => {
     if (user?.role !== 'SuperUser') return;
@@ -348,16 +248,6 @@ export const SystemSettings: React.FC = () => {
               >
                 <Activity size={18} />
                 <span className="font-bold text-sm">Database Hygiene</span>
-              </button>
-              <button 
-                onClick={() => setActiveTool('seeding')}
-                className={cn(
-                  "w-full px-4 py-3 rounded-2xl text-left transition-all flex items-center gap-3",
-                  activeTool === 'seeding' ? "bg-slate-900 text-white shadow-lg" : "bg-white text-slate-600 hover:bg-slate-50"
-                )}
-              >
-                <Layers size={18} />
-                <span className="font-bold text-sm">Academic Seeding</span>
               </button>
             </div>
           </div>
@@ -736,7 +626,7 @@ export const SystemSettings: React.FC = () => {
                   </div>
                 </section>
               </div>
-            ) : activeTool === 'businessCase' ? (
+            ) : (
               <div className="space-y-12 animate-in slide-in-from-bottom-2 duration-300 pb-20">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-200">
@@ -1038,60 +928,6 @@ export const SystemSettings: React.FC = () => {
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">TEMIS-EXEC-APPROVAL-2026-V2</p>
                 </div>
               </div>
-            ) : (
-              <>
-                <div className="flex items-start gap-4 mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
-                    <Database size={24} />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-slate-900">Academic Data Seeding</h2>
-                    <p className="text-sm text-slate-500 mt-1">
-                      Populates the database with detailed Faculty and Department structure for major institutions.
-                    </p>
-                    <ul className="mt-4 space-y-2 text-sm text-slate-600">
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 size={16} className="text-emerald-500" />
-                        Seeds 5 major tertiary institutions
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 size={16} className="text-emerald-500" />
-                        Detailed STEM/NON-STEM classification
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 size={16} className="text-emerald-500" />
-                        Prevents duplicate entries
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex gap-3 mb-8">
-                  <AlertCircle className="text-emerald-600 shrink-0" size={20} />
-                  <p className="text-xs text-emerald-700 leading-relaxed">
-                    <strong>Note:</strong> This process might take a minute as it performs cross-checks to ensure academic integrity.
-                  </p>
-                </div>
-
-                <button
-                  onClick={seedAcademicData}
-                  disabled={status === 'running'}
-                  className={`w-full py-4 rounded-2xl font-bold text-white transition-all flex items-center justify-center gap-2 shadow-lg ${
-                    status === 'running' 
-                      ? 'bg-slate-400 cursor-not-allowed' 
-                      : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200'
-                  }`}
-                >
-                  {status === 'running' ? (
-                    <>
-                      <Loader2 className="animate-spin" size={20} />
-                      Seeding Academic Data...
-                    </>
-                  ) : (
-                    'Run Academic Seeding'
-                  )}
-                </button>
-              </>
             )}
           </div>
 

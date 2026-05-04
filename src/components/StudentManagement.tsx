@@ -342,10 +342,10 @@ export const StudentManagement: React.FC = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-4 items-end">
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Institution</label>
-            <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all">
+            <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all shadow-sm">
               <Filter size={14} className="text-slate-400" />
               <select 
                 value={filters.institutionId}
@@ -360,7 +360,7 @@ export const StudentManagement: React.FC = () => {
 
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Campus</label>
-            <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all">
+            <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all shadow-sm">
               <Filter size={14} className="text-slate-400" />
               <select 
                 value={filters.campus}
@@ -375,7 +375,7 @@ export const StudentManagement: React.FC = () => {
 
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Programme Type</label>
-            <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all">
+            <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all shadow-sm">
               <Filter size={14} className="text-slate-400" />
               <select 
                 value={filters.programmeType}
@@ -392,7 +392,7 @@ export const StudentManagement: React.FC = () => {
 
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Faculty</label>
-            <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all">
+            <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all shadow-sm">
               <Filter size={14} className="text-slate-400" />
               <select 
                 value={filters.facultyId}
@@ -410,7 +410,7 @@ export const StudentManagement: React.FC = () => {
 
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Department</label>
-            <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all">
+            <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all shadow-sm">
               <Filter size={14} className="text-slate-400" />
               <select 
                 value={filters.departmentId}
@@ -428,7 +428,7 @@ export const StudentManagement: React.FC = () => {
 
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Enrollment Status</label>
-            <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all">
+            <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all shadow-sm">
               <GraduationCap size={14} className="text-slate-400" />
               <select 
                 value={filters.enrollmentStatus}
@@ -443,31 +443,33 @@ export const StudentManagement: React.FC = () => {
               </select>
             </div>
           </div>
+
+          <button 
+            onClick={() => {
+              setFilters({
+                institutionId: 'all',
+                campus: 'all',
+                programmeType: 'all',
+                facultyId: 'all',
+                departmentId: 'all',
+                enrollmentStatus: 'all'
+              });
+              setSearchTerm('');
+            }}
+            className="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all h-[42px] flex items-center justify-center gap-2"
+          >
+            Clear All
+          </button>
         </div>
 
-        {(filters.institutionId !== 'all' || filters.campus !== 'all' || filters.programmeType !== 'all' || filters.facultyId !== 'all' || filters.departmentId !== 'all' || filters.enrollmentStatus !== 'all' || searchTerm) && (
-          <div className="flex items-center justify-between pt-2 border-t border-slate-50">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
-              Showing {filteredStudents.length} matching result{filteredStudents.length !== 1 ? 's' : ''}
-            </p>
-            <button 
-              onClick={() => {
-                setFilters({
-                  institutionId: 'all',
-                  campus: 'all',
-                  programmeType: 'all',
-                  facultyId: 'all',
-                  departmentId: 'all',
-                  enrollmentStatus: 'all'
-                });
-                setSearchTerm('');
-              }}
-              className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
-            >
-              Clear All Filters
-            </button>
-          </div>
-        )}
+        <div className="pt-2 border-t border-slate-50">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+            {filters.institutionId !== 'all' || filters.campus !== 'all' || filters.programmeType !== 'all' || filters.facultyId !== 'all' || filters.departmentId !== 'all' || filters.enrollmentStatus !== 'all' || searchTerm ? 
+              `Showing ${filteredStudents.length} matching result${filteredStudents.length !== 1 ? 's' : ''}` : 
+              `Total Students: ${filteredStudents.length}`
+            }
+          </p>
+        </div>
       </div>
 
       {/* Student List */}

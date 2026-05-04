@@ -68,13 +68,13 @@ export const FacilityMaintenance: React.FC = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Maintenance Type</label>
             <select 
               value={filters.maintenanceType}
               onChange={(e) => setFilters(prev => ({ ...prev, maintenanceType: e.target.value }))}
-              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100"
+              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-sm"
             >
               <option value="all">ALL TYPES</option>
               {['Inspection', 'Routine', 'Repair/Replacement'].map(t => (
@@ -89,35 +89,32 @@ export const FacilityMaintenance: React.FC = () => {
               type="date"
               value={filters.completionDate}
               onChange={(e) => setFilters(prev => ({ ...prev, completionDate: e.target.value }))}
-              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100"
+              className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-sm"
             />
           </div>
 
-          <div className="flex items-end">
-            {(searchTerm || filters.maintenanceType !== 'all' || filters.completionDate) && (
-              <button 
-                onClick={() => {
-                  setFilters({
-                    maintenanceType: 'all',
-                    completionDate: ''
-                  });
-                  setSearchTerm('');
-                }}
-                className="w-full px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
-              >
-                Clear All Filters
-              </button>
-            )}
-          </div>
+          <button 
+            onClick={() => {
+              setFilters({
+                maintenanceType: 'all',
+                completionDate: ''
+              });
+              setSearchTerm('');
+            }}
+            className="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all h-[42px] flex items-center justify-center gap-2"
+          >
+            Clear All
+          </button>
         </div>
 
-        {(searchTerm || filters.maintenanceType !== 'all' || filters.completionDate) && (
-          <div className="flex items-center justify-between pt-2 border-t border-slate-50">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
-              Showing {filteredLogs.length} matching record{filteredLogs.length !== 1 ? 's' : ''}
-            </p>
-          </div>
-        )}
+        <div className="pt-2 border-t border-slate-50">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+            {searchTerm || filters.maintenanceType !== 'all' || filters.completionDate ? 
+              `Showing ${filteredLogs.length} matching record${filteredLogs.length !== 1 ? 's' : ''}` : 
+              `Total Maintenance Logs: ${filteredLogs.length}`
+            }
+          </p>
+        </div>
       </div>
 
       {/* Maintenance Logs */}
