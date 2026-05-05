@@ -25,10 +25,13 @@ import {
   Zap,
   Globe,
   Lock,
-  Search
+  Search,
+  UserPlus
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+
+import { seedStaffData } from '../seedStaff';
 
 function cn(...inputs: any[]) {
   return twMerge(clsx(inputs));
@@ -39,11 +42,28 @@ import { ACADEMIC_DATA } from '../constants/academicData';
 export const SystemSettings: React.FC = () => {
   const { user } = useAuth();
   const [status, setStatus] = useState<'idle' | 'running' | 'completed' | 'error'>('idle');
-  const [activeTool, setActiveTool] = useState<'migration' | 'hygiene' | 'guide' | 'implementation' | 'businessCase'>('migration');
+  const [activeTool, setActiveTool] = useState<'migration' | 'hygiene' | 'guide' | 'implementation' | 'businessCase' | 'seeding'>('migration');
   const [log, setLog] = useState<string[]>([]);
   const [stats, setStats] = useState({ staff: 0, students: 0 });
 
   const addLog = (msg: string) => setLog(prev => [...prev, `${new Date().toLocaleTimeString()}: ${msg}`]);
+
+  const runStaffSeeding = async () => {
+    if (user?.role !== 'SuperUser') return;
+    setStatus('running');
+    setActiveTool('seeding');
+    setLog([]);
+    addLog('Initializing Academic Staff Seeding...');
+    
+    try {
+      const result = await seedStaffData();
+      addLog(`Seeding successful! Added ${result.successCount} records. Errors: ${result.errorCount}`);
+      setStatus('completed');
+    } catch (error) {
+      addLog(`Seeding Failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setStatus('error');
+    }
+  };
 
   const runHygieneCheck = async () => {
     if (user?.role !== 'SuperUser') return;
@@ -249,6 +269,16 @@ export const SystemSettings: React.FC = () => {
                 <Activity size={18} />
                 <span className="font-bold text-sm">Database Hygiene</span>
               </button>
+              <button 
+                onClick={() => setActiveTool('seeding')}
+                className={cn(
+                  "w-full px-4 py-3 rounded-2xl text-left transition-all flex items-center gap-3",
+                  activeTool === 'seeding' ? "bg-slate-900 text-white shadow-lg" : "bg-white text-slate-600 hover:bg-slate-50"
+                )}
+              >
+                <UserPlus size={18} />
+                <span className="font-bold text-sm">Seed Academic Staff</span>
+              </button>
             </div>
           </div>
 
@@ -348,6 +378,68 @@ export const SystemSettings: React.FC = () => {
                     'Run Migration Script'
                   )}
                 </button>
+              </>
+            ) : activeTool === 'seeding' ? (
+              <>
+                <div className="flex items-start gap-4 mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+                    <UserPlus size={24} />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-slate-900">Academic Staff Seeding</h2>
+                    <p className="text-sm text-slate-500 mt-1">
+                      Populate the LASCON (Lagos State College of Nursing) nominal roll with realistic academic staff data.
+                    </p>
+                    <ul className="mt-4 space-y-2 text-sm text-slate-600">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 size={16} className="text-emerald-500" />
+                        22 Realistic Academic staff records
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 size={16} className="text-emerald-500" />
+                        Automated Date Formatting (YYYY-MM-DD)
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 size={16} className="text-emerald-500" />
+                        Default Confirmation & Promotion dates
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex gap-3 mb-8">
+                  <Info className="text-emerald-600 shrink-0" size={20} />
+                  <p className="text-xs text-emerald-700 leading-relaxed">
+                    This will add new staff records. It will NOT overwrite existing records with the same laserraId (though Firestore will create duplicates if not checked).
+                  </p>
+                </div>
+
+                <button
+                  onClick={runStaffSeeding}
+                  disabled={status === 'running'}
+                  className={`w-full py-4 rounded-2xl font-bold text-white transition-all flex items-center justify-center gap-2 shadow-lg ${
+                    status === 'running' 
+                      ? 'bg-slate-400 cursor-not-allowed' 
+                      : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200'
+                  }`}
+                >
+                  {status === 'running' ? (
+                    <>
+                      <Loader2 className="animate-spin" size={20} />
+                      Seeding Database...
+                    </>
+                  ) : (
+                    'Seed Academic Staff Data'
+                  )}
+                </button>
+
+                {log.length > 0 && (
+                  <div className="mt-8 p-6 bg-slate-900 rounded-3xl font-mono text-[10px] text-emerald-400 overflow-auto max-h-48 border border-slate-800 shadow-inner">
+                    {log.map((line, i) => (
+                      <div key={i} className="mb-1">{line}</div>
+                    ))}
+                  </div>
+                )}
               </>
             ) : activeTool === 'hygiene' ? (
               <>

@@ -1,16 +1,13 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
-import { readFileSync } from 'fs';
+import firebaseConfig from './firebase-applet-config.json' with { type: 'json' };
 
-const firebaseConfig = JSON.parse(readFileSync('./firebase-applet-config.json', 'utf-8'));
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 
 async function listInstitutions() {
-  const querySnapshot = await getDocs(collection(db, 'institutions'));
-  querySnapshot.forEach((doc) => {
-    console.log(`${doc.id}: ${doc.data().name}`);
-  });
+  const instSnap = await getDocs(collection(db, 'institutions'));
+  console.log('Institutions found:', instSnap.docs.map(d => ({ id: d.id, name: d.data().name })));
 }
 
 listInstitutions().catch(console.error);

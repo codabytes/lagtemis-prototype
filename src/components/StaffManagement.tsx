@@ -19,6 +19,7 @@ import { Staff, Institution, Department, Faculty } from '../types';
 import { useAuth } from './AuthGuard';
 import { ConfirmDialog } from './ConfirmDialog';
 import { ExportButton } from './ExportButton';
+import { seedStaffData } from '../seedStaff';
 
 const INITIAL_STAFF_STATE: Partial<Staff> = {
   lasrraId: '',
@@ -51,7 +52,7 @@ interface StaffManagementProps {
 }
 
 export const StaffManagement: React.FC<StaffManagementProps> = ({ type }) => {
-  const { canManage, canDelete } = useAuth();
+  const { user, canManage, canDelete } = useAuth();
   const [staff, setStaff] = useState<Staff[]>([]);
   const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -217,6 +218,23 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ type }) => {
           <p className="text-slate-500 italic serif text-sm">Comprehensive digital nominal roll and credentials tracking</p>
         </div>
         <div className="flex items-center gap-3">
+          {user?.role === 'SuperUser' && (
+            <button 
+              onClick={async () => {
+                if (window.confirm('Are you sure you want to seed the database with test academic staff data?')) {
+                  setLoading(true);
+                  await seedStaffData();
+                  // Reload data
+                  const staffData = await dbService.list<Staff>('staff', [where('staffType', '==', type), orderBy('surname')]);
+                  setStaff(staffData);
+                  setLoading(false);
+                }
+              }}
+              className="px-4 py-2 bg-slate-800 text-white font-semibold rounded-xl hover:bg-slate-900 transition-colors flex items-center gap-2 shadow-lg shadow-slate-100"
+            >
+              Seed Data
+            </button>
+          )}
           <ExportButton data={filteredStaff} fileName={`TEMIS_${type.replace(' ', '')}_Staff_${new Date().getFullYear()}`} />
           {canManage('staff') && (
             <button 

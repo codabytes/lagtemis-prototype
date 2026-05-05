@@ -358,14 +358,14 @@ const StaffDrillDownModal: React.FC<{
   const instStats = useMemo(() => {
     return institutions.map(inst => {
       const instStaff = staff.filter(s => s.institutionId === inst.id);
-      const maleCount = instStaff.filter(s => s.gender === 'Male').length;
-      const femaleCount = instStaff.filter(s => s.gender === 'Female').length;
+      const academicCount = instStaff.filter(s => s.staffType === 'Academic').length;
+      const nonAcademicCount = instStaff.filter(s => s.staffType === 'Non-Academic').length;
       return {
         ...inst,
         count: instStaff.length,
-        genderDist: [
-          { name: 'Male', value: maleCount },
-          { name: 'Female', value: femaleCount }
+        typeDist: [
+          { name: 'Academic', value: academicCount },
+          { name: 'Non-Academic', value: nonAcademicCount }
         ]
       };
     }).sort((a, b) => b.count - a.count);
@@ -486,7 +486,7 @@ const StaffDrillDownModal: React.FC<{
                                     return (
                                       <div className="bg-white p-2 rounded-lg shadow-xl border border-slate-100 text-[10px] font-bold">
                                         <div className="flex items-center gap-2">
-                                          <div className={`w-2 h-2 rounded-full ${data.name === 'Male' ? 'bg-emerald-500' : 'bg-blue-500'}`}></div>
+                                          <div className={`w-2 h-2 rounded-full ${data.name === 'Academic' ? 'bg-emerald-500' : 'bg-blue-500'}`}></div>
                                           <span className="text-slate-600">{data.name}: {data.value.toLocaleString()} ({percentage}%)</span>
                                         </div>
                                       </div>
@@ -496,16 +496,16 @@ const StaffDrillDownModal: React.FC<{
                                 }}
                               />
                               <Pie
-                                data={inst.genderDist}
-                                innerRadius={22}
-                                outerRadius={38}
-                                paddingAngle={2}
+                                data={inst.typeDist}
+                                innerRadius={0}
+                                outerRadius={28}
+                                paddingAngle={0}
                                 dataKey="value"
-                                labelLine={false}
+                                labelLine={true}
                                 label={({ cx, cy, midAngle, innerRadius, outerRadius, value, index }) => {
                                   if (value === 0) return null;
                                   const RADIAN = Math.PI / 180;
-                                  const radius = outerRadius + 12;
+                                  const radius = outerRadius + 15;
                                   const x = cx + radius * Math.cos(-midAngle * RADIAN);
                                   const y = cy + radius * Math.sin(-midAngle * RADIAN);
                                   return (
@@ -1071,7 +1071,7 @@ const DrillDownModal: React.FC<{
                           <p className="text-3xl font-black text-slate-900 tabular-nums mb-1">{inst.count.toLocaleString()}</p>
                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Enrollment</p>
                         </div>
-                        <div className="h-24 w-24 -mr-4 flex items-center justify-center">
+                        <div className="h-16 w-16 -mr-2 flex items-center justify-center">
                           <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                               <Tooltip 
@@ -1094,14 +1094,14 @@ const DrillDownModal: React.FC<{
                               <Pie
                                 data={inst.genderDist}
                                 innerRadius={0}
-                                outerRadius={28}
-                                paddingAngle={2}
+                                outerRadius={24}
+                                paddingAngle={0}
                                 dataKey="value"
                                 labelLine={false}
                                 label={({ cx, cy, midAngle, innerRadius, outerRadius, value, index }) => {
                                   if (value === 0) return null;
                                   const RADIAN = Math.PI / 180;
-                                  const radius = outerRadius + 12;
+                                  const radius = outerRadius + 8;
                                   const x = cx + radius * Math.cos(-midAngle * RADIAN);
                                   const y = cy + radius * Math.sin(-midAngle * RADIAN);
                                   return (
@@ -1111,7 +1111,7 @@ const DrillDownModal: React.FC<{
                                       fill="#64748b" 
                                       textAnchor={x > cx ? 'start' : 'end'} 
                                       dominantBaseline="central" 
-                                      className="text-[9px] font-black"
+                                      className="text-[8px] font-black"
                                     >
                                       {value}
                                     </text>
@@ -1131,25 +1131,25 @@ const DrillDownModal: React.FC<{
               </div>
             </div>
           ) : (
-            <div className="flex-1 flex flex-col">
-              <div className="p-3 px-6 border-b border-slate-100 bg-white grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
+            <div className="flex-1 flex flex-col min-h-0">
+              <div className="p-2 px-6 border-b border-slate-100 bg-white grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
                 <div className="space-y-0.5">
-                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Campus</label>
+                  <label className="text-[8px] font-bold text-slate-400 uppercase tracking-widest ml-1">Campus</label>
                   <select 
                     value={filters.campus}
                     onChange={(e) => setFilters(prev => ({ ...prev, campus: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-lg text-xs font-bold text-slate-700 p-2 transition-all shadow-sm outline-none focus:ring-2 focus:ring-blue-50"
+                    className="w-full bg-slate-50 border-none rounded-lg text-xs font-bold text-slate-700 p-1.5 transition-all shadow-sm outline-none focus:ring-2 focus:ring-blue-50"
                   >
                     <option value="ALL">ALL CAMPUSES</option>
                     {availableCampuses.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
                 <div className="space-y-0.5">
-                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Programme Type</label>
+                  <label className="text-[8px] font-bold text-slate-400 uppercase tracking-widest ml-1">Programme Type</label>
                   <select 
                     value={filters.programmeType}
                     onChange={(e) => setFilters(prev => ({ ...prev, programmeType: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-lg text-xs font-bold text-slate-700 p-2 transition-all shadow-sm outline-none focus:ring-2 focus:ring-blue-50"
+                    className="w-full bg-slate-50 border-none rounded-lg text-xs font-bold text-slate-700 p-1.5 transition-all shadow-sm outline-none focus:ring-2 focus:ring-blue-50"
                   >
                     <option value="ALL">ALL TYPES</option>
                     <option value="Full-time">FULL-TIME</option>
@@ -1158,22 +1158,22 @@ const DrillDownModal: React.FC<{
                   </select>
                 </div>
                 <div className="space-y-0.5">
-                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Faculty</label>
+                  <label className="text-[8px] font-bold text-slate-400 uppercase tracking-widest ml-1">Faculty</label>
                   <select 
                     value={filters.facultyId}
                     onChange={(e) => setFilters(prev => ({ ...prev, facultyId: e.target.value, departmentId: 'ALL' }))}
-                    className="w-full bg-slate-50 border-none rounded-lg text-xs font-bold text-slate-700 p-2 transition-all shadow-sm outline-none focus:ring-2 focus:ring-blue-50"
+                    className="w-full bg-slate-50 border-none rounded-lg text-xs font-bold text-slate-700 p-1.5 transition-all shadow-sm outline-none focus:ring-2 focus:ring-blue-50"
                   >
                     <option value="ALL">ALL FACULTIES</option>
                     {availableFaculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
                   </select>
                 </div>
                 <div className="space-y-0.5">
-                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Department</label>
+                  <label className="text-[8px] font-bold text-slate-400 uppercase tracking-widest ml-1">Department</label>
                   <select 
                     value={filters.departmentId}
                     onChange={(e) => setFilters(prev => ({ ...prev, departmentId: e.target.value }))}
-                    className="w-full bg-slate-50 border-none rounded-lg text-xs font-bold text-slate-700 p-2 transition-all shadow-sm outline-none focus:ring-2 focus:ring-blue-50"
+                    className="w-full bg-slate-50 border-none rounded-lg text-xs font-bold text-slate-700 p-1.5 transition-all shadow-sm outline-none focus:ring-2 focus:ring-blue-50"
                   >
                     <option value="ALL">ALL DEPARTMENTS</option>
                     {availableDepartments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
@@ -1181,21 +1181,21 @@ const DrillDownModal: React.FC<{
                 </div>
                 <button 
                   onClick={clearFilters}
-                  className="py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all h-[34px]"
+                  className="py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all h-[28px]"
                 >
                   Clear All
                 </button>
               </div>
 
-              <div className="flex-1 overflow-hidden bg-slate-50/20 p-4 px-6 flex flex-col">
-                <div className="flex items-center justify-between mb-2">
+              <div className="flex-1 overflow-hidden bg-slate-50/20 p-2 px-6 flex flex-col">
+                <div className="flex items-center justify-between mb-1">
                   <div>
-                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Student Records</h4>
-                    <p className="text-xs font-bold text-slate-500">Showing {filteredStudents.length} students</p>
+                    <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Student Records</h4>
+                    <p className="text-[10px] font-bold text-slate-500">Showing {filteredStudents.length} students</p>
                   </div>
-                  <div className="px-3 py-1 bg-white rounded-lg border border-slate-100 shadow-sm flex items-center gap-2">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Count:</span>
-                    <span className="text-sm font-black text-blue-600">{filteredStudents.length}</span>
+                  <div className="px-2 py-0.5 bg-white rounded-lg border border-slate-100 shadow-sm flex items-center gap-2">
+                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Count:</span>
+                    <span className="text-xs font-black text-blue-600">{filteredStudents.length}</span>
                   </div>
                 </div>
 
@@ -1229,7 +1229,7 @@ const DrillDownModal: React.FC<{
                               <span className="text-[10px] font-mono text-slate-600">{s.matricNumber}</span>
                             </td>
                             <td className="px-6 py-2">
-                              <p className="text-[9px] font-bold text-slate-700 line-clamp-1">{faculties.find(f => f.id === s.facultyId)?.shortName || faculties.find(f => f.id === s.facultyId)?.name}</p>
+                              <p className="text-[9px] font-bold text-slate-700 line-clamp-1">{faculties.find(f => f.id === s.facultyId)?.name}</p>
                             </td>
                             <td className="px-6 py-2">
                               <p className="text-[9px] text-slate-400 font-medium line-clamp-1">{departments.find(d => d.id === s.departmentId)?.name}</p>

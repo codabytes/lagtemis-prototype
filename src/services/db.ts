@@ -120,5 +120,23 @@ export const dbService = {
       handleFirestoreError(error, OperationType.DELETE, `${collectionName}/${id}`);
       throw error;
     }
+  },
+
+  /**
+   * Purges all documents from a collection.
+   * 
+   * @param collectionName - The name of the collection to purge.
+   */
+  async purge(collectionName: string): Promise<number> {
+    try {
+      const q = query(collection(db, collectionName));
+      const snapshot = await getDocs(q);
+      const deletePromises = snapshot.docs.map(d => deleteDoc(d.ref));
+      await Promise.all(deletePromises);
+      return snapshot.size;
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, `PURGE ${collectionName}`);
+      throw error;
+    }
   }
 };
