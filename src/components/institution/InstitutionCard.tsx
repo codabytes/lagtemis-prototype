@@ -74,13 +74,31 @@ export const InstitutionCard: React.FC<InstitutionCardProps> = ({
                   </span>
                 </div>
                 <div className="flex items-center gap-4 h-4 border-l border-slate-200 pl-4">
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
-                    <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{instFaculties.length} Faculties</span>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+                      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest leading-none">
+                        {instFaculties.filter(f => f.type !== 'directorate').length} Faculties
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 pl-3">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none italic">
+                        & {instFaculties.filter(f => f.type === 'directorate').length} Directorates
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-400"></div>
-                    <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{instDepts.length} Departments</span>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-400"></div>
+                      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest leading-none">
+                        {instDepts.filter(d => d.type !== 'unit').length} Departments
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 pl-3">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none italic">
+                        & {instDepts.filter(d => d.type === 'unit').length} Units
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>

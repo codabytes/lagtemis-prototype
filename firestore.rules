@@ -1,175 +1,129 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    function isAuthenticated() {
-      return request.auth != null;
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
     }
 
-    function isDefaultAdmin() {
-      return isAuthenticated() && 
-             request.auth.token.email == "olurantidiyan@gmail.com" && 
-             request.auth.token.email_verified == true;
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
     }
 
-    function isAdmin() {
-      return isAuthenticated() && 
-        (request.auth.token.email.matches('(?i)olurantidiyan@gmail\\.com') || 
-         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SuperUser"));
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
+    function isSuperUser() {
+      return isSignedIn() && getUserData().role == 'SuperUser';
     }
 
-    function hasRole(role) {
-      return isAuthenticated() && 
-             exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    function isDirector() {
+      return isSignedIn() && getUserData().role.matches('^Director.*');
     }
 
-    function hasRequiredFields(fields) {
-      return request.resource.data.keys().hasAll(fields);
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
     }
 
-    function isValidString(field, min, max) {
-      return request.resource.data[field] is string && 
-             request.resource.data[field].size() >= min && 
-             request.resource.data[field].size() <= max;
+    function incoming() {
+      return request.resource.data;
     }
 
-    function isValidFaculty() {
-      return hasRequiredFields(['name', 'institutionId', 'type']) &&
-             isValidString('name', 2, 100) &&
-             request.resource.data.type in ['faculty', 'directorate'];
+    function existing() {
+      return resource.data;
     }
 
-    function isValidDepartment() {
-      return hasRequiredFields(['name', 'facultyId', 'isSTEM', 'type']) &&
-             isValidString('name', 2, 100) &&
-             request.resource.data.isSTEM is bool &&
-             request.resource.data.type in ['department', 'unit'];
+    // --- Entity Validations ---
+    function isValidStudent(data) {
+      return data.keys().hasAll(['lasrraId', 'firstName', 'lastName', 'matricNumber', 'institutionId', 'programmeType', 'facultyId', 'departmentId', 'admissionYear', 'enrollmentStatus'])
+        && data.lasrraId is string && data.lasrraId.size() <= 64
+        && data.firstName is string && data.firstName.size() <= 100
+        && data.lastName is string && data.lastName.size() <= 100
+        && data.matricNumber is string && data.matricNumber.size() <= 50
+        && data.institutionId is string && data.institutionId.size() <= 100
+        && data.programmeType in ['Full-time', 'Part-time', 'Sandwich']
+        && data.enrollmentStatus in ['Enrolled', 'Withdrawn', 'Suspended', 'Rusticated'];
     }
 
-    function isValidStudent() {
-      return hasRequiredFields(['lasrraId', 'firstName', 'lastName', 'matricNumber', 'institutionId', 'programmeType', 'facultyId', 'departmentId', 'admissionYear', 'enrollmentStatus']) &&
-             isValidString('lasrraId', 1, 50) &&
-             isValidString('firstName', 1, 50) &&
-             isValidString('lastName', 1, 50) &&
-             isValidString('matricNumber', 1, 50) &&
-             request.resource.data.admissionYear is string &&
-             request.resource.data.programmeType in ['Full-time', 'Part-time', 'Sandwich'] &&
-             request.resource.data.enrollmentStatus in ['Enrolled', 'Withdrawn', 'Suspended', 'Rusticated'];
+    function isValidStaff(data) {
+      return data.keys().hasAll(['lasrraId', 'staffId', 'title', 'surname', 'firstName', 'gender', 'dob', 'institutionId', 'departmentId', 'designation', 'gradeLevel', 'dateOfFirstAppointment', 'employmentStatus', 'staffType', 'email', 'mobilePhone'])
+        && data.lasrraId is string && data.lasrraId.size() <= 64
+        && data.staffId is string && data.staffId.size() <= 64
+        && data.email is string && data.email.size() <= 150
+        && data.employmentStatus in ['Active', 'On Study Leave', 'On Sabbatical', 'On Leave of Absence', 'On Suspension', 'Appointment Terminated', 'Dismissed', 'Retired'];
     }
 
-    function isValidStaff() {
-      return hasRequiredFields(['lasrraId', 'staffId', 'title', 'surname', 'firstName', 'gender', 'dob', 'institutionId', 'departmentId', 'designation', 'gradeLevel', 'dateOfFirstAppointment', 'dateOfConfirmation', 'dateOfLastPromotion', 'highestQualification', 'employmentStatus', 'staffType']) &&
-             request.resource.data.gender in ['Male', 'Female'] &&
-             request.resource.data.staffType in ['Academic', 'Non-Academic'];
-    }
-
-    function isValidFacility() {
-      return hasRequiredFields(['assetId', 'name', 'type', 'institutionId', 'campus', 'location', 'capacity', 'dateCompleted', 'fundingSource']) &&
-             isValidString('name', 2, 100) &&
-             request.resource.data.capacity is int;
-    }
-
-    function isValidPublication() {
-      return hasRequiredFields(['staffId', 'outputId', 'title', 'type', 'year', 'fundingSource']) &&
-             isValidString('title', 2, 200) &&
-             request.resource.data.year is int;
-    }
-
-    function isValidTraining() {
-      return hasRequiredFields(['trainingId', 'staffId', 'title', 'type', 'date', 'duration', 'location', 'isInternational', 'provider', 'fundingSource']) &&
-             isValidString('title', 2, 200) &&
-             request.resource.data.isInternational is bool;
-    }
+    // --- Collection Routes ---
 
     match /users/{userId} {
-      allow read: if isAuthenticated() && (isOwner(userId) || isAdmin());
-      allow create: if isAdmin();
-      allow update: if isAuthenticated() && (isOwner(userId) || isAdmin());
-      allow delete: if isAdmin();
+      allow read: if isSignedIn();
+      allow write: if isSuperUser(); 
     }
 
-    match /users {
-      allow list: if isAdmin();
+    match /institutions/{instId} {
+      allow read: if isSignedIn();
+      allow create, update: if isDirector() || isSuperUser();
+      allow delete: if isSuperUser();
     }
 
-    match /logs/{id} {
-      allow read: if isAdmin();
-      allow list: if isAdmin();
-      allow create: if isAuthenticated();
+    match /faculties/{facId} {
+      allow read: if isSignedIn();
+      allow create, update: if isDirector() || isSuperUser();
+      allow delete: if isSuperUser();
     }
 
-    match /institutions/{id} {
-      allow read: if isAuthenticated();
-      allow create, update, delete: if isAdmin();
+    match /departments/{deptId} {
+      allow read: if isSignedIn();
+      allow create, update: if isDirector() || isSuperUser();
+      allow delete: if isSuperUser();
     }
 
-    match /faculties/{id} {
-      allow read: if isAuthenticated();
-      allow create, update: if isAdmin() && isValidFaculty();
-      allow delete: if isAdmin();
+    match /students/{studentId} {
+      allow read: if isSignedIn();
+      allow create: if (isDirector() || isSuperUser()) && isValidStudent(incoming());
+      allow update: if (isDirector() || isSuperUser()) && isValidStudent(incoming())
+        && incoming().diff(existing()).affectedKeys().hasOnly(['firstName', 'otherName', 'lastName', 'dob', 'sex', 'email', 'mobilePhone', 'programmeType', 'facultyId', 'departmentId', 'enrollmentStatus', 'certificateVerified', 'picture', 'updatedAt']);
+      allow delete: if isSuperUser();
     }
 
-    match /departments/{id} {
-      allow read: if isAuthenticated();
-      allow create, update: if isAdmin() && isValidDepartment();
-      allow delete: if isAdmin();
+    match /staff/{staffId} {
+      allow read: if isSignedIn();
+      allow create: if (isDirector() || isSuperUser()) && isValidStaff(incoming());
+      allow update: if (isDirector() || isSuperUser()) && isValidStaff(incoming())
+        && incoming().diff(existing()).affectedKeys().hasOnly(['title', 'surname', 'firstName', 'otherName', 'gender', 'dob', 'facultyId', 'departmentId', 'designation', 'gradeLevel', 'dateOfConfirmation', 'dateOfLastPromotion', 'highestQualification', 'specialization', 'employmentStatus', 'email', 'mobilePhone', 'picture', 'updatedAt']);
+      allow delete: if isSuperUser();
     }
 
-    match /students/{id} {
-      allow read: if isAuthenticated();
-      allow create, update: if (isAdmin() || hasRole('DirectorStandards')) && isValidStudent();
-      allow delete: if isAdmin();
+    match /facilities/{facilityId} {
+      allow read: if isSignedIn();
+      allow write: if isDirector() || isSuperUser();
     }
 
-    match /staff/{id} {
-      allow read: if isAuthenticated();
-      allow create, update: if (isAdmin() || hasRole('DirectorAdminHR')) && isValidStaff();
-      allow delete: if isAdmin();
+    match /maintenance_logs/{logId} {
+      allow read: if isSignedIn();
+      allow write: if isDirector() || isSuperUser();
     }
 
-    match /facilities/{id} {
-      allow read: if isAuthenticated();
-      allow create, update: if (isAdmin() || hasRole('DirectorInfrastructure')) && isValidFacility();
-      allow delete: if isAdmin();
+    match /trainings/{trainingId} {
+      allow read: if isSignedIn();
+      allow write: if isDirector() || isSuperUser();
     }
 
-    match /publications/{id} {
-      allow read: if isAuthenticated();
-      allow create, update: if (isAdmin() || hasRole('DirectorResearch')) && isValidPublication();
-      allow delete: if isAdmin();
+    match /publications/{pubId} {
+      allow read: if isSignedIn();
+      allow write: if isDirector() || isSuperUser();
     }
 
-    match /trainings/{id} {
-      allow read: if isAuthenticated();
-      allow create, update: if (isAdmin() || hasRole('DirectorResearch')) && isValidTraining();
-      allow delete: if isAdmin();
+    match /leadership/{leadId} {
+      allow read: if isSignedIn();
+      allow write: if isDirector() || isSuperUser();
     }
 
-    match /maintenance_logs/{id} {
-      allow read: if isAuthenticated();
-      allow create, update: if (isAdmin() || hasRole('DirectorInfrastructure'));
-      allow delete: if isAdmin();
-    }
-
-    match /leadership/{id} {
-      allow read: if isAuthenticated();
-      allow create, update: if isAdmin();
-      allow delete: if isAdmin();
-    }
-
-    match /leadership_tenures/{id} {
-      allow read: if isAuthenticated();
-      allow create, update, delete: if isAdmin();
-    }
-
-    match /{path=**} {
-      allow read, write: if false;
+    match /logs/{logId} {
+      allow read: if isSuperUser();
+      allow create: if isSignedIn();
     }
   }
 }

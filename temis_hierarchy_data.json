@@ -1,0 +1,2102 @@
+[
+  {
+    "institutionId": "NHlJvMrUGGAeI6Jd5pTg",
+    "institutionName": "Lagos State University College of Medicine",
+    "directorates": [
+      {
+        "directorateId": "0T3nmV6qb176DKhzHLj8",
+        "directorateName": "Public Relations (CIPPR)",
+        "units": [
+          {
+            "unitId": "6FMm44Bndi8VtGmIlFEo",
+            "unitName": "Social Media Management"
+          },
+          {
+            "unitId": "SwzaElu7WGXUfCtVDzRF",
+            "unitName": "Protocol & Events"
+          },
+          {
+            "unitId": "rI4FCr7z9OO7dwB6eoRS",
+            "unitName": "Media Relations Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "54mngdqTsTujo6WAeucJ",
+        "directorateName": "Development",
+        "units": [
+          {
+            "unitId": "PNn0SgVARhPECBVIRl72",
+            "unitName": "Endowment & Grants Unit"
+          },
+          {
+            "unitId": "QS1bSXy6z0ByIzYxUe7U",
+            "unitName": "Resource Mobilization Unit"
+          },
+          {
+            "unitId": "QqXm8iFFbstAlDubzC0w",
+            "unitName": "Alumni Relations Unit"
+          },
+          {
+            "unitId": "QuanDHZgQhiBWCDWgPV5",
+            "unitName": "Graduate Support Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "5pFHtadjHhqG5Ityha4s",
+        "directorateName": "Academic Planning",
+        "units": [
+          {
+            "unitId": "LlMAHD9c3LEuUH068XDP",
+            "unitName": "Academic Statistics & Records"
+          },
+          {
+            "unitId": "Sa5MZTJLWoYWbWxifn8M",
+            "unitName": "Curriculum Development Unit"
+          },
+          {
+            "unitId": "guuQ1eQlTdyRoEkvZCFe",
+            "unitName": "Quality Assurance Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "Aek5vSzpE0yNYmVKNOfP",
+        "directorateName": "Treasury & Business Accounting",
+        "units": [
+          {
+            "unitId": "DK9auaIQlIDOO4UwIlY3",
+            "unitName": "Cash Office"
+          },
+          {
+            "unitId": "GuMrW5F1lrWX2vzbvtLS",
+            "unitName": "Expenditure & Payment Unit"
+          },
+          {
+            "unitId": "KdHuo4tA0vyRbZPNMJ6C",
+            "unitName": "Business Ventures Accounting"
+          },
+          {
+            "unitId": "iuBut9bvR0TZV5RtHoy2",
+            "unitName": "Bank Reconciliation Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "L31iukpFbdmeIHdYOTaT",
+        "directorateName": "Bursar's Office",
+        "units": [
+          {
+            "unitId": "3nEgmWrmDjXL0dKid2gn",
+            "unitName": "General Administration"
+          },
+          {
+            "unitId": "KfZUy7ehyDAA5eIG6R7i",
+            "unitName": "Chief Personal Secretary's Office"
+          },
+          {
+            "unitId": "n2xM05Wq5V91zt0ICkpE",
+            "unitName": "Secretariat"
+          }
+        ]
+      },
+      {
+        "directorateId": "Lz5WHlLEJViT7B29L018",
+        "directorateName": "Vice-Chancellor's Main Office",
+        "units": [
+          {
+            "unitId": "CJ8FhKoYI8Hhv7rNCmtP",
+            "unitName": "Secretariat"
+          },
+          {
+            "unitId": "LIpNX337n6o3OfQhwFJa",
+            "unitName": "Special Duties & Intervention"
+          },
+          {
+            "unitId": "x42AJgxtTHlaL5JYc3B8",
+            "unitName": "Personal Secretary's Office"
+          }
+        ]
+      },
+      {
+        "directorateId": "OszUaspUqPQ0cC9NEiTo",
+        "directorateName": "Payroll & Staff Matters",
+        "units": [
+          {
+            "unitId": "8mbOBOSj9Cx7jnMQ2eIg",
+            "unitName": "Loans & Advances Unit"
+          },
+          {
+            "unitId": "GA3uSmtWN5TCYDXxtbDp",
+            "unitName": "Salary & Wages Unit"
+          },
+          {
+            "unitId": "pAmEu6GS0OrLkEe4HFD4",
+            "unitName": "Pension & Gratuity Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "TVit93TcNmChE6fcG9fA",
+        "directorateName": "Research Management & Innovation",
+        "units": [
+          {
+            "unitId": "OKlPIuJq09fWI0lCAvdz",
+            "unitName": "Innovation & Intellectual Property"
+          },
+          {
+            "unitId": "T67RaMBewYvTi9bD6dat",
+            "unitName": "Grants & Research Support"
+          },
+          {
+            "unitId": "TylHjz8gq9y3Ii2z3eEb",
+            "unitName": "Research Ethics & Compliance"
+          }
+        ]
+      },
+      {
+        "directorateId": "UCQpMbk5kun5zKHVzmuv",
+        "directorateName": "Council Matters Division",
+        "units": [
+          {
+            "unitId": "QDVuE0LiTNfaaLKYYg9b",
+            "unitName": "Appointments & Promotions Committee Unit (Council level)"
+          },
+          {
+            "unitId": "Yk3ysyxzlCVK6OZK0csA",
+            "unitName": "Council Secretariat"
+          },
+          {
+            "unitId": "z8qO7vFWMPUmX2zQ26CP",
+            "unitName": "Finance & General Purposes Committee (F&GPC) Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "Zsm7v98TwfUXScDJCEwJ",
+        "directorateName": "Registrar's Office",
+        "units": [
+          {
+            "unitId": "QXDF0HSMUj7kbnoQvwz1",
+            "unitName": "Centre for Information and Public Relations (CIPPR)"
+          },
+          {
+            "unitId": "zbNdWdKeeEpTsC9x0YAn",
+            "unitName": "Legal Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "Zwn4DM9OgHIPRTBdJs3a",
+        "directorateName": "University Multimedia Centre",
+        "units": [
+          {
+            "unitId": "2coXUQoeKZtg3C8Te4bo",
+            "unitName": "Graphics & Branding"
+          },
+          {
+            "unitId": "KZJvwu1MSW8yiBYHPShW",
+            "unitName": "Photography & Digital Media"
+          },
+          {
+            "unitId": "PjU2zAH0jVsptBLokpx1",
+            "unitName": "Audio-Visual Production"
+          }
+        ]
+      },
+      {
+        "directorateId": "bUzbpzLBUsVW7BADODqc",
+        "directorateName": "Risk, Insurance & Investment",
+        "units": [
+          {
+            "unitId": "8XAdBLPGOMyK7lQFc2VR",
+            "unitName": "Student Accounts (Fees & Records)"
+          },
+          {
+            "unitId": "FkRRysDoUgDvmoLp2bWZ",
+            "unitName": "Investment Management Unit"
+          },
+          {
+            "unitId": "QARUkxUdsZtNp1IQlSqN",
+            "unitName": "Insurance Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "bYtk3afeeQLTZXHZ8Snb",
+        "directorateName": "Security Unit",
+        "units": [
+          {
+            "unitId": "E4AzWMQzp0xdAMXGnqXf",
+            "unitName": "Traffic & Parking Management"
+          },
+          {
+            "unitId": "IDBh93EXg9Aeoto0BZNK",
+            "unitName": "Main Campus Operations"
+          },
+          {
+            "unitId": "lKJrOM6JP6T1rFwptAou",
+            "unitName": "Surveillance & Intelligence"
+          }
+        ]
+      },
+      {
+        "directorateId": "fFnCLMXwz56OulItD2uv",
+        "directorateName": "Non-Academic Staff Establishments Division",
+        "units": [
+          {
+            "unitId": "Kc7m5nZ8tqOy9GAIHJVr",
+            "unitName": "Junior Staff Unit"
+          },
+          {
+            "unitId": "ooOnFGzLJ6ak1kwGw965",
+            "unitName": "Records & Statistics Unit"
+          },
+          {
+            "unitId": "q8npFdDfbo70tejBBuyx",
+            "unitName": "Senior Non-Teaching Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "forYyJWmg4JKYxNidQzW",
+        "directorateName": "Directorate of Special Interventions",
+        "units": [
+          {
+            "unitId": "2khdruoavl5FRJs2xMVe",
+            "unitName": "TETFund Projects Coordination"
+          },
+          {
+            "unitId": "stQJyU3Jk85b0e3unvat",
+            "unitName": "Specialized Grant Management"
+          }
+        ]
+      },
+      {
+        "directorateId": "iEOX6fSwIpu97DzKk9zH",
+        "directorateName": "Exams & Records Division",
+        "units": [
+          {
+            "unitId": "PREeHiscgGcFHMQRmqgB",
+            "unitName": "Transcript & Records Unit"
+          },
+          {
+            "unitId": "mWN4TMfdG3igLTxBi1VO",
+            "unitName": "Examinations Unit"
+          },
+          {
+            "unitId": "wroN1YdgLLRa4VCgOO3d",
+            "unitName": "Certificate Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "kQl5sqiCNBIYworEpfn5",
+        "directorateName": "Information & Communication Technology (DICT)",
+        "units": [
+          {
+            "unitId": "4s9bkl8IydFjM03lj3cp",
+            "unitName": "Network & Hardware Infrastructure"
+          },
+          {
+            "unitId": "FgyhMPeOZ1VRiVH3Nxqr",
+            "unitName": "ID Card & Data Management"
+          },
+          {
+            "unitId": "Gks1KJG4eZ5BIZhZGyRf",
+            "unitName": "Web Services & Application Development"
+          },
+          {
+            "unitId": "ZOetUibwpl8DGbbtWMn3",
+            "unitName": "Training & User Support"
+          }
+        ]
+      },
+      {
+        "directorateId": "kT0ZEKTjZEiN8OKhZOK2",
+        "directorateName": "Academic Staff Establishments Division",
+        "units": [
+          {
+            "unitId": "ELIlwfVrgfyndP42nruw",
+            "unitName": "Appointments Unit"
+          },
+          {
+            "unitId": "F1K2btrGI8mhTcnptUG5",
+            "unitName": "Leaves & Passages Unit"
+          },
+          {
+            "unitId": "VOjiw4JB7sMtGhFcvgDs",
+            "unitName": "Promotions & Appraisals Unit"
+          },
+          {
+            "unitId": "Wog48AinUINEn4x5Kgdw",
+            "unitName": "Discipline & Ethics Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "lURoxEQMmYW14rh4oGuE",
+        "directorateName": "Staff Welfare, Training & Passages",
+        "units": [
+          {
+            "unitId": "0dGbLwWl80LFhlR4x9hH",
+            "unitName": "Passages Unit"
+          },
+          {
+            "unitId": "Tr7KARUjQlkluJWYH9PG",
+            "unitName": "Welfare Unit"
+          },
+          {
+            "unitId": "Yx2mb90NTJpXEF9YBdvO",
+            "unitName": "Training & Development Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "lg9FCuWxStwuvFxRuo6C",
+        "directorateName": "Senate Matters Division",
+        "units": [
+          {
+            "unitId": "KajQhEqwsQ9MGyqzMlAj",
+            "unitName": "Business Committee of Senate (BCOS)"
+          },
+          {
+            "unitId": "WtryKxPGS1HuR80S30Nk",
+            "unitName": "Ceremonials Committee Unit"
+          },
+          {
+            "unitId": "w9jdr9s9c0tTrIUaIaQ4",
+            "unitName": "Senate Secretariat"
+          }
+        ]
+      },
+      {
+        "directorateId": "oHFMNdmUm3TvAGRnWKMr",
+        "directorateName": "Budget & Expenditure Control",
+        "units": [
+          {
+            "unitId": "F5aXtGrVG72u2aK0qd1M",
+            "unitName": "Commitment & Costing Unit"
+          },
+          {
+            "unitId": "dQBQR7dqll7VUTNX726p",
+            "unitName": "Budgetary Control Unit"
+          },
+          {
+            "unitId": "t4nNQcF9Nar37x2q0pho",
+            "unitName": "LSG (Lagos State Government) Matters Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "pUh55dkXfvTluxfzlzP7",
+        "directorateName": "Final Accounts",
+        "units": [
+          {
+            "unitId": "9xuUMIIV9MFg4EXCGrcN",
+            "unitName": "Fixed Assets & Inventory Unit"
+          },
+          {
+            "unitId": "o2bujoW6d93K1Usg4iaK",
+            "unitName": "Grants & Research Accounting"
+          },
+          {
+            "unitId": "xSf2JjEw3mx9Um0RLbFt",
+            "unitName": "Financial Reporting Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "rAtrWW01StLaNiQAcf6L",
+        "directorateName": "Pensions",
+        "units": [
+          {
+            "unitId": "w9ehaHZNRFSPRRUS2IdN",
+            "unitName": "Pensions Unit"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "institutionId": "THVMs2YaG7xV3AILO4Pl",
+    "institutionName": "Lagos State College of Health Technology",
+    "directorates": [
+      {
+        "directorateId": "0hXXHDLE6W4ZdCDhsz5Y",
+        "directorateName": "Development",
+        "units": [
+          {
+            "unitId": "0OJbkBbwiY7T9Khi9LVl",
+            "unitName": "Endowment & Grants Unit"
+          },
+          {
+            "unitId": "ZsbPfcc6x9GL3NLNdurX",
+            "unitName": "Resource Mobilization Unit"
+          },
+          {
+            "unitId": "dppwa6I6CPA3ZG8Ol1bD",
+            "unitName": "Alumni Relations Unit"
+          },
+          {
+            "unitId": "vZs8WH081ve8ZhP92bjr",
+            "unitName": "Graduate Support Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "1cCB5FsfDqFfqhGVTcJ1",
+        "directorateName": "Payroll & Staff Matters",
+        "units": [
+          {
+            "unitId": "BSbuQncM72NkFiS5J9oM",
+            "unitName": "Salary & Wages Unit"
+          },
+          {
+            "unitId": "I9hI9uoKPefg6HprjYaK",
+            "unitName": "Loans & Advances Unit"
+          },
+          {
+            "unitId": "Kr5LmLGfB9TWEcyut30A",
+            "unitName": "Pension & Gratuity Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "1mlxNr17HPlU0lIV6K2U",
+        "directorateName": "Directorate of Special Interventions",
+        "units": [
+          {
+            "unitId": "5oer8NmydAAh3PdWSyso",
+            "unitName": "TETFund Projects Coordination"
+          },
+          {
+            "unitId": "DXY8X0HYHle3ddaGsDA6",
+            "unitName": "Specialized Grant Management"
+          }
+        ]
+      },
+      {
+        "directorateId": "5gFh3zx9mtmdIp5yMEjX",
+        "directorateName": "University Multimedia Centre",
+        "units": [
+          {
+            "unitId": "XPnZZVUQqCB7czxplAhv",
+            "unitName": "Audio-Visual Production"
+          },
+          {
+            "unitId": "XsiOnAc8c5EtRgOKwEzt",
+            "unitName": "Graphics & Branding"
+          },
+          {
+            "unitId": "wG2dSYgAITllrhTPjybL",
+            "unitName": "Photography & Digital Media"
+          }
+        ]
+      },
+      {
+        "directorateId": "8P2j2ydw6XzhPxIyvr1G",
+        "directorateName": "Council Matters Division",
+        "units": [
+          {
+            "unitId": "eI386NTfPFai3wRkwYxF",
+            "unitName": "Council Secretariat"
+          },
+          {
+            "unitId": "hjLYpc8gZkDqfdzz8mTo",
+            "unitName": "Finance & General Purposes Committee (F&GPC) Unit"
+          },
+          {
+            "unitId": "vfTldJZCQ4fhxm0FWubd",
+            "unitName": "Appointments & Promotions Committee Unit (Council level)"
+          }
+        ]
+      },
+      {
+        "directorateId": "AxQ2sEmyHfVrtERCMyu6",
+        "directorateName": "Budget & Expenditure Control",
+        "units": [
+          {
+            "unitId": "6xOegY3xJhGlKstV2mEd",
+            "unitName": "LSG (Lagos State Government) Matters Unit"
+          },
+          {
+            "unitId": "GauxlaIVUr8qyn7F0jiC",
+            "unitName": "Commitment & Costing Unit"
+          },
+          {
+            "unitId": "VmtwVvdwBidBZ3uuaQFN",
+            "unitName": "Budgetary Control Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "BCKqTPTxqRTKUezWOTke",
+        "directorateName": "Academic Planning",
+        "units": [
+          {
+            "unitId": "BI6cROsu5dbIx2oIlmuI",
+            "unitName": "Quality Assurance Unit"
+          },
+          {
+            "unitId": "OfKhOpC4Gsym1J8klZwJ",
+            "unitName": "Curriculum Development Unit"
+          },
+          {
+            "unitId": "g9vknrUOxleWK3NiMdpS",
+            "unitName": "Academic Statistics & Records"
+          }
+        ]
+      },
+      {
+        "directorateId": "BHfk7xKjMOWUvhXVfP7s",
+        "directorateName": "Final Accounts",
+        "units": [
+          {
+            "unitId": "H7bDhXqOkGNuQ0QCepKx",
+            "unitName": "Grants & Research Accounting"
+          },
+          {
+            "unitId": "JmSQsjrWb8bOuEw8YzhT",
+            "unitName": "Financial Reporting Unit"
+          },
+          {
+            "unitId": "ktQf9VvvSz20SqpfEc4Y",
+            "unitName": "Fixed Assets & Inventory Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "CAEF9tLc4Ensp8CB2cPQ",
+        "directorateName": "Risk, Insurance & Investment",
+        "units": [
+          {
+            "unitId": "2WFFb51aDn3B8JnAP7a7",
+            "unitName": "Student Accounts (Fees & Records)"
+          },
+          {
+            "unitId": "GBm9YgvoB9d325sHlnGo",
+            "unitName": "Investment Management Unit"
+          },
+          {
+            "unitId": "aSGJTajdfc3gfqG7PiZ4",
+            "unitName": "Insurance Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "ESNGRIwBVOX3g8qtZ1ev",
+        "directorateName": "Treasury & Business Accounting",
+        "units": [
+          {
+            "unitId": "4xCltbKxnwIhGblRuxWB",
+            "unitName": "Business Ventures Accounting"
+          },
+          {
+            "unitId": "LZDh7PMZZAUEIHk2c7uN",
+            "unitName": "Expenditure & Payment Unit"
+          },
+          {
+            "unitId": "SyIVNf2TXIPBkqeaxYrG",
+            "unitName": "Cash Office"
+          },
+          {
+            "unitId": "tZxIT8LRFT3jY6waSdao",
+            "unitName": "Bank Reconciliation Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "F92UrW7Pb96StXur1Uhn",
+        "directorateName": "Academic Staff Establishments Division",
+        "units": [
+          {
+            "unitId": "afvTFpNsqxRxdz00kf3F",
+            "unitName": "Leaves & Passages Unit"
+          },
+          {
+            "unitId": "feUIiNj0yq4B53SV2o0g",
+            "unitName": "Appointments Unit"
+          },
+          {
+            "unitId": "jzgra3EkseHUlBQB6n2O",
+            "unitName": "Promotions & Appraisals Unit"
+          },
+          {
+            "unitId": "vV6nV1hABVlYOIskJsX3",
+            "unitName": "Discipline & Ethics Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "FaTmFhcgmfbimruguXhv",
+        "directorateName": "Bursar's Office",
+        "units": [
+          {
+            "unitId": "4ex0ecDMSvJ0fr76gIgR",
+            "unitName": "Chief Personal Secretary's Office"
+          },
+          {
+            "unitId": "Nk8KZS4WaHYFxctAWOWA",
+            "unitName": "General Administration"
+          },
+          {
+            "unitId": "PrbpRiy32eOeNpH2f74z",
+            "unitName": "Secretariat"
+          }
+        ]
+      },
+      {
+        "directorateId": "Uos4ijQF0IZ6U1kjLdm4",
+        "directorateName": "Registrar's Office",
+        "units": [
+          {
+            "unitId": "PYK4FmOvY03lih7wLGXc",
+            "unitName": "Centre for Information and Public Relations (CIPPR)"
+          },
+          {
+            "unitId": "uv7SfpHIqZ8psRb2EFjt",
+            "unitName": "Legal Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "XzKKc8clzypR2qJzWRpX",
+        "directorateName": "Exams & Records Division",
+        "units": [
+          {
+            "unitId": "1pDhGrux3xSf0cGy8MUF",
+            "unitName": "Transcript & Records Unit"
+          },
+          {
+            "unitId": "OFKDKkFatmxzqDrAUxap",
+            "unitName": "Certificate Unit"
+          },
+          {
+            "unitId": "YX3tHBCS8ZJQTI1fXsh1",
+            "unitName": "Examinations Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "Yb1Dyl45Adq47tuV65lj",
+        "directorateName": "Security Unit",
+        "units": [
+          {
+            "unitId": "3tDgRbq5emRXedoUoBpa",
+            "unitName": "Main Campus Operations"
+          },
+          {
+            "unitId": "bvpyZdKL3ri1s7belmuk",
+            "unitName": "Surveillance & Intelligence"
+          },
+          {
+            "unitId": "fX5yFpJpbnt9c3UFRNIV",
+            "unitName": "Traffic & Parking Management"
+          }
+        ]
+      },
+      {
+        "directorateId": "a5dvI0icXTg5qbQOCzV6",
+        "directorateName": "Vice-Chancellor's Main Office",
+        "units": [
+          {
+            "unitId": "3gIRSBD5DuhLOuw2X4G3",
+            "unitName": "Personal Secretary's Office"
+          },
+          {
+            "unitId": "9W6OL8fScgXir94U9PFn",
+            "unitName": "Secretariat"
+          },
+          {
+            "unitId": "9p8rTadY6SEnvWOlubus",
+            "unitName": "Special Duties & Intervention"
+          }
+        ]
+      },
+      {
+        "directorateId": "if2cqtWgTMC3mM6LjJ8K",
+        "directorateName": "Information & Communication Technology (DICT)",
+        "units": [
+          {
+            "unitId": "3SvsPH3v8UngJxAbs4Hh",
+            "unitName": "ID Card & Data Management"
+          },
+          {
+            "unitId": "Ku8UOOML35QttENGy29Y",
+            "unitName": "Web Services & Application Development"
+          },
+          {
+            "unitId": "gXdEiWiHMPXeaqJa4Wgv",
+            "unitName": "Training & User Support"
+          },
+          {
+            "unitId": "yM75lA5ZbGH0jkLvjs1G",
+            "unitName": "Network & Hardware Infrastructure"
+          }
+        ]
+      },
+      {
+        "directorateId": "jZospLT8JCJenodo2VmP",
+        "directorateName": "Research Management & Innovation",
+        "units": [
+          {
+            "unitId": "Qkrcop6bAoPJCWTqpg2a",
+            "unitName": "Innovation & Intellectual Property"
+          },
+          {
+            "unitId": "Rz0oLtd8xNRbOivEdUvZ",
+            "unitName": "Grants & Research Support"
+          },
+          {
+            "unitId": "nFvWLHFWmsBVhDWsF3B1",
+            "unitName": "Research Ethics & Compliance"
+          }
+        ]
+      },
+      {
+        "directorateId": "ksY6CUQqWpHcbKH5cbGR",
+        "directorateName": "Non-Academic Staff Establishments Division",
+        "units": [
+          {
+            "unitId": "1pGopKRn6hnfQnqK3Wvy",
+            "unitName": "Junior Staff Unit"
+          },
+          {
+            "unitId": "87fLR0mtPsZegWR2Sg6w",
+            "unitName": "Records & Statistics Unit"
+          },
+          {
+            "unitId": "96ySiKK88slppcAl39Tr",
+            "unitName": "Senior Non-Teaching Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "kzRMvPDVvjG8PNFCV8Rx",
+        "directorateName": "Public Relations (CIPPR)",
+        "units": [
+          {
+            "unitId": "axKYxI6R4NSHzawh75e9",
+            "unitName": "Protocol & Events"
+          },
+          {
+            "unitId": "m2Axhm5Pn4PsDsWfmr90",
+            "unitName": "Social Media Management"
+          },
+          {
+            "unitId": "wi1EWTuag36TGZiJ61fI",
+            "unitName": "Media Relations Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "ndoq8s3d26JQIGpJI45N",
+        "directorateName": "Senate Matters Division",
+        "units": [
+          {
+            "unitId": "SQacjZllofxRKmcECpqA",
+            "unitName": "Senate Secretariat"
+          },
+          {
+            "unitId": "XpsojkiQgVCAvxwczO4D",
+            "unitName": "Ceremonials Committee Unit"
+          },
+          {
+            "unitId": "wA8eRYBvrpUZDXl84Iki",
+            "unitName": "Business Committee of Senate (BCOS)"
+          }
+        ]
+      },
+      {
+        "directorateId": "oVDu2mzJj3AJk9ESmhds",
+        "directorateName": "Staff Welfare, Training & Passages",
+        "units": [
+          {
+            "unitId": "CSUR3HQzk5mBRgcKXxJi",
+            "unitName": "Welfare Unit"
+          },
+          {
+            "unitId": "LWKCn5q9aoUCgseMYTSG",
+            "unitName": "Training & Development Unit"
+          },
+          {
+            "unitId": "l3c1TwGARCr8jahQM2La",
+            "unitName": "Passages Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "rg2i1ox1nou4G15wPsz8",
+        "directorateName": "Pensions",
+        "units": [
+          {
+            "unitId": "jdcu9RcS6ehJC1WJbq9R",
+            "unitName": "Pensions Unit"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "institutionId": "mBk6Dx5V03yQrnicjBuk",
+    "institutionName": "Lagos State University of Science and Technology",
+    "directorates": [
+      {
+        "directorateId": "0JJ4C2fFmq3REfUTbcfZ",
+        "directorateName": "Final Accounts",
+        "units": [
+          {
+            "unitId": "4jVRWEBTQIcmWINrveQ6",
+            "unitName": "Fixed Assets & Inventory Unit"
+          },
+          {
+            "unitId": "8SNTw5sezw25M9zlyLBM",
+            "unitName": "Grants & Research Accounting"
+          },
+          {
+            "unitId": "ganfJsIa8FdDlx69Y6dm",
+            "unitName": "Financial Reporting Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "1MKNkwmXepREYmajLK0O",
+        "directorateName": "Directorate of Special Interventions",
+        "units": [
+          {
+            "unitId": "0Dxlq7zgnxiwtpIhPLEh",
+            "unitName": "Specialized Grant Management"
+          },
+          {
+            "unitId": "U6OZMXCZ6WtvLcmI5NgJ",
+            "unitName": "TETFund Projects Coordination"
+          }
+        ]
+      },
+      {
+        "directorateId": "2HDYeC9lRZLoe1n7I6s4",
+        "directorateName": "Pensions",
+        "units": [
+          {
+            "unitId": "eXZk7Z3MyXENb2kEImzz",
+            "unitName": "Pensions Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "4yGeaPuMIKYtsZtxgFTJ",
+        "directorateName": "Non-Academic Staff Establishments Division",
+        "units": [
+          {
+            "unitId": "6iYHCIfM86piQsIEp0ZM",
+            "unitName": "Records & Statistics Unit"
+          },
+          {
+            "unitId": "Qm05faLeuowzCnxJ5Bqg",
+            "unitName": "Junior Staff Unit"
+          },
+          {
+            "unitId": "dpHlxHAPvUxBCv1enwnE",
+            "unitName": "Senior Non-Teaching Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "62vVf2zKzYRzQInwa4xW",
+        "directorateName": "Senate Matters Division",
+        "units": [
+          {
+            "unitId": "2ZkCDXWGg45GRcREkK9y",
+            "unitName": "Senate Secretariat"
+          },
+          {
+            "unitId": "7pg8EbbCYW7UoTo6BfZx",
+            "unitName": "Ceremonials Committee Unit"
+          },
+          {
+            "unitId": "iaHfABLGY7X053spi6zD",
+            "unitName": "Business Committee of Senate (BCOS)"
+          }
+        ]
+      },
+      {
+        "directorateId": "7cb30dAsDiV5gI7F7mCa",
+        "directorateName": "Treasury & Business Accounting",
+        "units": [
+          {
+            "unitId": "Pn6coVN2vyI60C3mXVI3",
+            "unitName": "Business Ventures Accounting"
+          },
+          {
+            "unitId": "mD2koSDBUl70NSoozuPN",
+            "unitName": "Expenditure & Payment Unit"
+          },
+          {
+            "unitId": "pr6aoNaNn2foKIBfQ8Mn",
+            "unitName": "Cash Office"
+          },
+          {
+            "unitId": "wbUt1d3NezWZ3grZWyYx",
+            "unitName": "Bank Reconciliation Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "82DY8KOYCg5zQL0U3dZK",
+        "directorateName": "Staff Welfare, Training & Passages",
+        "units": [
+          {
+            "unitId": "2A3vF5ZXx4ahgsbJKn4E",
+            "unitName": "Passages Unit"
+          },
+          {
+            "unitId": "8tqksa9hCrtGMuDESOSO",
+            "unitName": "Training & Development Unit"
+          },
+          {
+            "unitId": "dggjzFWB3pOblUx4wJcJ",
+            "unitName": "Welfare Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "E2IjA1V12MwyD4d1pEs5",
+        "directorateName": "Bursar's Office",
+        "units": [
+          {
+            "unitId": "CUULIJcBLKkpIKRdy3e4",
+            "unitName": "Chief Personal Secretary's Office"
+          },
+          {
+            "unitId": "LdySFzL28ITNyjkeqaIv",
+            "unitName": "General Administration"
+          },
+          {
+            "unitId": "gaSx2IvoeAEuQvKvFzkW",
+            "unitName": "Secretariat"
+          }
+        ]
+      },
+      {
+        "directorateId": "J1ipAUhScbhUV7f4EZwP",
+        "directorateName": "Security Unit",
+        "units": [
+          {
+            "unitId": "CuYPNaIeLbRKpaFs5WXf",
+            "unitName": "Traffic & Parking Management"
+          },
+          {
+            "unitId": "TLSSWuDfm4aihHJUGjlk",
+            "unitName": "Main Campus Operations"
+          },
+          {
+            "unitId": "kXsFZnJRfZI77vXEZDB8",
+            "unitName": "Surveillance & Intelligence"
+          }
+        ]
+      },
+      {
+        "directorateId": "LmxbhBlGXBtl7bJPvY2C",
+        "directorateName": "University Multimedia Centre",
+        "units": [
+          {
+            "unitId": "NkpDiiDSD4mQgb1GwTDn",
+            "unitName": "Audio-Visual Production"
+          },
+          {
+            "unitId": "ftuok8ifgKLreku9B3HJ",
+            "unitName": "Photography & Digital Media"
+          },
+          {
+            "unitId": "ifdbrTId6e0f9tTEy5Mo",
+            "unitName": "Graphics & Branding"
+          }
+        ]
+      },
+      {
+        "directorateId": "PDepiokH4v8rq6OzY4t2",
+        "directorateName": "Registrar's Office",
+        "units": [
+          {
+            "unitId": "2cFFpNifL9h3wcpzfUJo",
+            "unitName": "Centre for Information and Public Relations (CIPPR)"
+          },
+          {
+            "unitId": "3HMHq1Y4Vgpy7ohjHEo3",
+            "unitName": "Legal Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "Uv4m1DvGk2KCt8OSK4YK",
+        "directorateName": "Information & Communication Technology (DICT)",
+        "units": [
+          {
+            "unitId": "DnOZsgxB2n93oiF3CqDH",
+            "unitName": "Training & User Support"
+          },
+          {
+            "unitId": "jLVdccfZ90VlJDiOEHXc",
+            "unitName": "Network & Hardware Infrastructure"
+          },
+          {
+            "unitId": "oNhcBM75FZwhhyhdTC1l",
+            "unitName": "ID Card & Data Management"
+          },
+          {
+            "unitId": "ytEijTraRWZdecHMyqOt",
+            "unitName": "Web Services & Application Development"
+          }
+        ]
+      },
+      {
+        "directorateId": "XpVP0zempyAot8kMvfxt",
+        "directorateName": "Public Relations (CIPPR)",
+        "units": [
+          {
+            "unitId": "hmTToT91QeeZkHZAcDQf",
+            "unitName": "Protocol & Events"
+          },
+          {
+            "unitId": "r28Wenwd4XcIe2RW1aTY",
+            "unitName": "Media Relations Unit"
+          },
+          {
+            "unitId": "xu5KzPB2KWz0bRw5OeVI",
+            "unitName": "Social Media Management"
+          }
+        ]
+      },
+      {
+        "directorateId": "bBCH0Xf6bh1EWCPNu0ZH",
+        "directorateName": "Council Matters Division",
+        "units": [
+          {
+            "unitId": "qFhWuPX842rZEJKfTNDW",
+            "unitName": "Finance & General Purposes Committee (F&GPC) Unit"
+          },
+          {
+            "unitId": "v0lrV58yuOj1eyXoDk2p",
+            "unitName": "Appointments & Promotions Committee Unit (Council level)"
+          },
+          {
+            "unitId": "xWVYKng1t8ZouznxKWtA",
+            "unitName": "Council Secretariat"
+          }
+        ]
+      },
+      {
+        "directorateId": "dz4Ombg2ImxeZ4KTTrv1",
+        "directorateName": "Risk, Insurance & Investment",
+        "units": [
+          {
+            "unitId": "LEiFyhfeFCV2o2g7OKqN",
+            "unitName": "Insurance Unit"
+          },
+          {
+            "unitId": "N4rdc1Zi2yncfuttxdYD",
+            "unitName": "Investment Management Unit"
+          },
+          {
+            "unitId": "omVSX93iMrspl6Ssc0sc",
+            "unitName": "Student Accounts (Fees & Records)"
+          }
+        ]
+      },
+      {
+        "directorateId": "fSirimY1eCH6kzTRmlS5",
+        "directorateName": "Budget & Expenditure Control",
+        "units": [
+          {
+            "unitId": "14ePAZvhv859viKBAQZ0",
+            "unitName": "Budgetary Control Unit"
+          },
+          {
+            "unitId": "kYmkuXEzMtSrGLkNNt4L",
+            "unitName": "Commitment & Costing Unit"
+          },
+          {
+            "unitId": "qD1Y5n3BqcRYDbgnmgng",
+            "unitName": "LSG (Lagos State Government) Matters Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "hJqtxCk0Pf5zUU3oA3FA",
+        "directorateName": "Vice-Chancellor's Main Office",
+        "units": [
+          {
+            "unitId": "90mf3T5V3UjbfUeWMhjY",
+            "unitName": "Special Duties & Intervention"
+          },
+          {
+            "unitId": "J2RNxfX15aJeOll2n2oO",
+            "unitName": "Personal Secretary's Office"
+          },
+          {
+            "unitId": "PicouAUV3q7C0YQgQwe0",
+            "unitName": "Secretariat"
+          }
+        ]
+      },
+      {
+        "directorateId": "hM7u5hzNubVSqPkmUdxv",
+        "directorateName": "Exams & Records Division",
+        "units": [
+          {
+            "unitId": "N3yarhtvbjCMqWQScsRU",
+            "unitName": "Examinations Unit"
+          },
+          {
+            "unitId": "ZafrGPZwSi6sLCB6laN0",
+            "unitName": "Transcript & Records Unit"
+          },
+          {
+            "unitId": "w8uFS5JGVvvvHdt1Y1MN",
+            "unitName": "Certificate Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "iQXU46dMpqJ1nCwwjpVN",
+        "directorateName": "Development",
+        "units": [
+          {
+            "unitId": "WRKHdCPuWX8XUiqgzFMW",
+            "unitName": "Resource Mobilization Unit"
+          },
+          {
+            "unitId": "arT9PaqLdKX9FcDypHBw",
+            "unitName": "Graduate Support Unit"
+          },
+          {
+            "unitId": "dBMvy4dMZtQkGGyvA7eC",
+            "unitName": "Alumni Relations Unit"
+          },
+          {
+            "unitId": "j8NuoHxrrvXfvAW3Dzmv",
+            "unitName": "Endowment & Grants Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "mbMjQghejrK7l5zSEEPK",
+        "directorateName": "Academic Staff Establishments Division",
+        "units": [
+          {
+            "unitId": "KGXka3ctmi8OiHW0h1Ev",
+            "unitName": "Appointments Unit"
+          },
+          {
+            "unitId": "MTjtmWy1FjamI9mamdmO",
+            "unitName": "Discipline & Ethics Unit"
+          },
+          {
+            "unitId": "iaZo1cgNeNXiBAPxnL9n",
+            "unitName": "Leaves & Passages Unit"
+          },
+          {
+            "unitId": "tOvpWi3tWkpJbOSJQWJT",
+            "unitName": "Promotions & Appraisals Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "pcwL16vtXXnBu1e7o3hP",
+        "directorateName": "Academic Planning",
+        "units": [
+          {
+            "unitId": "13N6NTqm8JnI1CyxPE8c",
+            "unitName": "Quality Assurance Unit"
+          },
+          {
+            "unitId": "WjQiMgmRideqLN3QapF3",
+            "unitName": "Curriculum Development Unit"
+          },
+          {
+            "unitId": "Ww4IyNBoB75JzC0kJVJG",
+            "unitName": "Academic Statistics & Records"
+          }
+        ]
+      },
+      {
+        "directorateId": "sBegd1f1RfyDgeAwj6Qw",
+        "directorateName": "Research Management & Innovation",
+        "units": [
+          {
+            "unitId": "i5RHdbdFmPEsDQbkcaIr",
+            "unitName": "Grants & Research Support"
+          },
+          {
+            "unitId": "j8InCtDWN5GhICTHzDaO",
+            "unitName": "Innovation & Intellectual Property"
+          },
+          {
+            "unitId": "txYwF6LxOEnksEkGplYh",
+            "unitName": "Research Ethics & Compliance"
+          }
+        ]
+      },
+      {
+        "directorateId": "tHCV9WP6zh0OKZrZfxdC",
+        "directorateName": "Payroll & Staff Matters",
+        "units": [
+          {
+            "unitId": "42Jt9brFiMN35cVYXbBq",
+            "unitName": "Pension & Gratuity Unit"
+          },
+          {
+            "unitId": "9xzgDv3M9O32Cx6LLJhN",
+            "unitName": "Salary & Wages Unit"
+          },
+          {
+            "unitId": "aIt0uSxhsUQzDCBdzAaj",
+            "unitName": "Loans & Advances Unit"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "institutionId": "tACt0ODnc5T1edIZt17L",
+    "institutionName": "Lagos State College of Nursing",
+    "directorates": [
+      {
+        "directorateId": "1jmi4NPCrefVJTePcJs2",
+        "directorateName": "Non-Academic Staff Establishments Division",
+        "units": [
+          {
+            "unitId": "INuDOHN1vEmdPKJ0FHtZ",
+            "unitName": "Senior Non-Teaching Unit"
+          },
+          {
+            "unitId": "TD5ZotPkG3UJK3FI8pzP",
+            "unitName": "Records & Statistics Unit"
+          },
+          {
+            "unitId": "aJga8NH97d8wwgXCZwac",
+            "unitName": "Junior Staff Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "4Oeaqg9uDDm2No1Msz69",
+        "directorateName": "Senate Matters Division",
+        "units": [
+          {
+            "unitId": "23GdfaeSyXgd69kwocax",
+            "unitName": "Ceremonials Committee Unit"
+          },
+          {
+            "unitId": "rSw85fXyKk3lFOf5TvxP",
+            "unitName": "Senate Secretariat"
+          },
+          {
+            "unitId": "xDCmzXlHWY0Z2xMvvJIv",
+            "unitName": "Business Committee of Senate (BCOS)"
+          }
+        ]
+      },
+      {
+        "directorateId": "55FCG8l2nPvxD1JqGwds",
+        "directorateName": "Budget & Expenditure Control",
+        "units": [
+          {
+            "unitId": "8y4AzULhfKMvDCkCitUT",
+            "unitName": "LSG (Lagos State Government) Matters Unit"
+          },
+          {
+            "unitId": "iOOfX1lCaDONhSaQ8WWB",
+            "unitName": "Commitment & Costing Unit"
+          },
+          {
+            "unitId": "sBjVzkIHvDvux0vI3FBf",
+            "unitName": "Budgetary Control Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "74kphPeyCvF3pzLtL38j",
+        "directorateName": "Final Accounts",
+        "units": [
+          {
+            "unitId": "65eOeOC24iWvMTxOTgPh",
+            "unitName": "Financial Reporting Unit"
+          },
+          {
+            "unitId": "8wBG811rf3uOWnUwmN0S",
+            "unitName": "Grants & Research Accounting"
+          },
+          {
+            "unitId": "9FanJz4riUaBu4oq5sOL",
+            "unitName": "Fixed Assets & Inventory Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "9GtCrZJcP8hEXnvLgHrO",
+        "directorateName": "Directorate of Special Interventions",
+        "units": [
+          {
+            "unitId": "5cPtgkWlczIUltDPsMEO",
+            "unitName": "Specialized Grant Management"
+          },
+          {
+            "unitId": "JwI6sASDPb793j0ePNEg",
+            "unitName": "TETFund Projects Coordination"
+          }
+        ]
+      },
+      {
+        "directorateId": "AAzrrUUXyZRq28kKdK79",
+        "directorateName": "Information & Communication Technology (DICT)",
+        "units": [
+          {
+            "unitId": "Csr7Bes1xxp1CHcEAKAQ",
+            "unitName": "Training & User Support"
+          },
+          {
+            "unitId": "S5qfhg0JmksAgJvfltXS",
+            "unitName": "Network & Hardware Infrastructure"
+          },
+          {
+            "unitId": "eNHMr4MINnkpNbbf3lOz",
+            "unitName": "ID Card & Data Management"
+          },
+          {
+            "unitId": "tmY9hI2wFrlruaODoWZZ",
+            "unitName": "Web Services & Application Development"
+          }
+        ]
+      },
+      {
+        "directorateId": "E7aydbHLGrvHgTLvIHvm",
+        "directorateName": "Pensions",
+        "units": [
+          {
+            "unitId": "CWG2dv8TVb3wGCFUhCe3",
+            "unitName": "Pensions Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "F52Ur0AsdxsvZLLeLKb5",
+        "directorateName": "Risk, Insurance & Investment",
+        "units": [
+          {
+            "unitId": "WmM8g8olw5y3sxZGhVpD",
+            "unitName": "Investment Management Unit"
+          },
+          {
+            "unitId": "lxkqKH715dOcPCqOQmCu",
+            "unitName": "Insurance Unit"
+          },
+          {
+            "unitId": "nXpUm1OBz1ITBVoVzcWY",
+            "unitName": "Student Accounts (Fees & Records)"
+          }
+        ]
+      },
+      {
+        "directorateId": "Fxxs3ZUgI0Xdt35bXHry",
+        "directorateName": "Public Relations (CIPPR)",
+        "units": [
+          {
+            "unitId": "7p9xY5G7pWqmcGF0OwLd",
+            "unitName": "Social Media Management"
+          },
+          {
+            "unitId": "LTMI1us5z4B8rW6ixdDa",
+            "unitName": "Media Relations Unit"
+          },
+          {
+            "unitId": "ptsnmtolMSAyYO8B3fPQ",
+            "unitName": "Protocol & Events"
+          }
+        ]
+      },
+      {
+        "directorateId": "HMEZkT2SX7US53dgBnXN",
+        "directorateName": "Bursar's Office",
+        "units": [
+          {
+            "unitId": "DcpQnqHaaA1PZfD1OLyu",
+            "unitName": "Chief Personal Secretary's Office"
+          },
+          {
+            "unitId": "HLUVoOiiu2O5AHbMYSgt",
+            "unitName": "General Administration"
+          },
+          {
+            "unitId": "TaPDniA1tJfs6y10Vfsb",
+            "unitName": "Secretariat"
+          }
+        ]
+      },
+      {
+        "directorateId": "IHExvexDmAvXWY08t4XJ",
+        "directorateName": "Exams & Records Division",
+        "units": [
+          {
+            "unitId": "EAlUBHcQaNDwqOItrHJu",
+            "unitName": "Transcript & Records Unit"
+          },
+          {
+            "unitId": "jH0knZ2WRrg0jgUGqjGj",
+            "unitName": "Certificate Unit"
+          },
+          {
+            "unitId": "mmcHCl4lYKarbNxJ0qNH",
+            "unitName": "Examinations Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "P5RyVTK9DHF853xtVuZq",
+        "directorateName": "Treasury & Business Accounting",
+        "units": [
+          {
+            "unitId": "FOtERCPHCoqe6soVl3XF",
+            "unitName": "Expenditure & Payment Unit"
+          },
+          {
+            "unitId": "khFOX61zULE29r3FQC0j",
+            "unitName": "Cash Office"
+          },
+          {
+            "unitId": "sEKj3kgERpeN2xgVro2t",
+            "unitName": "Bank Reconciliation Unit"
+          },
+          {
+            "unitId": "w3Osr3TndCe5qY1fGRwd",
+            "unitName": "Business Ventures Accounting"
+          }
+        ]
+      },
+      {
+        "directorateId": "Q6CBvOGLMW2n30FEQcs0",
+        "directorateName": "Research Management & Innovation",
+        "units": [
+          {
+            "unitId": "TcrgG0h8BUJOr2vhax5M",
+            "unitName": "Innovation & Intellectual Property"
+          },
+          {
+            "unitId": "xEVn4AOSQ3zHM9b1vNek",
+            "unitName": "Research Ethics & Compliance"
+          },
+          {
+            "unitId": "zvEJMJF7lK5R2QthGpgj",
+            "unitName": "Grants & Research Support"
+          }
+        ]
+      },
+      {
+        "directorateId": "QNahRVKM4sLXrMFdCFLz",
+        "directorateName": "Academic Staff Establishments Division",
+        "units": [
+          {
+            "unitId": "G4LDhQHsl9iV5TNMuLya",
+            "unitName": "Promotions & Appraisals Unit"
+          },
+          {
+            "unitId": "K6QloJnuIeRa3we9aKNp",
+            "unitName": "Appointments Unit"
+          },
+          {
+            "unitId": "jAOZBGK72LeTMxOeGRZs",
+            "unitName": "Leaves & Passages Unit"
+          },
+          {
+            "unitId": "pGIFsFmVGsbQVzGBzmNl",
+            "unitName": "Discipline & Ethics Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "Vb2mY2ZtVT9Y8zT8QWGg",
+        "directorateName": "Council Matters Division",
+        "units": [
+          {
+            "unitId": "33o3EEV6kJK1NMVP0qZ4",
+            "unitName": "Finance & General Purposes Committee (F&GPC) Unit"
+          },
+          {
+            "unitId": "9W2QvARYEn09T7c20hNF",
+            "unitName": "Appointments & Promotions Committee Unit (Council level)"
+          },
+          {
+            "unitId": "hndLDmZxPGHD8yHvlfDM",
+            "unitName": "Council Secretariat"
+          }
+        ]
+      },
+      {
+        "directorateId": "WrwrB0Rt5iVGVLunk6Zv",
+        "directorateName": "Development",
+        "units": [
+          {
+            "unitId": "3aQmERGWTYscKh7g3m8O",
+            "unitName": "Alumni Relations Unit"
+          },
+          {
+            "unitId": "8VjhiC9XjuWuN6VJZM0G",
+            "unitName": "Graduate Support Unit"
+          },
+          {
+            "unitId": "ScLQuiYZoJV0f4AGP8zX",
+            "unitName": "Endowment & Grants Unit"
+          },
+          {
+            "unitId": "yS725Z9cQLDwH4FGf9ei",
+            "unitName": "Resource Mobilization Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "dl6Hy4kZk8DJv5H7r79b",
+        "directorateName": "Security Unit",
+        "units": [
+          {
+            "unitId": "B5Iv2iaIn8wMSIBgmq77",
+            "unitName": "Traffic & Parking Management"
+          },
+          {
+            "unitId": "BK0pZ9jsMnPJ5JRgzikr",
+            "unitName": "Surveillance & Intelligence"
+          },
+          {
+            "unitId": "PyMaMlrS04QfpYjL2zyL",
+            "unitName": "Main Campus Operations"
+          }
+        ]
+      },
+      {
+        "directorateId": "fxP85DkxopSo4IBqcE7v",
+        "directorateName": "Academic Planning",
+        "units": [
+          {
+            "unitId": "EGxlVY1k1PEba9NpkMO5",
+            "unitName": "Academic Statistics & Records"
+          },
+          {
+            "unitId": "WobOAf53XSFskjvw9nFW",
+            "unitName": "Curriculum Development Unit"
+          },
+          {
+            "unitId": "oNTbxyucK9bIp0bCIQAE",
+            "unitName": "Quality Assurance Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "qy39Vi35NSiBvlvG8OSH",
+        "directorateName": "Staff Welfare, Training & Passages",
+        "units": [
+          {
+            "unitId": "QJvM8ZTpelvi0E19U4Uq",
+            "unitName": "Training & Development Unit"
+          },
+          {
+            "unitId": "QV0SUgoovYlfVElWZCGn",
+            "unitName": "Passages Unit"
+          },
+          {
+            "unitId": "WOigA3PTYPQ1NinFs9VX",
+            "unitName": "Welfare Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "rkybGDNtpECf32gNFs4Z",
+        "directorateName": "Registrar's Office",
+        "units": [
+          {
+            "unitId": "pQW0ciwzIYmV65ojkh4e",
+            "unitName": "Legal Unit"
+          },
+          {
+            "unitId": "vqFa11p5HdSfBjWUxejf",
+            "unitName": "Centre for Information and Public Relations (CIPPR)"
+          }
+        ]
+      },
+      {
+        "directorateId": "tIGaqZGSb3g9kEc2WY0b",
+        "directorateName": "University Multimedia Centre",
+        "units": [
+          {
+            "unitId": "DPX9pgtmZOyTtmbQSaig",
+            "unitName": "Audio-Visual Production"
+          },
+          {
+            "unitId": "PVxXWLclYNYo7bUr1Uyi",
+            "unitName": "Photography & Digital Media"
+          },
+          {
+            "unitId": "imlOgnonNWDY2MoPLZ4w",
+            "unitName": "Graphics & Branding"
+          }
+        ]
+      },
+      {
+        "directorateId": "thH3JYUmkX33JxgEMXwe",
+        "directorateName": "Payroll & Staff Matters",
+        "units": [
+          {
+            "unitId": "AKw0i8gnwincB5zleIqu",
+            "unitName": "Salary & Wages Unit"
+          },
+          {
+            "unitId": "Q0SyUdCRGvnK1EfqXuKs",
+            "unitName": "Loans & Advances Unit"
+          },
+          {
+            "unitId": "d06tbjMqtB4yEibgR7wB",
+            "unitName": "Pension & Gratuity Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "ul9DOYqZeqwpMrxLaG3y",
+        "directorateName": "Vice-Chancellor's Main Office",
+        "units": [
+          {
+            "unitId": "XpEr3OiVbhfe2PzGiXCE",
+            "unitName": "Secretariat"
+          },
+          {
+            "unitId": "hVWdSqNLlXEgAp28Xf4r",
+            "unitName": "Personal Secretary's Office"
+          },
+          {
+            "unitId": "jwbSRrjxOcYzygGRf6TR",
+            "unitName": "Special Duties & Intervention"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "institutionId": "tiOGCLZ3STaPgDmP9X6a",
+    "institutionName": "Lagos State University",
+    "directorates": [
+      {
+        "directorateId": "1NOZa7pqWY26LzwYaVlk",
+        "directorateName": "Pensions",
+        "units": [
+          {
+            "unitId": "kN0NHvBxYCbGXrEUNouw",
+            "unitName": "Pensions Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "20hY9vr4ng2GQhMsJHfR",
+        "directorateName": "Non-Academic Staff Establishments Division",
+        "units": [
+          {
+            "unitId": "VxPUKR9fg4xX7l2D10qy",
+            "unitName": "Records & Statistics Unit"
+          },
+          {
+            "unitId": "qo5o9GozX3kAON48oiXU",
+            "unitName": "Junior Staff Unit"
+          },
+          {
+            "unitId": "tS1EjM2lIlZ3Lbs2OQTY",
+            "unitName": "Senior Non-Teaching Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "3sEvfct5dtmQTdEI2XRw",
+        "directorateName": "Vice-Chancellor's Main Office",
+        "units": [
+          {
+            "unitId": "T8wGkPt5MHmYW10VVB5t",
+            "unitName": "Special Duties & Intervention"
+          },
+          {
+            "unitId": "mvV9RbTcssGR82bIQqKm",
+            "unitName": "Secretariat"
+          },
+          {
+            "unitId": "n9x5vOlHkZOcieM20brt",
+            "unitName": "Personal Secretary's Office"
+          }
+        ]
+      },
+      {
+        "directorateId": "4g5Hg1BtgAWUfE1XzQNe",
+        "directorateName": "Risk, Insurance & Investment",
+        "units": [
+          {
+            "unitId": "dKFFMrtBaizdfsuuJjWv",
+            "unitName": "Insurance Unit"
+          },
+          {
+            "unitId": "eH3lPRRbrbmdDKwy9c6r",
+            "unitName": "Student Accounts (Fees & Records)"
+          },
+          {
+            "unitId": "yPKl5tr16i5gd1gmhNsW",
+            "unitName": "Investment Management Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "73vu5iBBZr2pJ4SJBtmL",
+        "directorateName": "Exams & Records Division",
+        "units": [
+          {
+            "unitId": "gtZI1xLSIbEsOr0v3P6y",
+            "unitName": "Certificate Unit"
+          },
+          {
+            "unitId": "mNczi99UBr3Iin7Dszhp",
+            "unitName": "Examinations Unit"
+          },
+          {
+            "unitId": "uKiqSMEtKDy6EwE87c7o",
+            "unitName": "Transcript & Records Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "AbD9oy6XT2JdeIdkyOYh",
+        "directorateName": "Senate Matters Division",
+        "units": [
+          {
+            "unitId": "L6AaMhtK5KyKSw2tP0Jd",
+            "unitName": "Senate Secretariat"
+          },
+          {
+            "unitId": "elWSDjlDu0xE28sqODmb",
+            "unitName": "Business Committee of Senate (BCOS)"
+          },
+          {
+            "unitId": "mmk8I2jWtIQ8gmHCWNPN",
+            "unitName": "Ceremonials Committee Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "GvUi0MS3X0TnwL98TRsf",
+        "directorateName": "University Multimedia Centre",
+        "units": [
+          {
+            "unitId": "LLgLhZ7fpbeEwHPu1CDD",
+            "unitName": "Photography & Digital Media"
+          },
+          {
+            "unitId": "ajjATxt0TVM3AWgUotqb",
+            "unitName": "Graphics & Branding"
+          },
+          {
+            "unitId": "f6iAi1oTKJaBixLU8Ou0",
+            "unitName": "Audio-Visual Production"
+          }
+        ]
+      },
+      {
+        "directorateId": "HgOlAw0eZwyaPOfkAu2C",
+        "directorateName": "Registrar's Office",
+        "units": [
+          {
+            "unitId": "XhEVDEHQgPDxtneyDujJ",
+            "unitName": "Centre for Information and Public Relations (CIPPR)"
+          },
+          {
+            "unitId": "eUPxT2Jj1PDgkcLihXtv",
+            "unitName": "Legal Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "IeD9sFEGY0aRNRaPkRHd",
+        "directorateName": "Development",
+        "units": [
+          {
+            "unitId": "IFjBpBn3b89RXS77cmEb",
+            "unitName": "Graduate Support Unit"
+          },
+          {
+            "unitId": "RDzvOenM6wo67mS1hkWI",
+            "unitName": "Resource Mobilization Unit"
+          },
+          {
+            "unitId": "cZKRp5SpW70oU7vdHa1w",
+            "unitName": "Endowment & Grants Unit"
+          },
+          {
+            "unitId": "t3WCl7l0P3S6dkObQNcX",
+            "unitName": "Alumni Relations Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "Ih5oxN1mIEWRDuZdw4EJ",
+        "directorateName": "Bursar's Office",
+        "units": [
+          {
+            "unitId": "AE3ZcXDZJhI15VqEGX9Y",
+            "unitName": "Secretariat"
+          },
+          {
+            "unitId": "Xmuq5vYTJ3AtOicbZJLW",
+            "unitName": "Chief Personal Secretary's Office"
+          },
+          {
+            "unitId": "mViwCXaKGXxYovBesJzb",
+            "unitName": "General Administration"
+          }
+        ]
+      },
+      {
+        "directorateId": "JPH3Z5l6CNet8r9H1tK5",
+        "directorateName": "Information & Communication Technology (DICT)",
+        "units": [
+          {
+            "unitId": "63VDA8KvxDndD8dFN1nY",
+            "unitName": "Network & Hardware Infrastructure"
+          },
+          {
+            "unitId": "9umTvZYjxwVBWfN84NYc",
+            "unitName": "Training & User Support"
+          },
+          {
+            "unitId": "KRmYDP6J6ZVLmEfPFN7M",
+            "unitName": "ID Card & Data Management"
+          },
+          {
+            "unitId": "iohfiYRGFmvQ5VwkMtMS",
+            "unitName": "Web Services & Application Development"
+          }
+        ]
+      },
+      {
+        "directorateId": "OaIT3qOCR2xttmEMKebd",
+        "directorateName": "Directorate of Special Interventions",
+        "units": [
+          {
+            "unitId": "8EXg92DeBkfha0YxRMA7",
+            "unitName": "Specialized Grant Management"
+          },
+          {
+            "unitId": "jrwMbuZWWDFGKHxZLhyV",
+            "unitName": "TETFund Projects Coordination"
+          }
+        ]
+      },
+      {
+        "directorateId": "TCCHZoBylPUYJUVQuZ8Q",
+        "directorateName": "Security Unit",
+        "units": [
+          {
+            "unitId": "OnKXksvpjyEBNKxBqb5S",
+            "unitName": "Main Campus Operations"
+          },
+          {
+            "unitId": "W6O0WnPeEMmCpDnGOqj6",
+            "unitName": "Surveillance & Intelligence"
+          },
+          {
+            "unitId": "conzy1VjWy1xJs8pW9ir",
+            "unitName": "Traffic & Parking Management"
+          }
+        ]
+      },
+      {
+        "directorateId": "TDor6wI13hLQMbNTDznU",
+        "directorateName": "Final Accounts",
+        "units": [
+          {
+            "unitId": "AMOwzX3yQrRwTQnXjSg9",
+            "unitName": "Financial Reporting Unit"
+          },
+          {
+            "unitId": "SV3A1HWJzVW4u8sEONCe",
+            "unitName": "Fixed Assets & Inventory Unit"
+          },
+          {
+            "unitId": "WxYU2jMTh7Ysi4RhfmkJ",
+            "unitName": "Grants & Research Accounting"
+          }
+        ]
+      },
+      {
+        "directorateId": "Un7pI03l3bPvoM3RjceN",
+        "directorateName": "Research Management & Innovation",
+        "units": [
+          {
+            "unitId": "Eh4jpbkByZE68otXI4fM",
+            "unitName": "Research Ethics & Compliance"
+          },
+          {
+            "unitId": "QdtjaxpD2YUZ4sKVFdJI",
+            "unitName": "Grants & Research Support"
+          },
+          {
+            "unitId": "ia00Jqki4ikLDCj9sJy5",
+            "unitName": "Innovation & Intellectual Property"
+          }
+        ]
+      },
+      {
+        "directorateId": "UoGZLNrHaWsAUwIV4q4K",
+        "directorateName": "Payroll & Staff Matters",
+        "units": [
+          {
+            "unitId": "2YyTMjJydroiqO6pQ7Jr",
+            "unitName": "Salary & Wages Unit"
+          },
+          {
+            "unitId": "55XAjHhIgJtzDCzhDdzB",
+            "unitName": "Pension & Gratuity Unit"
+          },
+          {
+            "unitId": "CUMg55VQG8QUh0SDzlkm",
+            "unitName": "Loans & Advances Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "YxdrBzba0qMUvU6xLzpw",
+        "directorateName": "Academic Planning",
+        "units": [
+          {
+            "unitId": "B6sQRB4lyHru8lTwqfDM",
+            "unitName": "Academic Statistics & Records"
+          },
+          {
+            "unitId": "EoDbumkpEhAVxfD7TFw9",
+            "unitName": "Curriculum Development Unit"
+          },
+          {
+            "unitId": "WtJanZTbWdX0U2bzAJLA",
+            "unitName": "Quality Assurance Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "bmnnRBQJLoeZKf1Ny4xc",
+        "directorateName": "Council Matters Division",
+        "units": [
+          {
+            "unitId": "ZzWi3P8Yar7tLV4Wq7rH",
+            "unitName": "Finance & General Purposes Committee (F&GPC) Unit"
+          },
+          {
+            "unitId": "e4C9LKUsxSq7ztBn2zMs",
+            "unitName": "Appointments & Promotions Committee Unit (Council level)"
+          },
+          {
+            "unitId": "lAJvVWxmFwXuf98m2Joq",
+            "unitName": "Council Secretariat"
+          }
+        ]
+      },
+      {
+        "directorateId": "dsiobh4NuhY04twZKMNy",
+        "directorateName": "Public Relations (CIPPR)",
+        "units": [
+          {
+            "unitId": "AQvUYVew56gfFUawyz5K",
+            "unitName": "Media Relations Unit"
+          },
+          {
+            "unitId": "frvFqmJjlYoTYZiBZtHO",
+            "unitName": "Social Media Management"
+          },
+          {
+            "unitId": "rXvFEIuXwvN7CYKQLnb4",
+            "unitName": "Protocol & Events"
+          }
+        ]
+      },
+      {
+        "directorateId": "ghoV0EgTP8DcvblmfLUI",
+        "directorateName": "Staff Welfare, Training & Passages",
+        "units": [
+          {
+            "unitId": "emNeCGdw2nCCfbRzEs2d",
+            "unitName": "Training & Development Unit"
+          },
+          {
+            "unitId": "iHDrN471n1FPsAiCZCYS",
+            "unitName": "Passages Unit"
+          },
+          {
+            "unitId": "pPsYqO0Tbx7mP7vrSNlo",
+            "unitName": "Welfare Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "tH2BMn824UHrQu5Hry5f",
+        "directorateName": "Academic Staff Establishments Division",
+        "units": [
+          {
+            "unitId": "ComLrbNCvrgZeBgpgOCR",
+            "unitName": "Promotions & Appraisals Unit"
+          },
+          {
+            "unitId": "QKKrytXeNdgKcKBeMOW7",
+            "unitName": "Leaves & Passages Unit"
+          },
+          {
+            "unitId": "klxKRn9ybv5wSLloKDBE",
+            "unitName": "Appointments Unit"
+          },
+          {
+            "unitId": "q7c2CgITUXUSZhOKJsU9",
+            "unitName": "Discipline & Ethics Unit"
+          }
+        ]
+      },
+      {
+        "directorateId": "xDhRZLvdNNJU797BFTzi",
+        "directorateName": "Treasury & Business Accounting",
+        "units": [
+          {
+            "unitId": "JTUyE8COThtd5lyFfgIk",
+            "unitName": "Expenditure & Payment Unit"
+          },
+          {
+            "unitId": "KkWSpW3KYEnLDZ4BNrHH",
+            "unitName": "Bank Reconciliation Unit"
+          },
+          {
+            "unitId": "KygFpVfQHVRYeRUUrePl",
+            "unitName": "Business Ventures Accounting"
+          },
+          {
+            "unitId": "hfRr2NEMzUuqGaohfqYB",
+            "unitName": "Cash Office"
+          }
+        ]
+      },
+      {
+        "directorateId": "yXLEBeiByefMuwWaOyDW",
+        "directorateName": "Budget & Expenditure Control",
+        "units": [
+          {
+            "unitId": "2dVvnWc8viJTzelbqoEV",
+            "unitName": "Commitment & Costing Unit"
+          },
+          {
+            "unitId": "5o5LmupigUnYjcnbw7bf",
+            "unitName": "Budgetary Control Unit"
+          },
+          {
+            "unitId": "C8JD9vTIndCHW38bBt49",
+            "unitName": "LSG (Lagos State Government) Matters Unit"
+          }
+        ]
+      }
+    ]
+  }
+]

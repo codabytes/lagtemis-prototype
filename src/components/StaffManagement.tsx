@@ -11,7 +11,8 @@ import {
   Mail,
   Phone,
   Building2,
-  GraduationCap
+  GraduationCap,
+  Briefcase
 } from 'lucide-react';
 import { where, orderBy } from 'firebase/firestore';
 import { dbService } from '../services/db';
@@ -20,6 +21,7 @@ import { useAuth } from './AuthGuard';
 import { ConfirmDialog } from './ConfirmDialog';
 import { ExportButton } from './ExportButton';
 import { seedStaffData } from '../seedStaff';
+import { SALARY_STRUCTURE } from '../constants/salaryStructure';
 
 const INITIAL_STAFF_STATE: Partial<Staff> = {
   lasrraId: '',
@@ -284,9 +286,9 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ type }) => {
               onChange={(e) => setFilters(prev => ({ ...prev, facultyId: e.target.value, departmentId: 'all' }))}
               className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-sm"
             >
-              <option value="all">ALL FACULTIES</option>
+              <option value="all">ALL {type === 'Academic' ? 'FACULTIES' : 'DIRECTORATES'}</option>
               {faculties
-                .filter(f => filters.institutionId === 'all' || f.institutionId === filters.institutionId)
+                .filter(f => (filters.institutionId === 'all' || f.institutionId === filters.institutionId) && (type === 'Academic' ? f.type !== 'directorate' : f.type === 'directorate'))
                 .map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
             </select>
           </div>
@@ -298,9 +300,9 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ type }) => {
               onChange={(e) => setFilters(prev => ({ ...prev, departmentId: e.target.value }))}
               className="w-full bg-slate-50 border-transparent text-[11px] font-bold text-slate-600 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-sm"
             >
-              <option value="all">ALL DEPARTMENTS</option>
+              <option value="all">ALL {type === 'Academic' ? 'DEPARTMENTS' : 'UNITS'}</option>
               {departments
-                .filter(d => filters.facultyId === 'all' || d.facultyId === filters.facultyId)
+                .filter(d => (filters.facultyId === 'all' || d.facultyId === filters.facultyId) && (type === 'Academic' ? d.type !== 'unit' : d.type === 'unit'))
                 .map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
             </select>
           </div>
@@ -653,14 +655,29 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ type }) => {
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Current Rank (Designation)</label>
                   <div className="relative">
                     <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                    <input
+                    <select
                       required
-                      type="text"
-                      placeholder="e.g. Senior Lecturer"
                       value={newStaff.designation}
-                      onChange={(e) => setNewStaff({ ...newStaff, designation: e.target.value })}
+                      onChange={(e) => {
+                        const designation = e.target.value;
+                        const info = SALARY_STRUCTURE.find(s => s.designation === designation);
+                        setNewStaff({ 
+                          ...newStaff, 
+                          designation, 
+                          gradeLevel: info ? info.gradeLevel : '' 
+                        });
+                      }}
                       className="w-full pl-12 pr-6 py-4 bg-slate-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-2xl outline-none transition-all text-sm font-bold"
-                    />
+                    >
+                      <option value="">Select Designation</option>
+                      {SALARY_STRUCTURE
+                        .filter(s => s.category === type)
+                        .map(s => (
+                          <option key={s.designation} value={s.designation}>
+                            {s.designation}
+                          </option>
+                        ))}
+                    </select>
                   </div>
                 </div>
 
@@ -686,7 +703,7 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ type }) => {
                       className="w-full pl-12 pr-6 py-4 bg-slate-50 border-transparent focus:bg-white rounded-2xl outline-none transition-all text-sm font-bold capitalize"
                     >
                       <option value="">Select Qualification</option>
-                      {['HND', 'B.Sc', 'B.A', 'B.Eng', 'M.Sc', 'M.A', 'M.Phil', 'PhD', 'Professor'].map(q => <option key={q} value={q}>{q}</option>)}
+                      {['HND', 'B.Sc', 'B.A', 'B.Eng', 'M.Sc', 'M.A', 'M.Phil', 'PhD'].map(q => <option key={q} value={q}>{q}</option>)}
                     </select>
                   </div>
                 </div>
@@ -719,9 +736,9 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ type }) => {
                     onChange={(e) => setNewStaff({ ...newStaff, facultyId: e.target.value, departmentId: '' })}
                     className="w-full px-6 py-4 bg-slate-50 border-transparent focus:bg-white rounded-2xl outline-none transition-all text-sm font-bold"
                   >
-                    <option value="">Select Faculty/Directorate</option>
+                    <option value="">Select {type === 'Academic' ? 'Faculty' : 'Directorate'}</option>
                     {faculties
-                      .filter(f => f.institutionId === newStaff.institutionId)
+                      .filter(f => f.institutionId === newStaff.institutionId && (type === 'Academic' ? f.type !== 'directorate' : f.type === 'directorate'))
                       .map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
                   </select>
                 </div>
@@ -735,9 +752,9 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ type }) => {
                     className="w-full px-6 py-4 bg-slate-50 border-transparent focus:bg-white rounded-2xl outline-none transition-all text-sm font-bold"
                     disabled={!newStaff.facultyId}
                   >
-                    <option value="">Select Department/Unit</option>
+                    <option value="">Select {type === 'Academic' ? 'Department' : 'Unit'}</option>
                     {departments
-                      .filter(d => d.facultyId === newStaff.facultyId)
+                      .filter(d => d.facultyId === newStaff.facultyId && (type === 'Academic' ? d.type !== 'unit' : d.type === 'unit'))
                       .map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                   </select>
                 </div>
@@ -760,12 +777,13 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ type }) => {
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Grade Level</label>
                   <input
                     required
+                    readOnly
                     type="text"
-                    placeholder="e.g. CONUASS 7"
+                    placeholder="Auto-populated"
                     value={newStaff.gradeLevel}
-                    onChange={(e) => setNewStaff({ ...newStaff, gradeLevel: e.target.value })}
-                    className="w-full px-6 py-4 bg-slate-100 border-transparent text-slate-500 rounded-2xl outline-none transition-all text-sm font-bold"
+                    className="w-full px-6 py-4 bg-slate-100 border-transparent text-slate-500 rounded-2xl outline-none transition-all text-sm font-bold cursor-not-allowed"
                   />
+                  <p className="text-[9px] text-slate-400 italic ml-1 select-none">Determined by Designation</p>
                 </div>
 
                 <div className="space-y-2">
@@ -811,20 +829,3 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ type }) => {
     </div>
   );
 };
-
-const Briefcase = ({ className, size }: { className?: string; size?: number }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width={size || 24} 
-    height={size || 24} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
-  >
-    <rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-  </svg>
-);

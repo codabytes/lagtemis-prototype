@@ -1,4 +1,4 @@
-const csv = `picture,lasrraId,staffId,title,surname,firstName,email,mobilePhone,gender,designation,dob,highestQualification,institutionId,facultyId,departmentId,employmentStatus,gradeLevel,dateOfFirstAppointment,staffType
+picture,lasrraId,staffId,title,surname,firstName,email,mobilePhone,gender,designation,dob,highestQualification,institutionId,facultyId,departmentId,employmentStatus,gradeLevel,dateOfFirstAppointment,staffType
 ,LA-10000001,LASCOHET/ST/2015/001,Mr.,ADEBAYO,Oluwaseun,o.adebayo@lascohet.edu.ng,08030000001,Male,Lecturer II,4/12/1985,M.Sc,THVMs2YaG7xV3AILO4Pl,dGLfl8x8JB39eyWTtzSD,DWjX6ELYCpUaWHRfhcex,Active,CONUASS 3,8/1/2015,Academic
 ,LA-10000002,LASCOHET/ST/2010/002,Dr.,OKAFOR,Chioma,c.okafor@lascohet.edu.ng,08030000002,Female,Senior Lecturer,11/23/1978,PhD,THVMs2YaG7xV3AILO4Pl,dGLfl8x8JB39eyWTtzSD,QlA5B9wfpxBVox8Y8xte,Active,CONUASS 5,2/15/2010,Academic
 ,LA-10000003,LASCOHET/ST/2018/003,Mrs.,MUSA,Aisha,a.musa@lascohet.edu.ng,08040000003,Female,Assistant Lecturer,1/5/1990,B.Sc,THVMs2YaG7xV3AILO4Pl,dGLfl8x8JB39eyWTtzSD,hiTs05zK1DXJoEwXOEDH,On Study Leave,CONUASS 2,9/10/2018,Academic
@@ -88,7 +88,6 @@ const csv = `picture,lasrraId,staffId,title,surname,firstName,email,mobilePhone,
 ,LA-10000087,LASCON/ST/2021/087,Ms.,IBE,Chioma,c.ibe@lascon.edu.ng,08164000087,Female,Graduate Assistant,2/14/1996,B.Sc,tACt0ODnc5T1edIZt17L,iN0J9OpnKABEflgJ5axS,0cZhz8uCTrEBzaRDcfbB,Active,CONUASS 1,7/7/2021,Academic
 ,LA-10000088,LASCON/ST/2009/088,Dr.,CHUKWU,Ibrahim,i.chukwu@lascon.edu.ng,08174000088,Male,Senior Lecturer,9/9/1978,PhD,tACt0ODnc5T1edIZt17L,iN0J9OpnKABEflgJ5axS,mr4lfeBozpTv9TLByuvN,On Sabbatical,CONUASS 5,4/4/2009,Academic
 ,LA-10000089,LASCON/ST/2017/089,Mrs.,BELLO,Ngozi,n.bello@lascon.edu.ng,08184000089,Female,Lecturer II,6/6/1987,M.Sc,tACt0ODnc5T1edIZt17L,iN0J9OpnKABEflgJ5axS,TinYumBMKgdjdSsGm593,Active,CONUASS 3,12/12/2017,Academic
-,LA-10000100,LASCON/ST/2013/100,Dr.,KOLAWOLE,Amaka,a.kolawole@lascon.edu.ng,08115000100,Female,Lecturer I,8/8/1982,PhD,tACt0ODnc5T1edIZt17L,iN0J9OpnKABEflgJ5axS,mr4lfeBozpTv9TLByuvN,Active,CONUASS 4,1/1/2013,Academic
 ,LA-10000090,LASCON/ST/2013/090,Mr.,DANJUMA,Tunde,t.danjuma@lascon.edu.ng,08194000090,Male,Lecturer I,12/12/1982,M.Sc,tACt0ODnc5T1edIZt17L,iN0J9OpnKABEflgJ5axS,0cZhz8uCTrEBzaRDcfbB,Active,CONUASS 4,5/5/2013,Academic
 ,LA-10000091,LASCON/ST/2020/091,Ms.,OLOWO,Amina,a.olowo@lascon.edu.ng,08024000091,Female,Assistant Lecturer,3/3/1994,B.Sc,tACt0ODnc5T1edIZt17L,iN0J9OpnKABEflgJ5axS,mr4lfeBozpTv9TLByuvN,Active,CONUASS 2,8/8/2020,Academic
 ,LA-10000092,LASCON/ST/2006/092,Prof.,ADEYEMI,Bola,b.adeyemi@lascon.edu.ng,08035000092,Female,Professor,10/10/1965,PhD,tACt0ODnc5T1edIZt17L,iN0J9OpnKABEflgJ5axS,TinYumBMKgdjdSsGm593,Active,CONUASS 7,1/1/2006,Academic
@@ -98,32 +97,5 @@ const csv = `picture,lasrraId,staffId,title,surname,firstName,email,mobilePhone,
 ,LA-10000096,LASCON/ST/2022/096,Ms.,EZE,Funke,f.eze@lascon.edu.ng,08075000096,Female,Graduate Assistant,9/9/1998,B.Sc,tACt0ODnc5T1edIZt17L,iN0J9OpnKABEflgJ5axS,0cZhz8uCTrEBzaRDcfbB,Active,CONUASS 1,3/3/2022,Academic
 ,LA-10000097,LASCON/ST/2015/097,Mrs.,OKORO,Zainab,z.okoro@lascon.edu.ng,08085000097,Female,Lecturer II,5/5/1985,M.Sc,tACt0ODnc5T1edIZt17L,iN0J9OpnKABEflgJ5axS,mr4lfeBozpTv9TLByuvN,On Study Leave,CONUASS 3,11/11/2015,Academic
 ,LA-10000098,LASCON/ST/2010/098,Dr.,AKINWUMI,Nnamdi,n.akinwumi@lascon.edu.ng,08095000098,Male,Senior Lecturer,12/12/1979,PhD,tACt0ODnc5T1edIZt17L,iN0J9OpnKABEflgJ5axS,TinYumBMKgdjdSsGm593,Active,CONUASS 5,6/6/2010,Academic
-,LA-10000099,LASCON/ST/2019/099,Mr.,OLAWALE,Ibrahim,i.olawale@lascon.edu.ng,08105000099,Male,Assistant Lecturer,2/2/1990,M.Sc,tACt0ODnc5T1edIZt17L,iN0J9OpnKABEflgJ5axS,0cZhz8uCTrEBzaRDcfbB,Active,CONUASS 2,9/9/2019,Academic`;
-
-const lines = csv.trim().split('\n');
-const headers = lines[0].split(',');
-const data = lines.slice(1).map(line => {
-  const values = line.split(',');
-  const obj = {};
-  headers.forEach((header, i) => {
-    if (header !== 'picture') {
-      obj[header] = values[i];
-    }
-  });
-  return obj;
-});
-
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const dataDir = path.join(__dirname, 'src', 'data');
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
-}
-
-fs.writeFileSync(path.join(dataDir, 'staff_data.json'), JSON.stringify(data, null, 2));
-console.log('JSON data written to src/data/staff_data.json');
+,LA-10000099,LASCON/ST/2019/099,Mr.,OLAWALE,Ibrahim,i.olawale@lascon.edu.ng,08105000099,Male,Assistant Lecturer,2/2/1990,M.Sc,tACt0ODnc5T1edIZt17L,iN0J9OpnKABEflgJ5axS,0cZhz8uCTrEBzaRDcfbB,Active,CONUASS 2,9/9/2019,Academic
+,LA-10000100,LASCON/ST/2013/100,Dr.,KOLAWOLE,Amaka,a.kolawole@lascon.edu.ng,08115000100,Female,Lecturer I,8/8/1982,PhD,tACt0ODnc5T1edIZt17L,iN0J9OpnKABEflgJ5axS,mr4lfeBozpTv9TLByuvN,Active,CONUASS 4,1/1/2013,Academic
